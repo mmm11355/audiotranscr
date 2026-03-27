@@ -12,528 +12,176 @@
 ══════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg-from: #0f0c29;
-  --bg-mid:  #302b63;
-  --bg-to:   #24243e;
-  --accent:  #a855f7;
-  --accent2: #ec4899;
-  --glass:   rgba(255,255,255,0.05);
-  --glass-hover: rgba(255,255,255,0.09);
-  --border:  rgba(255,255,255,0.10);
-  --border-active: rgba(168,85,247,0.6);
-  --text:    #ffffff;
-  --text-muted: rgba(255,255,255,0.55);
-  --text-dim:   rgba(255,255,255,0.35);
-  --success: #34d399;
-  --danger:  #f87171;
-  --warning: #fbbf24;
-  --radius:  16px;
-  --radius-sm: 10px;
-  --shadow:  0 8px 32px rgba(0,0,0,0.4);
-  --glow:    0 0 20px rgba(168,85,247,0.3);
+  --bg-from: #0f0c29; --bg-mid: #302b63; --bg-to: #24243e;
+  --accent: #a855f7; --accent2: #ec4899;
+  --glass: rgba(255,255,255,0.05); --glass-hover: rgba(255,255,255,0.09);
+  --border: rgba(255,255,255,0.10); --border-active: rgba(168,85,247,0.6);
+  --text: #ffffff; --text-muted: rgba(255,255,255,0.55); --text-dim: rgba(255,255,255,0.35);
+  --success: #34d399; --danger: #f87171; --warning: #fbbf24;
+  --radius: 16px; --radius-sm: 10px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4); --glow: 0 0 20px rgba(168,85,247,0.3);
 }
 html { scroll-behavior: smooth; }
 body {
-  font-family: 'Inter', sans-serif;
-  color: var(--text);
-  min-height: 100vh;
+  font-family: 'Inter', sans-serif; color: var(--text); min-height: 100vh;
   background: linear-gradient(135deg, var(--bg-from) 0%, var(--bg-mid) 50%, var(--bg-to) 100%);
-  background-attachment: fixed;
-  overflow-x: hidden;
+  background-attachment: fixed; overflow-x: hidden;
 }
 body::before {
-  content: '';
-  position: fixed; inset: 0; z-index: 0;
-  background:
-    radial-gradient(ellipse at 20% 20%, rgba(168,85,247,0.15) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 80%, rgba(236,72,153,0.10) 0%, transparent 60%);
+  content: ''; position: fixed; inset: 0; z-index: 0;
+  background: radial-gradient(ellipse at 20% 20%, rgba(168,85,247,0.15) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 80%, rgba(236,72,153,0.10) 0%, transparent 60%);
   pointer-events: none;
 }
-.container {
-  position: relative; z-index: 1;
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 24px 20px 60px;
-}
-
-/* ══════════════════════════════════════════════════════
-   GLASS CARD
-══════════════════════════════════════════════════════ */
+.container { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 24px 20px 60px; }
 .card {
-  background: var(--glass);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 24px;
-  box-shadow: var(--shadow);
-  transition: border-color .2s;
+  background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border); border-radius: var(--radius); padding: 24px;
+  box-shadow: var(--shadow); transition: border-color .2s;
 }
 .card + .card { margin-top: 16px; }
-
-/* ══════════════════════════════════════════════════════
-   HEADER
-══════════════════════════════════════════════════════ */
-.header {
-  text-align: center;
-  padding: 44px 0 32px;
-}
+.header { text-align: center; padding: 44px 0 32px; }
 .header-logo {
-  font-size: 2.8rem;
-  font-weight: 700;
+  font-size: 2.8rem; font-weight: 700;
   background: linear-gradient(135deg, var(--accent), var(--accent2));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -1px;
-  line-height: 1;
-  margin-bottom: 10px;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  letter-spacing: -1px; line-height: 1; margin-bottom: 10px;
 }
-.header-logo span { font-size: 2.4rem; }
-.header-sub {
-  color: var(--text-muted);
-  font-size: .95rem;
-  font-weight: 400;
-}
+.header-sub { color: var(--text-muted); font-size: .95rem; font-weight: 400; }
 .header-free {
-  display: inline-flex; align-items: center; gap: 6px;
-  margin-top: 12px;
-  padding: 5px 14px;
-  border-radius: 20px;
-  background: rgba(168,85,247,0.12);
-  border: 1px solid rgba(168,85,247,0.3);
-  font-size: .8rem;
-  color: #c4b5fd;
-  font-weight: 500;
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 12px;
+  padding: 5px 14px; border-radius: 20px; background: rgba(168,85,247,0.12);
+  border: 1px solid rgba(168,85,247,0.3); font-size: .8rem; color: #c4b5fd; font-weight: 500;
 }
-
-/* ══════════════════════════════════════════════════════
-   PROVIDER CARDS
-══════════════════════════════════════════════════════ */
-.section-title {
-  font-size: .75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  color: var(--text-dim);
-  margin-bottom: 14px;
-}
-.providers {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
+.section-title { font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--text-dim); margin-bottom: 14px; }
+.providers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .provider-card {
-  background: var(--glass);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 18px 14px;
-  cursor: pointer;
-  transition: all .22s ease;
-  text-align: center;
-  user-select: none;
+  background: var(--glass); backdrop-filter: blur(20px); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 18px 14px; cursor: pointer;
+  transition: all .22s ease; text-align: center; user-select: none;
 }
-.provider-card:hover {
-  background: var(--glass-hover);
-  border-color: rgba(255,255,255,0.2);
-  transform: translateY(-2px);
-}
-.provider-card.active {
-  border-color: var(--border-active);
-  background: rgba(168,85,247,0.10);
-  box-shadow: var(--glow), 0 0 0 1px rgba(168,85,247,0.3) inset;
-}
-.provider-icon {
-  width: 44px; height: 44px;
-  border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 10px;
-  font-size: 1.4rem;
-  font-weight: 700;
-}
-.provider-icon.deepgram  { background: rgba(18,184,134,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
-.provider-icon.assemblyai{ background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); }
-.provider-icon.gladia    { background: rgba(236,72,153,0.15); color: #f472b6; border: 1px solid rgba(244,114,182,0.3); }
+.provider-card:hover { background: var(--glass-hover); border-color: rgba(255,255,255,0.2); transform: translateY(-2px); }
+.provider-card.active { border-color: var(--border-active); background: rgba(168,85,247,0.10); box-shadow: var(--glow), 0 0 0 1px rgba(168,85,247,0.3) inset; }
+.provider-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-size: 1.4rem; font-weight: 700; }
+.provider-icon.deepgram { background: rgba(18,184,134,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+.provider-icon.assemblyai { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); }
+.provider-icon.gladia { background: rgba(236,72,153,0.15); color: #f472b6; border: 1px solid rgba(244,114,182,0.3); }
 .provider-name { font-size: .9rem; font-weight: 600; margin-bottom: 4px; }
 .provider-free { font-size: .72rem; color: var(--text-muted); }
 .provider-badge {
-  display: inline-block; margin-top: 6px;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: .65rem;
-  font-weight: 600;
-  background: rgba(168,85,247,0.2);
-  color: #c4b5fd;
-  border: 1px solid rgba(168,85,247,0.3);
+  display: inline-block; margin-top: 6px; padding: 2px 8px; border-radius: 10px;
+  font-size: .65rem; font-weight: 600; background: rgba(168,85,247,0.2); color: #c4b5fd; border: 1px solid rgba(168,85,247,0.3);
 }
-.provider-card.active .provider-badge {
-  background: rgba(168,85,247,0.3);
-}
-
-/* ══════════════════════════════════════════════════════
-   FORM ELEMENTS
-══════════════════════════════════════════════════════ */
+.provider-card.active .provider-badge { background: rgba(168,85,247,0.3); }
 .form-group { margin-bottom: 14px; }
 .form-group:last-child { margin-bottom: 0; }
-label {
-  display: block;
-  font-size: .8rem;
-  font-weight: 500;
-  color: var(--text-muted);
-  margin-bottom: 7px;
-}
+label { display: block; font-size: .8rem; font-weight: 500; color: var(--text-muted); margin-bottom: 7px; }
 input[type="text"], input[type="password"], select, textarea {
-  width: 100%;
-  background: rgba(0,0,0,0.25);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 11px 14px;
-  color: var(--text);
-  font-family: 'Inter', sans-serif;
-  font-size: .9rem;
-  outline: none;
-  transition: border-color .2s, box-shadow .2s;
-  -webkit-appearance: none;
+  width: 100%; background: rgba(0,0,0,0.25); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 11px 14px; color: var(--text);
+  font-family: 'Inter', sans-serif; font-size: .9rem; outline: none; transition: border-color .2s, box-shadow .2s; -webkit-appearance: none;
 }
-input[type="text"]:focus, input[type="password"]:focus, select:focus, textarea:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(168,85,247,0.15);
-}
+input[type="text"]:focus, input[type="password"]:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(168,85,247,0.15); }
 select { cursor: pointer; }
 select option { background: #302b63; color: #fff; }
-.input-row {
-  display: flex; gap: 10px; align-items: flex-end;
-}
+.input-row { display: flex; gap: 10px; align-items: flex-end; }
 .input-row input { flex: 1; }
-.api-link {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: .75rem;
-  color: #a78bfa;
-  text-decoration: none;
-  margin-top: 8px;
-  opacity: .8;
-  transition: opacity .2s;
-}
+.api-link { display: inline-flex; align-items: center; gap: 5px; font-size: .75rem; color: #a78bfa; text-decoration: none; margin-top: 8px; opacity: .8; transition: opacity .2s; }
 .api-link:hover { opacity: 1; text-decoration: underline; }
-.settings-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  align-items: start;
-}
-.checkbox-row {
-  display: flex; align-items: center; gap: 10px;
-  padding-top: 24px;
-}
-.checkbox-row input[type="checkbox"] {
-  width: 18px; height: 18px;
-  accent-color: var(--accent);
-  cursor: pointer;
-}
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+.checkbox-row { display: flex; align-items: center; gap: 10px; padding-top: 24px; }
+.checkbox-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
 .checkbox-row span { font-size: .88rem; color: var(--text-muted); cursor: pointer; user-select: none; }
-
-/* ══════════════════════════════════════════════════════
-   BUTTONS
-══════════════════════════════════════════════════════ */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 10px 18px;
-  border: none; border-radius: var(--radius-sm);
-  font-family: 'Inter', sans-serif;
-  font-size: .87rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all .2s;
-  white-space: nowrap;
-  text-decoration: none;
+  padding: 10px 18px; border: none; border-radius: var(--radius-sm);
+  font-family: 'Inter', sans-serif; font-size: .87rem; font-weight: 500;
+  cursor: pointer; transition: all .2s; white-space: nowrap; text-decoration: none;
 }
 .btn:disabled { opacity: .4; cursor: not-allowed; pointer-events: none; }
-.btn-primary {
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-  color: #fff;
-  box-shadow: 0 4px 15px rgba(168,85,247,0.35);
-}
+.btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; box-shadow: 0 4px 15px rgba(168,85,247,0.35); }
 .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(168,85,247,0.5); }
 .btn-primary:active { transform: translateY(0); }
-.btn-ghost {
-  background: var(--glass);
-  color: var(--text-muted);
-  border: 1px solid var(--border);
-}
+.btn-ghost { background: var(--glass); color: var(--text-muted); border: 1px solid var(--border); }
 .btn-ghost:hover { background: var(--glass-hover); color: var(--text); border-color: rgba(255,255,255,0.2); }
-.btn-danger {
-  background: rgba(248,113,113,0.12);
-  color: var(--danger);
-  border: 1px solid rgba(248,113,113,0.25);
-}
+.btn-danger { background: rgba(248,113,113,0.12); color: var(--danger); border: 1px solid rgba(248,113,113,0.25); }
 .btn-danger:hover { background: rgba(248,113,113,0.2); }
 .btn-sm { padding: 7px 13px; font-size: .8rem; }
 .btn-xs { padding: 5px 10px; font-size: .75rem; }
 .btn-full { width: 100%; padding: 15px; font-size: 1rem; font-weight: 600; border-radius: var(--radius); }
-.btn-save {
-  background: rgba(168,85,247,0.2);
-  color: #c4b5fd;
-  border: 1px solid rgba(168,85,247,0.3);
-  flex-shrink: 0;
-}
+.btn-save { background: rgba(168,85,247,0.2); color: #c4b5fd; border: 1px solid rgba(168,85,247,0.3); flex-shrink: 0; }
 .btn-save:hover { background: rgba(168,85,247,0.3); }
-
-/* ══════════════════════════════════════════════════════
-   FILE MODE TABS
-══════════════════════════════════════════════════════ */
-.file-mode-tabs {
-  display: flex; gap: 6px;
-  margin-bottom: 14px;
-}
+.file-mode-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
 .file-mode-btn {
-  flex: 1;
-  padding: 9px 14px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--text-muted);
-  font-family: 'Inter', sans-serif;
-  font-size: .83rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all .2s;
+  flex: 1; padding: 9px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: transparent; color: var(--text-muted); font-family: 'Inter', sans-serif;
+  font-size: .83rem; font-weight: 500; cursor: pointer; transition: all .2s;
   display: flex; align-items: center; justify-content: center; gap: 6px;
 }
 .file-mode-btn:hover { background: var(--glass-hover); color: var(--text); }
-.file-mode-btn.active {
-  background: rgba(168,85,247,0.15);
-  border-color: rgba(168,85,247,0.4);
-  color: #c4b5fd;
-}
-.mode-badge {
-  font-size: .65rem;
-  padding: 1px 6px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-  color: #fff;
-  font-weight: 600;
-}
-.path-hint {
-  padding: 11px 14px;
-  background: rgba(168,85,247,0.08);
-  border: 1px solid rgba(168,85,247,0.2);
-  border-radius: var(--radius-sm);
-  font-size: .82rem;
-  color: var(--text-muted);
-  line-height: 1.6;
-}
+.file-mode-btn.active { background: rgba(168,85,247,0.15); border-color: rgba(168,85,247,0.4); color: #c4b5fd; }
+.mode-badge { font-size: .65rem; padding: 1px 6px; border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; font-weight: 600; }
+.path-hint { padding: 11px 14px; background: rgba(168,85,247,0.08); border: 1px solid rgba(168,85,247,0.2); border-radius: var(--radius-sm); font-size: .82rem; color: var(--text-muted); line-height: 1.6; }
 .path-hint strong { color: #c4b5fd; }
-.path-warning {
-  margin-top: 10px;
-  padding: 12px 14px;
-  background: rgba(251,191,36,0.08);
-  border: 1px solid rgba(251,191,36,0.35);
-  border-radius: var(--radius-sm);
-  font-size: .82rem;
-  color: #fde68a;
-  line-height: 1.65;
-}
+.path-warning { margin-top: 10px; padding: 12px 14px; background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.35); border-radius: var(--radius-sm); font-size: .82rem; color: #fde68a; line-height: 1.65; }
 .path-warning strong { color: #fbbf24; }
-.path-warning code {
-  display: inline-block;
-  background: rgba(0,0,0,0.3);
-  border-radius: 4px;
-  padding: 1px 6px;
-  font-family: monospace;
-  font-size: .85em;
-  color: #c4b5fd;
-  user-select: all;
-}
-.path-error {
-  margin-top: 8px;
-  padding: 9px 12px;
-  background: rgba(248,113,113,0.1);
-  border: 1px solid rgba(248,113,113,0.3);
-  border-radius: var(--radius-sm);
-  color: #fca5a5;
-  font-size: .82rem;
-}
-
-/* ══════════════════════════════════════════════════════
-   DROPZONE
-══════════════════════════════════════════════════════ */
-.dropzone {
-  border: 2px dashed var(--border);
-  border-radius: var(--radius);
-  padding: 40px 24px;
-  text-align: center;
-  cursor: pointer;
-  transition: all .22s;
-  background: rgba(0,0,0,0.15);
-}
-.dropzone:hover, .dropzone.drag-over {
-  border-color: var(--accent);
-  background: rgba(168,85,247,0.06);
-}
+.path-warning code { display: inline-block; background: rgba(0,0,0,0.3); border-radius: 4px; padding: 1px 6px; font-family: monospace; font-size: .85em; color: #c4b5fd; user-select: all; }
+.path-error { margin-top: 8px; padding: 9px 12px; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); border-radius: var(--radius-sm); color: #fca5a5; font-size: .82rem; }
+.dropzone { border: 2px dashed var(--border); border-radius: var(--radius); padding: 40px 24px; text-align: center; cursor: pointer; transition: all .22s; background: rgba(0,0,0,0.15); }
+.dropzone:hover, .dropzone.drag-over { border-color: var(--accent); background: rgba(168,85,247,0.06); }
 .dropzone-icon { font-size: 2.5rem; margin-bottom: 12px; opacity: .6; }
 .dropzone-text { font-size: .95rem; font-weight: 500; color: var(--text-muted); }
-.dropzone-sub  { font-size: .78rem; color: var(--text-dim); margin-top: 6px; }
-.file-preview {
-  display: none;
-  align-items: center; gap: 14px;
-  padding: 14px 18px;
-  background: rgba(0,0,0,0.2);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-}
+.dropzone-sub { font-size: .78rem; color: var(--text-dim); margin-top: 6px; }
+.file-preview { display: none; align-items: center; gap: 14px; padding: 14px 18px; background: rgba(0,0,0,0.2); border-radius: var(--radius-sm); border: 1px solid var(--border); }
 .file-preview.visible { display: flex; }
-.file-icon {
-  width: 46px; height: 46px;
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.4rem;
-  flex-shrink: 0;
-}
+.file-icon { width: 46px; height: 46px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
 .file-icon.audio { background: rgba(16,185,129,0.15); }
 .file-icon.video { background: rgba(99,102,241,0.15); }
 .file-info { flex: 1; min-width: 0; }
 .file-name { font-weight: 500; font-size: .9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .file-size { font-size: .77rem; color: var(--text-muted); margin-top: 2px; }
 .file-remove { flex-shrink: 0; }
-
-/* ══════════════════════════════════════════════════════
-   PROGRESS
-══════════════════════════════════════════════════════ */
 .progress-section { display: none; }
 .progress-section.visible { display: block; }
-.progress-status {
-  font-size: .88rem;
-  color: var(--text-muted);
-  margin-bottom: 10px;
-  display: flex; align-items: center; gap: 8px;
-}
-.spinner {
-  width: 16px; height: 16px;
-  border: 2px solid rgba(168,85,247,0.25);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin .8s linear infinite;
-  flex-shrink: 0;
-}
+.progress-status { font-size: .88rem; color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.spinner { width: 16px; height: 16px; border: 2px solid rgba(168,85,247,0.25); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; flex-shrink: 0; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.progress-bar-wrap {
-  height: 6px;
-  background: rgba(255,255,255,0.08);
-  border-radius: 3px;
-  overflow: hidden;
-}
-.progress-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
-  border-radius: 3px;
-  transition: width .3s ease;
-  box-shadow: 0 0 10px rgba(168,85,247,0.5);
-}
-.progress-bar-fill.indeterminate {
-  width: 40% !important;
-  animation: indeterminate 1.5s ease-in-out infinite;
-}
-@keyframes indeterminate {
-  0%   { transform: translateX(-150%); }
-  100% { transform: translateX(350%); }
-}
-
-/* ══════════════════════════════════════════════════════
-   RESULT
-══════════════════════════════════════════════════════ */
+.progress-bar-wrap { height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 3px; transition: width .3s ease; box-shadow: 0 0 10px rgba(168,85,247,0.5); }
+.progress-bar-fill.indeterminate { width: 40% !important; animation: indeterminate 1.5s ease-in-out infinite; }
+@keyframes indeterminate { 0% { transform: translateX(-150%); } 100% { transform: translateX(350%); } }
 .result-section { display: none; }
 .result-section.visible { display: block; }
-.result-meta {
-  display: flex; flex-wrap: wrap; gap: 10px;
-  margin-bottom: 18px;
-}
-.meta-badge {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 4px 11px;
-  border-radius: 20px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: .72rem;
-  font-weight: 500;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-}
+.result-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+.meta-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px; border-radius: 20px; font-family: 'JetBrains Mono', monospace; font-size: .72rem; font-weight: 500; background: rgba(255,255,255,0.07); border: 1px solid var(--border); color: var(--text-muted); }
 .meta-badge .dot { width: 6px; height: 6px; border-radius: 50%; }
-.dot-deepgram  { background: #10b981; }
-.dot-assemblyai{ background: #60a5fa; }
-.dot-gladia    { background: #f472b6; }
-.tabs {
-  display: flex; gap: 4px;
-  padding: 4px;
-  background: rgba(0,0,0,0.2);
-  border-radius: var(--radius-sm);
-  margin-bottom: 16px;
-}
+.dot-deepgram { background: #10b981; }
+.dot-assemblyai { background: #60a5fa; }
+.dot-gladia { background: #f472b6; }
+.tabs { display: flex; gap: 4px; padding: 4px; background: rgba(0,0,0,0.2); border-radius: var(--radius-sm); margin-bottom: 16px; }
 .tab-btn {
-  flex: 1;
-  padding: 9px;
-  border: none;
-  border-radius: 7px;
-  font-family: 'Inter', sans-serif;
-  font-size: .83rem;
-  font-weight: 500;
-  color: var(--text-muted);
-  background: transparent;
-  cursor: pointer;
-  transition: all .2s;
+  flex: 1; padding: 9px; border: none; border-radius: 7px; font-family: 'Inter', sans-serif;
+  font-size: .83rem; font-weight: 500; color: var(--text-muted); background: transparent;
+  cursor: pointer; transition: all .2s;
 }
-.tab-btn.active {
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-  color: #fff;
-  box-shadow: 0 2px 10px rgba(168,85,247,0.35);
-}
+.tab-btn.active { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; box-shadow: 0 2px 10px rgba(168,85,247,0.35); }
 .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.06); color: var(--text); }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
-textarea.result-text {
-  width: 100%;
-  min-height: 260px;
-  resize: vertical;
-  font-size: .88rem;
-  line-height: 1.7;
-  padding: 16px;
-  background: rgba(0,0,0,0.25);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text);
-  font-family: 'Inter', sans-serif;
-}
+textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-size: .88rem; line-height: 1.7; padding: 16px; background: rgba(0,0,0,0.25); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-family: 'Inter', sans-serif; }
 .utterances-list { display: flex; flex-direction: column; gap: 10px; }
-.utterance-item {
-  display: flex; gap: 12px;
-  padding: 14px;
-  background: rgba(0,0,0,0.2);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  transition: border-color .2s;
-}
+.utterance-item { display: flex; gap: 12px; padding: 14px; background: rgba(0,0,0,0.2); border-radius: var(--radius-sm); border: 1px solid var(--border); transition: border-color .2s; }
 .utterance-item:hover { border-color: rgba(255,255,255,0.15); }
 .speaker-badge {
-  flex-shrink: 0;
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: .72rem;
-  font-weight: 600;
-  font-family: 'JetBrains Mono', monospace;
-  white-space: nowrap;
-  height: fit-content;
-  margin-top: 2px;
+  flex-shrink: 0; padding: 3px 10px; border-radius: 20px; font-size: .72rem;
+  font-weight: 600; font-family: 'JetBrains Mono', monospace; white-space: nowrap;
+  height: fit-content; margin-top: 2px; cursor: pointer; border: 1px dashed transparent;
 }
+.speaker-badge:hover { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.05); }
+.speaker-badge[contenteditable="true"]:focus { outline: 2px solid var(--accent); background: rgba(0,0,0,0.3); }
 .utterance-body { flex: 1; }
-.utterance-time {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: .72rem;
-  color: var(--text-dim);
-  margin-bottom: 4px;
-}
+.utterance-time { font-family: 'JetBrains Mono', monospace; font-size: .72rem; color: var(--text-dim); margin-bottom: 4px; }
 .utterance-text { font-size: .87rem; line-height: 1.6; }
-/* Speaker colours */
 .spk-0 { background: rgba(168,85,247,0.2); color: #c4b5fd; border: 1px solid rgba(168,85,247,0.3); }
 .spk-1 { background: rgba(236,72,153,0.2); color: #f9a8d4; border: 1px solid rgba(236,72,153,0.3); }
 .spk-2 { background: rgba(16,185,129,0.2); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
@@ -541,127 +189,38 @@ textarea.result-text {
 .spk-4 { background: rgba(59,130,246,0.2); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
 .spk-5 { background: rgba(99,102,241,0.2); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.3); }
 .words-view { font-size: .87rem; line-height: 1.9; }
-.word-ts {
-  display: inline;
-  cursor: pointer;
-  border-radius: 3px;
-  padding: 1px 2px;
-  transition: background .15s;
-}
+.word-ts { display: inline; cursor: pointer; border-radius: 3px; padding: 1px 2px; transition: background .15s; }
 .word-ts:hover { background: rgba(168,85,247,0.2); }
-.ts-marker {
-  display: inline-block;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: .68rem;
-  color: #a78bfa;
-  background: rgba(168,85,247,0.12);
-  border-radius: 4px;
-  padding: 1px 5px;
-  margin-right: 4px;
-  vertical-align: middle;
-  cursor: default;
-}
-.result-actions {
-  display: flex; flex-wrap: wrap; gap: 8px;
-  margin-top: 16px;
-}
-
-/* ══════════════════════════════════════════════════════
-   HISTORY
-══════════════════════════════════════════════════════ */
-.history-header {
-  display: flex; align-items: center; justify-content: space-between;
-  cursor: pointer;
-  user-select: none;
-  padding: 4px 0;
-}
+.ts-marker { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: .68rem; color: #a78bfa; background: rgba(168,85,247,0.12); border-radius: 4px; padding: 1px 5px; margin-right: 4px; vertical-align: middle; cursor: default; }
+.result-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.history-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; padding: 4px 0; }
 .history-header h3 { font-size: .95rem; font-weight: 600; }
-.history-toggle {
-  font-size: .8rem;
-  color: var(--text-dim);
-  transition: transform .2s;
-}
+.history-toggle { font-size: .8rem; color: var(--text-dim); transition: transform .2s; }
 .history-toggle.open { transform: rotate(180deg); }
 .history-body { display: none; margin-top: 14px; }
 .history-body.open { display: block; }
 .history-empty { font-size: .85rem; color: var(--text-dim); text-align: center; padding: 20px 0; }
 .history-list { display: flex; flex-direction: column; gap: 8px; }
-.history-item {
-  padding: 12px 14px;
-  background: rgba(0,0,0,0.18);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  cursor: pointer;
-  transition: all .2s;
-}
+.history-item { padding: 12px 14px; background: rgba(0,0,0,0.18); border-radius: var(--radius-sm); border: 1px solid var(--border); cursor: pointer; transition: all .2s; }
 .history-item:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.15); }
 .history-item-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .history-item-name { font-size: .85rem; font-weight: 500; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .history-item-meta { font-size: .72rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
 .history-item-preview { font-size: .8rem; color: var(--text-muted); margin-top: 6px; line-height: 1.5; display: none; }
 .history-item.expanded .history-item-preview { display: block; }
-
-/* ══════════════════════════════════════════════════════
-   FOOTER
-══════════════════════════════════════════════════════ */
-.footer {
-  text-align: center;
-  padding: 32px 0 16px;
-  color: var(--text-dim);
-  font-size: .8rem;
-}
+.footer { text-align: center; padding: 32px 0 16px; color: var(--text-dim); font-size: .8rem; }
 .footer-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; margin-top: 12px; }
-.footer-link {
-  display: flex; align-items: center; gap: 5px;
-  color: var(--text-muted);
-  text-decoration: none;
-  font-size: .8rem;
-  transition: color .2s;
-}
+.footer-link { display: flex; align-items: center; gap: 5px; color: var(--text-muted); text-decoration: none; font-size: .8rem; transition: color .2s; }
 .footer-link:hover { color: #a78bfa; }
 .footer-dot { width: 6px; height: 6px; border-radius: 50%; }
-
-/* ══════════════════════════════════════════════════════
-   TOAST
-══════════════════════════════════════════════════════ */
-.toast-container {
-  position: fixed; bottom: 24px; right: 24px; z-index: 9999;
-  display: flex; flex-direction: column; gap: 8px;
-  max-width: 340px;
-}
-.toast {
-  padding: 12px 16px;
-  border-radius: var(--radius-sm);
-  backdrop-filter: blur(20px);
-  font-size: .84rem;
-  font-weight: 500;
-  animation: slideIn .3s ease;
-  display: flex; align-items: center; gap: 10px;
-}
+.toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; max-width: 340px; }
+.toast { padding: 12px 16px; border-radius: var(--radius-sm); backdrop-filter: blur(20px); font-size: .84rem; font-weight: 500; animation: slideIn .3s ease; display: flex; align-items: center; gap: 10px; }
 .toast.success { background: rgba(52,211,153,0.2); border: 1px solid rgba(52,211,153,0.4); color: #6ee7b7; }
-.toast.error   { background: rgba(248,113,113,0.2); border: 1px solid rgba(248,113,113,0.4); color: #fca5a5; }
-.toast.info    { background: rgba(168,85,247,0.2);  border: 1px solid rgba(168,85,247,0.4);  color: #c4b5fd; }
+.toast.error { background: rgba(248,113,113,0.2); border: 1px solid rgba(248,113,113,0.4); color: #fca5a5; }
+.toast.info { background: rgba(168,85,247,0.2); border: 1px solid rgba(168,85,247,0.4); color: #c4b5fd; }
 @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
-/* ══════════════════════════════════════════════════════
-   ERROR BLOCK
-══════════════════════════════════════════════════════ */
-.error-block {
-  display: none;
-  padding: 14px 16px;
-  background: rgba(248,113,113,0.1);
-  border: 1px solid rgba(248,113,113,0.3);
-  border-radius: var(--radius-sm);
-  color: #fca5a5;
-  font-size: .87rem;
-  line-height: 1.6;
-  margin-top: 12px;
-}
+.error-block { display: none; padding: 14px 16px; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); border-radius: var(--radius-sm); color: #fca5a5; font-size: .87rem; line-height: 1.6; margin-top: 12px; }
 .error-block.visible { display: block; }
-
-/* ══════════════════════════════════════════════════════
-   RESPONSIVE
-══════════════════════════════════════════════════════ */
 @media (max-width: 640px) {
   .header-logo { font-size: 2rem; }
   .providers { grid-template-columns: 1fr; }
@@ -673,47 +232,18 @@ textarea.result-text {
   .input-row input, .input-row .btn-save { width: 100%; }
 }
 
-/* ── PATH CONFIRM MODAL ───────────────────────────────────────────────────── */
-.modal-overlay {
-  display: none;
-  position: fixed; inset: 0; z-index: 10000;
-  background: rgba(0,0,0,.65);
-  backdrop-filter: blur(6px);
-  align-items: center; justify-content: center;
-}
-.modal-overlay.open { display: flex; }
-.modal-box {
-  background: #1e1b2e;
-  border: 1px solid rgba(168,85,247,.35);
-  border-radius: 14px;
-  padding: 28px 28px 22px;
-  max-width: 520px; width: 92%;
-  box-shadow: 0 24px 60px rgba(0,0,0,.6);
-  animation: fadeUp .25s ease;
-}
-.modal-box h3 { margin: 0 0 6px; font-size: 1.05rem; color: #e2d9f3; }
-.modal-box p  { margin: 0 0 16px; font-size: .83rem; color: #9b8ec4; line-height: 1.6; }
-.modal-path-input {
-  width: 100%; box-sizing: border-box;
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(168,85,247,.4);
-  border-radius: 8px;
-  color: #e2d9f3; font-size: .88rem;
-  padding: 10px 12px;
-  margin-bottom: 14px;
-  outline: none;
-  transition: border-color .2s;
-}
-.modal-path-input:focus { border-color: #a855f7; }
-.modal-note {
-  font-size: .76rem; color: #7c6fa0;
-  margin-bottom: 16px; line-height: 1.55;
-}
-.modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
-@keyframes fadeUp {
-  from { opacity:0; transform: translateY(18px); }
-  to   { opacity:1; transform: translateY(0); }
-}
+/* НОВЫЕ СТИЛИ ДЛЯ САММАРИ И СТАТИСТИКИ */
+.summary-block { padding: 16px; background: rgba(168,85,247,0.05); border: 1px solid rgba(168,85,247,0.2); border-radius: var(--radius-sm); margin-bottom: 16px; }
+.summary-title { font-size: 0.9rem; font-weight: 600; color: #c4b5fd; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.summary-list { list-style: none; padding-left: 0; }
+.summary-list li { position: relative; padding-left: 20px; margin-bottom: 8px; font-size: 0.9rem; line-height: 1.5; color: var(--text-muted); }
+.summary-list li::before { content: '•'; color: var(--accent); position: absolute; left: 0; font-weight: bold; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px; }
+.stat-card { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; border: 1px solid var(--border); text-align: center; }
+.stat-val { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+.stat-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+.keywords-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
+.keyword-tag { background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; color: #d8b4fe; border: 1px solid rgba(168,85,247,0.2); }
 </style>
 </head>
 <body>
@@ -721,7 +251,6 @@ textarea.result-text {
 <div class="toast-container" id="toastContainer"></div>
 
 <div class="container">
-
   <!-- HEADER -->
   <div class="header">
     <div class="header-logo">🎙 VoxCraft</div>
@@ -759,13 +288,10 @@ textarea.result-text {
     <div class="section-title">API ключ</div>
     <div class="form-group">
       <div class="input-row">
-        <input type="password" id="apiKeyInput" placeholder="Введите API ключ..." autocomplete="off"
-               oninput="updateTranscribeBtn()">
+        <input type="password" id="apiKeyInput" placeholder="Введите API ключ..." autocomplete="off" oninput="updateTranscribeBtn()">
         <button class="btn btn-save" onclick="saveApiKey()">Сохранить</button>
       </div>
-      <a href="#" id="apiKeyLink" class="api-link" target="_blank" rel="noopener">
-        🔑 Получить ключ бесплатно →
-      </a>
+      <a href="#" id="apiKeyLink" class="api-link" target="_blank" rel="noopener">🔑 Получить ключ бесплатно →</a>
     </div>
   </div>
 
@@ -791,24 +317,14 @@ textarea.result-text {
   <!-- БЛОК 4: ЗАГРУЗКА ФАЙЛА -->
   <div class="card">
     <div class="section-title">Аудио / Видео файл</div>
-
-    <!-- Переключатель режимов -->
     <div class="file-mode-tabs" id="fileModeTabs">
-      <button class="file-mode-btn active" id="modeUploadBtn" onclick="setFileMode('upload')">
-        📁 Загрузить файл
-      </button>
-      <button class="file-mode-btn" id="modePathBtn" onclick="setFileMode('path')">
-        ⚡ Путь на диске <span class="mode-badge">Быстро</span>
-      </button>
+      <button class="file-mode-btn active" id="modeUploadBtn" onclick="setFileMode('upload')">📁 Загрузить файл</button>
+      <button class="file-mode-btn" id="modePathBtn" onclick="setFileMode('path')">⚡ Путь на диске <span class="mode-badge">Быстро</span></button>
     </div>
 
     <!-- Режим: загрузка -->
     <div id="modeUploadPanel">
-      <div class="dropzone" id="dropzone"
-           onclick="document.getElementById('fileInput').click()"
-           ondrop="handleDrop(event)"
-           ondragover="event.preventDefault(); this.classList.add('drag-over')"
-           ondragleave="this.classList.remove('drag-over')">
+      <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()" ondrop="handleDrop(event)" ondragover="event.preventDefault(); this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')">
         <div class="dropzone-icon">📁</div>
         <div class="dropzone-text">Перетащите файл сюда или нажмите для выбора</div>
         <div class="dropzone-sub">MP3, WAV, OGG, FLAC, AAC, M4A, MP4, WebM, MKV, AVI, MOV · до 2 GB</div>
@@ -820,19 +336,13 @@ textarea.result-text {
           <div class="file-name" id="fileName"></div>
           <div class="file-size" id="fileSize"></div>
         </div>
-        <div class="file-remove">
-          <button class="btn btn-ghost btn-sm" onclick="clearFile()">✕ Убрать</button>
-        </div>
+        <div class="file-remove"><button class="btn btn-ghost btn-sm" onclick="clearFile()">✕ Убрать</button></div>
       </div>
     </div>
 
     <!-- Режим: путь на диске -->
     <div id="modePathPanel" style="display:none">
-      <div class="path-hint">
-        💡 Файл читается <strong>напрямую с вашего диска</strong> — сеть не используется.<br>
-        Идеально для больших файлов (500MB+).
-      </div>
-      <!-- Предупреждение: не localhost -->
+      <div class="path-hint">💡 Файл читается <strong>напрямую с вашего диска</strong> — сеть не используется.<br>Идеально для больших файлов (500MB+).</div>
       <div class="path-warning" id="pathLocalWarning" style="display:none">
         ⚠️ <strong>Режим «Путь на диске» работает только при локальном запуске.</strong><br>
         Сейчас сервер работает удалённо и не имеет доступа к вашим файлам.<br><br>
@@ -846,10 +356,7 @@ textarea.result-text {
       <div class="form-group" style="margin-top:12px">
         <label>Полный путь к файлу</label>
         <div class="input-row">
-          <input type="text" id="filePathInput"
-            placeholder="C:\Videos\recording.mp4  или  /Users/name/video.mp4"
-            oninput="onPathInput()"
-            onkeydown="if(event.key==='Enter') checkFilePath()">
+          <input type="text" id="filePathInput" placeholder="C:\Videos\recording.mp4  или  /Users/name/video.mp4" oninput="onPathInput()" onkeydown="if(event.key==='Enter') checkFilePath()">
           <button class="btn btn-save" onclick="checkFilePath()">Проверить</button>
         </div>
       </div>
@@ -859,51 +366,72 @@ textarea.result-text {
           <div class="file-name" id="fileNamePath"></div>
           <div class="file-size" id="fileSizePath"></div>
         </div>
-        <div class="file-remove">
-          <button class="btn btn-ghost btn-sm" onclick="clearPathFile()">✕ Убрать</button>
-        </div>
+        <div class="file-remove"><button class="btn btn-ghost btn-sm" onclick="clearPathFile()">✕ Убрать</button></div>
       </div>
       <div class="path-error" id="pathError" style="display:none"></div>
     </div>
   </div>
 
   <!-- БЛОК 5: КНОПКА ТРАНСКРИБАЦИИ -->
-  <button class="btn btn-primary btn-full" id="transcribeBtn" onclick="startTranscription()" disabled>
-    🎙 Транскрибировать
-  </button>
-  <div id="transcribeBtnHint" style="display:none; text-align:center; font-size:.8rem; color:#a78bfa; margin-top:6px; opacity:.85;">
-    🔑 Введите API ключ и выберите файл
-  </div>
+  <button class="btn btn-primary btn-full" id="transcribeBtn" onclick="startTranscription()" disabled>🎙 Транскрибировать</button>
+  <div id="transcribeBtnHint" style="display:none; text-align:center; font-size:.8rem; color:#a78bfa; margin-top:6px; opacity:.85;">🔑 Введите API ключ и выберите файл</div>
 
   <!-- БЛОК 6: ПРОГРЕСС -->
   <div class="card progress-section" id="progressSection">
-    <div class="progress-status">
-      <div class="spinner"></div>
-      <span id="progressText">Подготовка...</span>
-    </div>
-    <div class="progress-bar-wrap">
-      <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
-    </div>
+    <div class="progress-status"><div class="spinner"></div><span id="progressText">Подготовка...</span></div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
     <div class="error-block" id="errorBlock"></div>
   </div>
 
   <!-- БЛОК 7: РЕЗУЛЬТАТ -->
   <div class="card result-section" id="resultSection">
     <div class="result-meta" id="resultMeta"></div>
+    
+    <!-- ОБНОВЛЕННЫЕ ВКЛАДКИ -->
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('text')" id="tabText">📄 Текст</button>
+      <button class="tab-btn" onclick="switchTab('summary')" id="tabSummary">📋 Саммари</button>
       <button class="tab-btn" onclick="switchTab('speakers')" id="tabSpeakers">👥 Спикеры</button>
+      <button class="tab-btn" onclick="switchTab('keywords')" id="tabKeywords">🏷 Ключевые слова</button>
       <button class="tab-btn" onclick="switchTab('timestamps')" id="tabTimestamps">⏱ Таймкоды</button>
     </div>
+
+    <!-- Вкладка: Текст -->
     <div class="tab-content active" id="tabContentText">
       <textarea class="result-text" id="resultTextarea" readonly placeholder="Результат транскрибации появится здесь..."></textarea>
     </div>
-    <div class="tab-content" id="tabContentSpeakers">
-      <div class="utterances-list" id="utterancesList"></div>
+
+    <!-- Вкладка: Саммари -->
+    <div class="tab-content" id="tabContentSummary">
+      <div id="summaryContent">
+        <div class="summary-block">
+          <div class="summary-title">✨ Главные моменты</div>
+          <ul class="summary-list" id="summaryList">
+            <li>Загрузите файл и выполните транскрибацию, чтобы увидеть саммари.</li>
+          </ul>
+        </div>
+      </div>
     </div>
+
+    <!-- Вкладка: Спикеры -->
+    <div class="tab-content" id="tabContentSpeakers">
+      <div class="stats-grid" id="speakerStats"></div>
+      <div class="utterances-list" id="utterancesList"></div>
+      <div style="margin-top:10px; font-size:0.75rem; color:var(--text-dim); text-align:center;">
+        💡 Нажмите на имя спикера (например, "Спикер 1"), чтобы переименовать его.
+      </div>
+    </div>
+
+    <!-- Вкладка: Ключевые слова -->
+    <div class="tab-content" id="tabContentKeywords">
+      <div class="keywords-cloud" id="keywordsView"></div>
+    </div>
+
+    <!-- Вкладка: Таймкоды -->
     <div class="tab-content" id="tabContentTimestamps">
       <div class="words-view" id="wordsView"></div>
     </div>
+
     <div class="result-actions">
       <button class="btn btn-ghost btn-sm" onclick="copyResult()">📋 Копировать</button>
       <button class="btn btn-ghost btn-sm" onclick="downloadTxt()">⬇ Скачать .txt</button>
@@ -929,114 +457,50 @@ textarea.result-text {
   <div class="footer">
     <div>Бесплатные API ключи</div>
     <div class="footer-links">
-      <a href="https://console.deepgram.com/" class="footer-link" target="_blank" rel="noopener">
-        <span class="footer-dot" style="background:#10b981"></span>Deepgram Console
-      </a>
-      <a href="https://www.assemblyai.com/app/api-keys" class="footer-link" target="_blank" rel="noopener">
-        <span class="footer-dot" style="background:#60a5fa"></span>AssemblyAI Dashboard
-      </a>
-      <a href="https://app.gladia.io/" class="footer-link" target="_blank" rel="noopener">
-        <span class="footer-dot" style="background:#f472b6"></span>Gladia App
-      </a>
+      <a href="https://console.deepgram.com/" class="footer-link" target="_blank" rel="noopener"><span class="footer-dot" style="background:#10b981"></span>Deepgram Console</a>
+      <a href="https://www.assemblyai.com/app/api-keys" class="footer-link" target="_blank" rel="noopener"><span class="footer-dot" style="background:#60a5fa"></span>AssemblyAI Dashboard</a>
+      <a href="https://app.gladia.io/" class="footer-link" target="_blank" rel="noopener"><span class="footer-dot" style="background:#f472b6"></span>Gladia App</a>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════
-     JAVASCRIPT
-═══════════════════════════════════════════════════════ -->
 <script>
 'use strict';
 
-// ── Конфиг провайдеров ─────────────────────────────────────────────────────
 const PROVIDERS = {
-  deepgram: {
-    name: 'Deepgram',
-    keyLink: 'https://console.deepgram.com/',
-    models: [
-      { value: 'nova-3',  label: 'Nova-3 (рекомендуется)' },
-      { value: 'nova-2',  label: 'Nova-2' },
-      { value: 'whisper', label: 'Whisper' },
-    ],
-    supportedLangs: null, // все
-  },
-  assemblyai: {
-    name: 'AssemblyAI',
-    keyLink: 'https://www.assemblyai.com/app/api-keys',
-    models: [
-      { value: 'universal-2',   label: 'Universal-2 (99 яз.)' },
-      { value: 'best',          label: 'Universal-3 Pro (6 яз.)' },
-    ],
-    supportedLangs: null,
-  },
-  gladia: {
-    name: 'Gladia',
-    keyLink: 'https://app.gladia.io/',
-    models: [
-      { value: 'solaria', label: 'Solaria (100+ яз.)' },
-    ],
-    supportedLangs: null,
-  },
+  deepgram: { name: 'Deepgram', keyLink: 'https://console.deepgram.com/', models: [{ value: 'nova-3', label: 'Nova-3 (рекомендуется)' }, { value: 'nova-2', label: 'Nova-2' }, { value: 'whisper', label: 'Whisper' }], supportedLangs: null },
+  assemblyai: { name: 'AssemblyAI', keyLink: 'https://www.assemblyai.com/app/api-keys', models: [{ value: 'universal-2', label: 'Universal-2 (99 яз.)' }, { value: 'best', label: 'Universal-3 Pro (6 яз.)' }], supportedLangs: null },
+  gladia: { name: 'Gladia', keyLink: 'https://app.gladia.io/', models: [{ value: 'solaria', label: 'Solaria (100+ яз.)' }], supportedLangs: null },
 };
 
 const LANGUAGES = [
-  { value: 'ru',   label: '🇷🇺 Русский' },
-  { value: 'en',   label: '🇬🇧 English' },
-  { value: 'auto', label: '🌐 Авто-определение' },
-  { value: 'de',   label: '🇩🇪 Deutsch' },
-  { value: 'fr',   label: '🇫🇷 Français' },
-  { value: 'es',   label: '🇪🇸 Español' },
-  { value: 'zh',   label: '🇨🇳 中文' },
-  { value: 'ja',   label: '🇯🇵 日本語' },
-  { value: 'ko',   label: '🇰🇷 한국어' },
-  { value: 'hi',   label: '🇮🇳 हिन्दी' },
-  { value: 'pt',   label: '🇧🇷 Português' },
-  { value: 'it',   label: '🇮🇹 Italiano' },
-  { value: 'nl',   label: '🇳🇱 Nederlands' },
-  { value: 'tr',   label: '🇹🇷 Türkçe' },
-  { value: 'pl',   label: '🇵🇱 Polski' },
-  { value: 'uk',   label: '🇺🇦 Українська' },
+  { value: 'ru', label: '🇷🇺 Русский' }, { value: 'en', label: '🇬🇧 English' }, { value: 'auto', label: '🌐 Авто-определение' },
+  { value: 'de', label: '🇩🇪 Deutsch' }, { value: 'fr', label: '🇫🇷 Français' }, { value: 'es', label: '🇪🇸 Español' },
+  { value: 'zh', label: '🇨🇳 中文' }, { value: 'ja', label: '🇯🇵 日本語' }, { value: 'ko', label: '🇰🇷 한국어' },
+  { value: 'hi', label: '🇮🇳 हिन्दी' }, { value: 'pt', label: '🇧🇷 Português' }, { value: 'it', label: '🇮🇹 Italiano' },
+  { value: 'nl', label: '🇳🇱 Nederlands' }, { value: 'tr', label: '🇹🇷 Türkçe' }, { value: 'pl', label: '🇵🇱 Polski' }, { value: 'uk', label: '🇺🇦 Українська' },
 ];
 
-// ── Состояние ──────────────────────────────────────────────────────────────
-let state = {
-  provider: 'deepgram',
-  file: null,
-  result: null,
-  activeTab: 'text',
-};
-
-// ── Режим выбора файла (объявляем здесь, чтобы избежать TDZ) ─────────────
-let fileMode = 'upload';   // 'upload' | 'path'
-let pathFileInfo = null;   // { path, name, size, ext, isVideo }
-
-// Проверяем — локальный ли сервер (path-режим работает только локально)
+let state = { provider: 'deepgram', file: null, result: null, activeTab: 'text', speakerNames: {} };
+let fileMode = 'upload';
+let pathFileInfo = null;
 const IS_LOCAL = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
 
-// ── Инициализация ──────────────────────────────────────────────────────────
 (function init() {
   selectProvider('deepgram', true);
   renderHistory();
 })();
 
-// ── Выбор провайдера ───────────────────────────────────────────────────────
 function selectProvider(name, silent) {
   state.provider = name;
-  document.querySelectorAll('.provider-card').forEach(c => {
-    c.classList.toggle('active', c.dataset.provider === name);
-  });
-  // Ключ
+  document.querySelectorAll('.provider-card').forEach(c => c.classList.toggle('active', c.dataset.provider === name));
   const savedKey = localStorage.getItem(`voxcraft_key_${name}`) || '';
   document.getElementById('apiKeyInput').value = savedKey;
-  // Ссылка на получение ключа
   const link = document.getElementById('apiKeyLink');
   link.href = PROVIDERS[name].keyLink;
   link.textContent = `🔑 Получить ключ ${PROVIDERS[name].name} бесплатно →`;
-  // Модели
   populateModels(name);
-  // Языки
   populateLanguages();
-  // Кнопка
   updateTranscribeBtn();
 }
 
@@ -1059,18 +523,12 @@ function populateLanguages() {
     opt.value = l.value; opt.textContent = l.label;
     sel.appendChild(opt);
   });
-  if (current && [...sel.options].some(o => o.value === current)) {
-    sel.value = current;
-  } else {
-    sel.value = 'ru';
-  }
+  if (current && [...sel.options].some(o => o.value === current)) sel.value = current;
+  else sel.value = 'ru';
 }
 
-function onModelChange() {
-  // В будущем можно фильтровать языки по выбранной модели
-}
+function onModelChange() {}
 
-// ── Сохранение ключа ────────────────────────────────────────────────────────
 function saveApiKey() {
   const key = document.getElementById('apiKeyInput').value.trim();
   if (!key) { showToast('Введите API ключ', 'error'); return; }
@@ -1080,947 +538,500 @@ function saveApiKey() {
 }
 
 function getApiKey() {
-  return (document.getElementById('apiKeyInput').value.trim()) ||
-         (localStorage.getItem(`voxcraft_key_${state.provider}`) || '');
+  return (document.getElementById('apiKeyInput').value.trim()) || (localStorage.getItem(`voxcraft_key_${state.provider}`) || '');
 }
 
-// ── Режим выбора файла ────────────────────────────────────────────────────────
+function updateTranscribeBtn() {
+  const hasKey = getApiKey().length > 5;
+  const hasFile = (fileMode === 'upload' && state.file) || (fileMode === 'path' && pathFileInfo);
+  const btn = document.getElementById('transcribeBtn');
+  const hint = document.getElementById('transcribeBtnHint');
+  btn.disabled = !(hasKey && hasFile);
+  hint.style.display = (hasKey && hasFile) ? 'none' : 'block';
+}
+
 function setFileMode(mode) {
   fileMode = mode;
   document.getElementById('modeUploadBtn').classList.toggle('active', mode === 'upload');
   document.getElementById('modePathBtn').classList.toggle('active', mode === 'path');
-  document.getElementById('modeUploadPanel').style.display = mode === 'upload' ? '' : 'none';
-  document.getElementById('modePathPanel').style.display   = mode === 'path'   ? '' : 'none';
-  // Показываем предупреждение если не localhost
-  if (mode === 'path') {
-    const warn = document.getElementById('pathLocalWarning');
-    if (warn) warn.style.display = IS_LOCAL ? 'none' : '';
-  }
+  document.getElementById('modeUploadPanel').style.display = mode === 'upload' ? 'block' : 'none';
+  document.getElementById('modePathPanel').style.display = mode === 'path' ? 'block' : 'none';
+  if (mode === 'path' && !IS_LOCAL) document.getElementById('pathLocalWarning').style.display = 'block';
+  else document.getElementById('pathLocalWarning').style.display = 'none';
   updateTranscribeBtn();
 }
 
-function onPathInput() {
-  // Сбрасываем подтверждённый файл при редактировании
-  pathFileInfo = null;
-  document.getElementById('filePreviewPath').style.display = 'none';
-  document.getElementById('pathError').style.display = 'none';
-  updateTranscribeBtn();
-}
-
-async function checkFilePath() {
-  const rawPath = document.getElementById('filePathInput').value.trim();
-  if (!rawPath) return;
-
-  const errEl  = document.getElementById('pathError');
-  const prevEl = document.getElementById('filePreviewPath');
-  errEl.style.display  = 'none';
-  prevEl.style.display = 'none';
-  pathFileInfo = null;
-  updateTranscribeBtn();
-
-  try {
-    const resp = await fetch('/api/check-file', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ path: rawPath }),
-    });
-    const data = await resp.json();
-    if (!data.ok) {
-      errEl.textContent = '⚠ ' + data.error;
-      errEl.style.display = 'block';
-      return;
-    }
-    // Файл найден
-    pathFileInfo = data;
-    const ext     = data.name.split('.').pop().toLowerCase();
-    const isVideo = VIDEO_EXTS.includes(ext);
-    document.getElementById('fileIconPath').className = `file-icon ${isVideo ? 'video' : 'audio'}`;
-    document.getElementById('fileIconPath').textContent = isVideo ? '🎬' : '🎵';
-    document.getElementById('fileNamePath').textContent = data.name;
-    document.getElementById('fileSizePath').textContent = formatBytes(data.size);
-    prevEl.style.display = 'flex';
-    updateTranscribeBtn();
-    showToast('Файл найден: ' + data.name, 'success');
-  } catch(e) {
-    errEl.textContent = '⚠ Ошибка соединения с сервером';
-    errEl.style.display = 'block';
-  }
-}
-
-function clearPathFile() {
-  pathFileInfo = null;
-  document.getElementById('filePathInput').value = '';
-  document.getElementById('filePreviewPath').style.display = 'none';
-  document.getElementById('pathError').style.display = 'none';
-  updateTranscribeBtn();
-}
-
-// ── Файл ────────────────────────────────────────────────────────────────────
-const VIDEO_EXTS = ['mp4','webm','mkv','avi','mov','m4v','3gp','flv','wmv'];
-const AUDIO_EXTS = ['mp3','wav','ogg','flac','aac','m4a','opus','weba'];
-
-function handleFileSelect(event) {
-  const file = event.target.files[0];
-  if (file) setFile(file);
-}
-
-function handleDrop(event) {
-  event.preventDefault();
+function handleDrop(e) {
+  e.preventDefault();
   document.getElementById('dropzone').classList.remove('drag-over');
-  const file = event.dataTransfer.files[0];
-  if (file) setFile(file);
+  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
 }
 
-function setFile(file) {
-  // На localhost и файл > 1MB — предлагаем использовать путь на диске
-  const sizeMB = file.size / 1048576;
-  if (IS_LOCAL && sizeMB > 1) {
-    openPathModal(file);
-    return;
-  }
-  setFileUpload(file);
+function handleFileSelect(e) {
+  if (e.target.files.length) handleFile(e.target.files[0]);
 }
 
-function setFileUpload(file) {
+function handleFile(file) {
   state.file = file;
-  const ext = file.name.split('.').pop().toLowerCase();
-  const isVideo = VIDEO_EXTS.includes(ext);
-  document.getElementById('dropzone').style.display = 'none';
-  const preview = document.getElementById('filePreview');
-  preview.classList.add('visible');
   document.getElementById('fileName').textContent = file.name;
-  document.getElementById('fileSize').textContent = formatBytes(file.size);
-  const iconEl = document.getElementById('fileIcon');
-  iconEl.className = `file-icon ${isVideo ? 'video' : 'audio'}`;
-  iconEl.textContent = isVideo ? '🎬' : '🎵';
+  document.getElementById('fileSize').textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+  document.getElementById('fileIcon').textContent = file.type.startsWith('video') ? '🎬' : '🎵';
+  document.getElementById('filePreview').classList.add('visible');
+  document.getElementById('dropzone').style.display = 'none';
   updateTranscribeBtn();
 }
 
 function clearFile() {
   state.file = null;
   document.getElementById('fileInput').value = '';
-  document.getElementById('dropzone').style.display = '';
   document.getElementById('filePreview').classList.remove('visible');
+  document.getElementById('dropzone').style.display = 'block';
   updateTranscribeBtn();
 }
 
-function updateTranscribeBtn() {
-  const hasKey  = getApiKey().length > 0;
-  const hasFile = fileMode === 'upload' ? !!state.file : !!pathFileInfo;
-  const btn     = document.getElementById('transcribeBtn');
-  btn.disabled  = !(hasKey && hasFile);
+function onPathInput() { document.getElementById('pathError').style.display = 'none'; }
 
-  // Подсказка почему кнопка неактивна
-  let hint = '';
-  if (!hasKey && !hasFile)  hint = '🔑 Введите API ключ и выберите файл';
-  else if (!hasKey)         hint = '🔑 Введите API ключ выше';
-  else if (!hasFile)        hint = '📁 Выберите файл или укажите путь';
-  const hintEl = document.getElementById('transcribeBtnHint');
-  if (hintEl) { hintEl.textContent = hint; hintEl.style.display = hint ? 'block' : 'none'; }
+function checkFilePath() {
+  const path = document.getElementById('filePathInput').value.trim();
+  if (!path) return;
+  fetch('/api/check-file', { method: 'POST', body: JSON.stringify({ path }) })
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        pathFileInfo = { path: data.path, name: data.name, size: data.size, isVideo: /\.(mp4|webm|mkv|avi|mov)$/i.test(data.name) };
+        document.getElementById('fileNamePath').textContent = data.name;
+        document.getElementById('fileSizePath').textContent = (data.size / (1024 * 1024)).toFixed(2) + ' MB';
+        document.getElementById('fileIconPath').textContent = pathFileInfo.isVideo ? '🎬' : '🎵';
+        document.getElementById('filePreviewPath').classList.add('visible');
+        document.getElementById('pathError').style.display = 'none';
+        updateTranscribeBtn();
+      } else {
+        pathFileInfo = null;
+        document.getElementById('pathError').textContent = data.error || 'Файл не найден';
+        document.getElementById('pathError').style.display = 'block';
+        document.getElementById('filePreviewPath').classList.remove('visible');
+        updateTranscribeBtn();
+      }
+    })
+    .catch(err => {
+      pathFileInfo = null;
+      document.getElementById('pathError').textContent = 'Ошибка соединения с сервером';
+      document.getElementById('pathError').style.display = 'block';
+      updateTranscribeBtn();
+    });
 }
 
-// ── Транскрибация ────────────────────────────────────────────────────────────
-async function startTranscription() {
-  const apiKey   = getApiKey();
-  const provider = state.provider;
-  const model    = document.getElementById('modelSelect').value;
+function clearPathFile() {
+  pathFileInfo = null;
+  document.getElementById('filePathInput').value = '';
+  document.getElementById('filePreviewPath').classList.remove('visible');
+  updateTranscribeBtn();
+}
+
+function startTranscription() {
+  const apiKey = getApiKey();
   const language = document.getElementById('languageSelect').value;
-  const diarize  = document.getElementById('diarizeCheck').checked;
+  const model = document.getElementById('modelSelect').value;
+  const diarize = document.getElementById('diarizeCheck').checked;
+  const provider = state.provider;
 
-  // Определяем источник файла
-  const isPathMode = (fileMode === 'path');
-  const file = state.file;
+  document.getElementById('progressSection').classList.add('visible');
+  document.getElementById('resultSection').classList.remove('visible');
+  document.getElementById('errorBlock').classList.remove('visible');
+  document.getElementById('progressBar').style.width = '0%';
+  document.getElementById('progressBar').classList.remove('indeterminate');
+  document.getElementById('progressText').textContent = 'Инициализация...';
 
-  if (!apiKey) return;
-  if (!isPathMode && !file) return;
-  if (isPathMode && !pathFileInfo) return;
-
-  // UI: старт
-  document.getElementById('transcribeBtn').disabled = true;
-  showProgress(true);
-  hideResult();
-  hideError();
-
-  // Мета-инфо о файле для истории/результата
-  const displayFile = isPathMode
-    ? { name: pathFileInfo.name, size: pathFileInfo.size }
-    : { name: file.name,        size: file.size };
-
-  try {
-    // ════════════════════════════════════════════════════
-    // РЕЖИМ: ПУТЬ НА ДИСКЕ — SSE-прогресс, сервер читает файл сам
-    // Сеть для исходного файла НЕ используется!
-    // ════════════════════════════════════════════════════
-    if (isPathMode) {
-      setProgressText('⚡ Отправка пути на сервер...');
-      setProgress(5);
-
-      await new Promise((resolve, reject) => {
-        const es = new EventSource('/api/transcribe-by-path-sse?' + new URLSearchParams({
-          path:     pathFileInfo.path,
-          provider, language, model,
-          diarize:  diarize ? 'true' : 'false',
-          api_key:  apiKey,
-        }));
-        // EventSource — GET только, поэтому параметры в query
-        es.close(); // закроем, используем fetch+ReadableStream
-
-        // Используем fetch с ReadableStream для POST+SSE
-        fetch('/api/transcribe-by-path-sse', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            path: pathFileInfo.path,
-            provider, language, model,
-            diarize, api_key: apiKey,
-          }),
-        }).then(async resp => {
-          if (!resp.ok) {
-            const j = await resp.json().catch(() => ({}));
-            reject(new Error(j.error || `HTTP ${resp.status}`));
-            return;
-          }
-          const reader = resp.body.getReader();
-          const dec    = new TextDecoder();
-          let buf = '';
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            buf += dec.decode(value, { stream: true });
-            // Разбираем SSE-события из буфера
-            const parts = buf.split('\n\n');
-            buf = parts.pop(); // неполное событие оставляем
-            for (const part of parts) {
-              const lines = part.trim().split('\n');
-              let evtName = 'message', evtData = '';
-              for (const line of lines) {
-                if (line.startsWith('event: ')) evtName = line.slice(7).trim();
-                if (line.startsWith('data: '))  evtData = line.slice(6);
-              }
-              if (!evtData) continue;
-              try {
-                const d = JSON.parse(evtData);
-                if (evtName === 'progress') {
-                  setProgressText(d.text || '...');
-                  setProgress(d.pct || 0, d.step === 'upload');
-                } else if (evtName === 'result') {
-                  resolve(d);
-                } else if (evtName === 'error') {
-                  reject(new Error(d.error || 'Ошибка сервера'));
-                }
-              } catch(e) { /* ignore parse errors */ }
-            }
-          }
-        }).catch(reject);
-      }).then(result => {
-        if (!result.success) throw new Error(result.error || 'Ошибка');
-        state.result = result;
-        renderResult(result, displayFile);
-        saveToHistory(result, displayFile);
-        showResult();
-        showProgress(false);
-        showToast('Транскрибация завершена!', 'success');
-      });
-      return;
-    }
-
-    // ════════════════════════════════════════════════════
-    // РЕЖИМ: ЗАГРУЗКА ФАЙЛА через браузер
-    // ════════════════════════════════════════════════════
-    const ext       = file.name.split('.').pop().toLowerCase();
-    const isVideo   = VIDEO_EXTS.includes(ext);
-    const isAudio   = AUDIO_EXTS.includes(ext);
-    const fileMB    = file.size / 1048576;
-    const BROWSER_DECODE_LIMIT_MB = 50;
-    const useBrowserDecode = (isVideo || isAudio) && fileMB <= BROWSER_DECODE_LIMIT_MB;
-
-    let uploadFile    = file;
-    let uploadIsVideo = false;
-    let uploadMime    = file.type || 'audio/mpeg';
-
-    if (useBrowserDecode) {
-      try {
-        setProgressText('🔊 Декодирование аудио в браузере...');
-        setProgress(5);
-        const wavBlob = await decodeToWav(file, (pct) => {
-          setProgressText(`🔊 Декодирование... ${Math.round(pct * 100)}%`);
-          setProgress(5 + Math.round(pct * 25));
-        });
-        const origMB = fileMB.toFixed(1);
-        const wavMB  = (wavBlob.size / 1048576).toFixed(1);
-        console.log(`[decode] ${origMB}MB → WAV ${wavMB}MB`);
-        uploadFile    = wavBlob;
-        uploadIsVideo = false;
-        uploadMime    = 'audio/wav';
-        setProgressText(`📤 Загрузка ${wavMB}MB (было ${origMB}MB)...`);
-        setProgress(30);
-      } catch (decodeErr) {
-        console.warn('[decode] fallback to server ffmpeg:', decodeErr.message);
-        uploadFile    = file;
-        uploadIsVideo = isVideo;
-        uploadMime    = isVideo ? 'application/octet-stream' : (file.type || 'audio/mpeg');
-        setProgressText(`📤 Загрузка ${fileMB.toFixed(0)}MB...`);
-        setProgress(10);
-      }
-    } else {
-      uploadFile    = file;
-      uploadIsVideo = isVideo;
-      uploadMime    = isVideo ? 'application/octet-stream' : (file.type || 'audio/mpeg');
-      setProgressText(`📤 Загрузка ${fileMB.toFixed(0)}MB (ffmpeg на сервере)...`);
-      setProgress(5);
-    }
-
-    const result = await transcribeAudio(
-      provider, uploadFile, apiKey, language, model, diarize,
-      uploadIsVideo, ext, uploadMime,
-      (pct) => {
-        if (pct < 1) {
-          const mb = (uploadFile.size / 1048576).toFixed(1);
-          setProgressText(`📤 Загрузка ${Math.round(pct * 100)}% (${mb}MB)...`);
-          setProgress(30 + Math.round(pct * 50));
-        } else {
-          setProgressText(`⏳ Обработка на ${PROVIDERS[provider].name}...`);
-          setProgress(85, true);
-        }
-      }
-    );
-
-    setProgress(100);
-    setProgressText('✅ Готово!');
-    await sleep(400);
-    state.result = result;
-    renderResult(result, displayFile);
-    saveToHistory(result, displayFile);
-    showResult();
-    showProgress(false);
-    showToast('Транскрибация завершена!', 'success');
-
-  } catch(err) {
-    setProgressText('❌ Ошибка');
-    showError(err.message || String(err));
-    showToast(err.message || 'Ошибка транскрибации', 'error');
-  } finally {
-    document.getElementById('transcribeBtn').disabled = false;
-    updateTranscribeBtn();
+  if (fileMode === 'path' && pathFileInfo) {
+    runSSETranscription(pathFileInfo.path, apiKey, provider, language, model, diarize);
+  } else if (fileMode === 'upload' && state.file) {
+    runUploadTranscription(state.file, apiKey, provider, language, model, diarize);
   }
 }
 
-// ── XHR upload с прогрессом ──────────────────────────────────────────────────
-function xhrUpload(url, data, headers) {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', url, true);
-    for (const [k, v] of Object.entries(headers)) {
-      xhr.setRequestHeader(k, v);
-    }
-    xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        resolve(xhr.response);
-      } else {
-        try {
-          const err = JSON.parse(xhr.responseText);
-          reject(new Error(err.error || `HTTP ${xhr.status}`));
-        } catch {
-          reject(new Error(`HTTP ${xhr.status}`));
-        }
-      }
-    };
-    xhr.onerror  = () => reject(new Error('Ошибка сети'));
-    xhr.responseType = 'arraybuffer';
-    xhr.send(data);
-  });
-}
-
-function xhrUploadJson(url, data, headers, onProgress) {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', url, true);
-    for (const [k, v] of Object.entries(headers)) {
-      xhr.setRequestHeader(k, v);
-    }
-    if (onProgress && xhr.upload) {
-      xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable) onProgress(e.loaded / e.total);
-      };
-    }
-    xhr.onload = () => {
-      try {
-        const json = JSON.parse(xhr.responseText);
-        if (xhr.status >= 200 && xhr.status < 300) {
-          resolve(json);
-        } else {
-          reject(new Error(json.error || `HTTP ${xhr.status}`));
-        }
-      } catch {
-        reject(new Error(`HTTP ${xhr.status}`));
-      }
-    };
-    xhr.onerror  = () => reject(new Error('Ошибка сети'));
-    xhr.send(data);
-  });
-}
-
-async function transcribeAudio(provider, file, apiKey, language, model, diarize, isVideo, fileExt, mime, onProgress) {
-  const arrayBuf = await file.arrayBuffer();
-
-  const headers = {
-    'Content-Type':     mime || 'audio/wav',
-    'X-Api-Key':        apiKey,
-    'X-Language':       language,
-    'X-Model':          model,
-    'X-Diarize':        diarize ? 'true' : 'false',
-    'X-Is-Video':       isVideo ? 'true' : 'false',
-    'X-File-Extension': fileExt || '',
+function runSSETranscription(filePath, apiKey, provider, language, model, diarize) {
+  // Используем EventSource для SSE, но передаем параметры через URL (для простоты примера)
+  // В продакшене лучше передавать через POST body, но для этого нужен более сложный клиент SSE
+  const url = `/api/transcribe-by-path-sse?path=${encodeURIComponent(filePath)}&provider=${provider}&api_key=${encodeURIComponent(apiKey)}&language=${language}&model=${model}&diarize=${diarize}`;
+  const evtSource = new EventSource(url);
+  
+  evtSource.onmessage = (e) => {
+    try {
+        const data = JSON.parse(e.data);
+        if(data.success) finishTranscription(data);
+    } catch(err) {}
   };
 
-  const result = await xhrUploadJson(
-    `/api/transcribe/${provider}`,
-    arrayBuf,
-    headers,
-    onProgress
-  );
+  evtSource.addEventListener('progress', (e) => {
+    const data = JSON.parse(e.data);
+    document.getElementById('progressBar').style.width = data.pct + '%';
+    document.getElementById('progressText').textContent = data.text;
+    if (data.step === 'upload' || data.step === 'ffmpeg') document.getElementById('progressBar').classList.add('indeterminate');
+    else document.getElementById('progressBar').classList.remove('indeterminate');
+  });
 
-  if (!result.success) {
-    throw new Error(result.error || 'Неизвестная ошибка');
-  }
-  return result;
+  evtSource.addEventListener('result', (e) => {
+    const data = JSON.parse(e.data);
+    finishTranscription(data);
+    evtSource.close();
+  });
+
+  evtSource.addEventListener('error', (e) => {
+    const data = JSON.parse(e.data);
+    showError(data.error || 'Ошибка транскрибации');
+    evtSource.close();
+  });
 }
 
-// ── Отрисовка результата ─────────────────────────────────────────────────────
-function renderResult(result, file) {
-  // Мета-бейджи
-  const meta = result.metadata || {};
-  const providerDot = `dot-${result.provider}`;
-  document.getElementById('resultMeta').innerHTML = `
-    <div class="meta-badge"><span class="dot ${providerDot}"></span>${PROVIDERS[result.provider]?.name || result.provider}</div>
-    <div class="meta-badge">⏱ ${formatDuration(meta.duration)}</div>
-    ${meta.confidence ? `<div class="meta-badge">🎯 ${Math.round(meta.confidence * 100)}%</div>` : ''}
-    <div class="meta-badge">🌐 ${meta.language || '?'}</div>
-    <div class="meta-badge">⚙ ${meta.model || '?'}</div>
-    <div class="meta-badge">📦 ${formatBytes(file.size)}</div>
+function runUploadTranscription(file, apiKey, provider, language, model, diarize) {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  const xhr = new XMLHttpRequest();
+  const url = `/api/transcribe/${provider}?language=${language}&model=${model}&diarize=${diarize}`;
+  
+  xhr.open('POST', url, true);
+  xhr.setRequestHeader('X-Api-Key', apiKey);
+  if (file.type.startsWith('video')) {
+    xhr.setRequestHeader('X-Is-Video', 'true');
+    xhr.setRequestHeader('X-File-Extension', file.name.split('.').pop());
+  }
+
+  xhr.upload.onprogress = (e) => {
+    if (e.lengthComputable) {
+      const pct = Math.round((e.loaded / e.total) * 40);
+      document.getElementById('progressBar').style.width = pct + '%';
+      document.getElementById('progressText').textContent = `Загрузка файла: ${pct}%`;
+    }
+  };
+
+  xhr.onload = () => {
+    if (xhr.status === 200) {
+      document.getElementById('progressBar').style.width = '100%';
+      document.getElementById('progressText').textContent = 'Обработка...';
+      try {
+        const data = JSON.parse(xhr.responseText);
+        finishTranscription(data);
+      } catch (err) {
+        showError('Ошибка парсинга ответа: ' + err.message);
+      }
+    } else {
+      try {
+        const errData = JSON.parse(xhr.responseText);
+        showError(errData.error || 'Ошибка сервера');
+      } catch {
+        showError(`HTTP Error ${xhr.status}`);
+      }
+    }
+  };
+
+  xhr.onerror = () => showError('Ошибка сети');
+  xhr.send(formData);
+}
+
+function finishTranscription(data) {
+  state.result = data;
+  state.speakerNames = {}; 
+  
+  const metaDiv = document.getElementById('resultMeta');
+  metaDiv.innerHTML = `
+    <div class="meta-badge"><span class="dot dot-${data.provider}"></span>${data.provider.toUpperCase()}</div>
+    <div class="meta-badge">⏱ ${formatDuration(data.metadata.duration)}</div>
+    <div class="meta-badge">🎯 ${(data.metadata.confidence * 100).toFixed(1)}%</div>
+    <div class="meta-badge">🌐 ${data.metadata.language}</div>
   `;
 
-  // Таб «Текст»
-  document.getElementById('resultTextarea').value = result.transcript || '';
+  document.getElementById('resultTextarea').value = data.transcript;
+  renderSummary(data);
+  renderSpeakers(data);
+  renderKeywords(data.transcript);
+  renderTimestamps(data);
 
-  // Таб «Спикеры»
-  renderSpeakers(result.utterances || []);
-
-  // Таб «Таймкоды»
-  renderTimestamps(result.words || [], result.utterances || []);
+  document.getElementById('progressSection').classList.remove('visible');
+  document.getElementById('resultSection').classList.add('visible');
+  switchTab('text');
+  addToHistory(data);
 }
 
-function renderSpeakers(utterances) {
-  const el = document.getElementById('utterancesList');
-  if (!utterances.length) {
-    el.innerHTML = '<div style="color:var(--text-dim);font-size:.85rem;padding:20px 0;text-align:center">Данные о спикерах недоступны.<br>Включите «Определение спикеров» и запустите снова.</div>';
-    return;
-  }
-  el.innerHTML = utterances.map((u, i) => {
-    const cls = `spk-${(u.speaker || 0) % 6}`;
-    const start = formatTimecode(u.start);
-    const end   = formatTimecode(u.end);
-    const conf  = u.confidence ? ` · ${Math.round(u.confidence * 100)}%` : '';
-    return `
-      <div class="utterance-item">
-        <div class="speaker-badge ${cls}">Спикер ${(u.speaker || 0) + 1}</div>
-        <div class="utterance-body">
-          <div class="utterance-time">[${start} — ${end}]${conf}</div>
-          <div class="utterance-text">${escHtml(u.text)}</div>
-        </div>
-      </div>`;
-  }).join('');
-}
+// --- НОВЫЕ ФУНКЦИИ ---
 
-function renderTimestamps(words, utterances) {
-  const el = document.getElementById('wordsView');
-  if (!words.length && !utterances.length) {
-    el.innerHTML = '<div style="color:var(--text-dim);font-size:.85rem;padding:20px 0;text-align:center">Пословные таймкоды недоступны для этого провайдера/модели.</div>';
-    return;
-  }
-
-  // Если есть utterances — показываем их с таймкодами, иначе слова
-  if (utterances.length) {
-    el.innerHTML = utterances.map(u => {
-      const ts = formatTimecode(u.start);
-      return `<span class="ts-marker">${ts}</span><span class="word-ts">${escHtml(u.text)} </span>`;
-    }).join('');
-    return;
-  }
-
-  // Пословный режим
-  let html = '';
-  let prevSentenceEnd = 0;
-  words.forEach((w, i) => {
-    // Ставим маркер каждые ~10 слов или при новом предложении
-    const isNewSentence = i === 0 || (i % 10 === 0);
-    if (isNewSentence) {
-      html += `<span class="ts-marker">${formatTimecode(w.start)}</span>`;
-    }
-    html += `<span class="word-ts" title="${formatTimecode(w.start)} — ${formatTimecode(w.end)}">${escHtml(w.word)} </span>`;
-  });
-  el.innerHTML = html;
-}
-
-// ── Табы ────────────────────────────────────────────────────────────────────
-function switchTab(tab) {
-  state.activeTab = tab;
-  ['text', 'speakers', 'timestamps'].forEach(t => {
-    const capT = t.charAt(0).toUpperCase() + t.slice(1);
-    document.getElementById(`tab${capT}`).classList.toggle('active', t === tab);
-    document.getElementById(`tabContent${capT}`).classList.toggle('active', t === tab);
-  });
-}
-
-// ── Копирование / скачивание ─────────────────────────────────────────────────
-function copyResult() {
-  const tab = state.activeTab;
-  let text = '';
-  if (tab === 'text') {
-    text = document.getElementById('resultTextarea').value;
-  } else if (tab === 'speakers') {
-    const utterances = state.result?.utterances || [];
-    text = utterances.map(u =>
-      `[${formatTimecode(u.start)} — ${formatTimecode(u.end)}] Спикер ${(u.speaker||0)+1}: ${u.text}`
-    ).join('\n\n');
+function renderSummary(data) {
+  const list = document.getElementById('summaryList');
+  list.innerHTML = '';
+  
+  let points = [];
+  if (data.utterances && data.utterances.length > 0) {
+    // Берем топ-5 самых длинных реплик как "главные мысли"
+    const sorted = [...data.utterances].sort((a, b) => b.text.length - a.text.length);
+    points = sorted.slice(0, 5).map(u => u.text);
   } else {
-    const words = state.result?.words || [];
-    text = words.map(w => `[${formatTimecode(w.start)}] ${w.word}`).join('\n');
+    const sentences = data.transcript.match(/[^\.!\?]+[\.!\?]+/g) || [];
+    points = sentences.slice(0, 5);
   }
-  navigator.clipboard.writeText(text).then(
-    () => showToast('Скопировано в буфер обмена', 'success'),
-    () => showToast('Ошибка копирования', 'error')
-  );
+
+  if (points.length === 0) points.push("Не удалось выделить ключевые моменты.");
+
+  points.forEach(text => {
+    const li = document.createElement('li');
+    li.textContent = text.trim();
+    list.appendChild(li);
+  });
+}
+
+function renderSpeakers(data) {
+  const container = document.getElementById('utterancesList');
+  const statsContainer = document.getElementById('speakerStats');
+  container.innerHTML = '';
+  statsContainer.innerHTML = '';
+
+  if (!data.utterances || data.utterances.length === 0) {
+    container.innerHTML = '<div style="text-align:center;color:var(--text-muted)">Нет данных о спикерах</div>';
+    return;
+  }
+
+  // Статистика
+  const speakerStats = {};
+  data.utterances.forEach(u => {
+    const spk = u.speaker;
+    if (!speakerStats[spk]) speakerStats[spk] = { count: 0, duration: 0 };
+    speakerStats[spk].count++;
+    speakerStats[spk].duration += (u.end - u.start);
+  });
+
+  Object.keys(speakerStats).forEach(key => {
+    const s = speakerStats[key];
+    const name = state.speakerNames[key] || `Спикер ${parseInt(key)+1}`;
+    const card = document.createElement('div');
+    card.className = 'stat-card';
+    card.innerHTML = `
+      <div class="stat-val" style="color:var(--accent)">${name}</div>
+      <div class="stat-label">${s.count} реплик</div>
+      <div class="stat-label">${formatDuration(s.duration)}</div>
+    `;
+    statsContainer.appendChild(card);
+  });
+
+  // Список реплик
+  data.utterances.forEach((u, idx) => {
+    const spkId = u.speaker;
+    const defaultName = `Спикер ${spkId+1}`;
+    const displayName = state.speakerNames[spkId] || defaultName;
+    
+    const div = document.createElement('div');
+    div.className = 'utterance-item';
+    div.innerHTML = `
+      <div class="speaker-badge spk-${spkId % 6}" contenteditable="true" 
+           onblur="updateSpeakerName(${spkId}, this.textContent)" 
+           title="Нажмите чтобы переименовать">
+        ${displayName}
+      </div>
+      <div class="utterance-body">
+        <div class="utterance-time">${formatTime(u.start)} - ${formatTime(u.end)}</div>
+        <div class="utterance-text">${escapeHtml(u.text)}</div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function updateSpeakerName(spkId, newName) {
+  state.speakerNames[spkId] = newName.trim();
+  if (state.result) renderSpeakers(state.result);
+}
+
+function renderKeywords(text) {
+  const container = document.getElementById('keywordsView');
+  container.innerHTML = '';
+  
+  const stopWords = new Set(['и', 'в', 'во', 'не', 'что', 'он', 'на', 'я', 'с', 'со', 'как', 'а', 'то', 'все', 'она', 'так', 'его', 'но', 'да', 'ты', 'к', 'у', 'же', 'вы', 'за', 'бы', 'по', 'только', 'ее', 'мне', 'было', 'вот', 'от', 'меня', 'еще', 'нет', 'о', 'из', 'ему', 'теперь', 'когда', 'даже', 'ну', 'вдруг', 'ли', 'если', 'уже', 'или', 'ни', 'быть', 'был', 'него', 'до', 'вас', 'нибудь', 'опять', 'уж', 'вам', 'ведь', 'там', 'потом', 'себя', 'ничего', 'ей', 'может', 'они', 'тут', 'где', 'есть', 'надо', 'ней', 'для', 'мы', 'the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'i', 'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you', 'do', 'at', 'this', 'but', 'his', 'by', 'from', 'is', 'are']);
+  
+  const words = text.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").split(/\s+/);
+  const freq = {};
+  
+  words.forEach(w => {
+    if (w.length > 3 && !stopWords.has(w)) {
+      freq[w] = (freq[w] || 0) + 1;
+    }
+  });
+
+  const sorted = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 20);
+  
+  if (sorted.length === 0) {
+    container.innerHTML = '<span style="color:var(--text-muted)">Ключевые слова не найдены</span>';
+    return;
+  }
+
+  sorted.forEach(([word, count]) => {
+    const tag = document.createElement('span');
+    tag.className = 'keyword-tag';
+    tag.textContent = `${word} (${count})`;
+    container.appendChild(tag);
+  });
+}
+
+// ---------------------
+
+function renderTimestamps(data) {
+  const container = document.getElementById('wordsView');
+  container.innerHTML = '';
+  if (!data.words || data.words.length === 0) {
+    container.innerHTML = '<div style="text-align:center;color:var(--text-muted)">Нет пословных данных</div>';
+    return;
+  }
+  
+  data.words.forEach(w => {
+    const span = document.createElement('span');
+    span.className = 'word-ts';
+    span.textContent = w.word + ' ';
+    span.title = `${formatTime(w.start)} - ${formatTime(w.end)}`;
+    span.onclick = () => showToast(`Время: ${formatTime(w.start)}`, 'info');
+    container.appendChild(span);
+  });
+}
+
+function switchTab(tabName) {
+  state.activeTab = tabName;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  
+  document.getElementById(`tab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`).classList.add('active');
+  document.getElementById(`tabContent${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`).classList.add('active');
+}
+
+function copyResult() {
+  const text = document.getElementById('resultTextarea').value;
+  navigator.clipboard.writeText(text).then(() => showToast('Текст скопирован', 'success'));
 }
 
 function downloadTxt() {
-  if (!state.result) return;
-  const text = state.result.transcript || '';
-  downloadBlob(new Blob([text], { type: 'text/plain;charset=utf-8' }), 'transcription.txt');
-}
-
-function downloadSrt() {
-  if (!state.result) return;
-  const srt = generateSrt(state.result.words || [], state.result.utterances || []);
-  downloadBlob(new Blob([srt], { type: 'text/plain;charset=utf-8' }), 'transcription.srt');
-}
-
-function generateSrt(words, utterances) {
-  // Используем utterances если есть, иначе группируем слова
-  let blocks = [];
-
-  if (utterances.length) {
-    blocks = utterances.map((u, i) => ({
-      start: u.start,
-      end:   u.end,
-      text:  u.text,
-    }));
-  } else if (words.length) {
-    // Группируем по ~10 слов
-    for (let i = 0; i < words.length; i += 10) {
-      const chunk = words.slice(i, i + 10);
-      blocks.push({
-        start: chunk[0].start,
-        end:   chunk[chunk.length - 1].end,
-        text:  chunk.map(w => w.word).join(' '),
-      });
-    }
-  }
-
-  return blocks.map((b, i) => {
-    const start = secondsToSrt(b.start);
-    const end   = secondsToSrt(b.end);
-    return `${i + 1}\n${start} --> ${end}\n${b.text}\n`;
-  }).join('\n');
-}
-
-function secondsToSrt(secs) {
-  const h  = Math.floor(secs / 3600);
-  const m  = Math.floor((secs % 3600) / 60);
-  const s  = Math.floor(secs % 60);
-  const ms = Math.round((secs % 1) * 1000);
-  return `${pad2(h)}:${pad2(m)}:${pad2(s)},${pad3(ms)}`;
-}
-
-function downloadBlob(blob, filename) {
+  const text = document.getElementById('resultTextarea').value;
+  const blob = new Blob([text], { type: 'text/plain' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  a.href = url; a.download = 'transcript.txt'; a.click();
   URL.revokeObjectURL(url);
 }
 
-// ── История ──────────────────────────────────────────────────────────────────
-const HISTORY_KEY = 'voxcraft_history';
-
-function saveToHistory(result, file) {
-  let history = getHistory();
-  const entry = {
-    id:        Date.now(),
-    date:      new Date().toLocaleString('ru-RU'),
-    filename:  file.name,
-    filesize:  file.size,
-    provider:  result.provider,
-    duration:  result.metadata?.duration || 0,
-    language:  result.metadata?.language || '?',
-    model:     result.metadata?.model || '?',
-    preview:   (result.transcript || '').substring(0, 150),
-    transcript: result.transcript || '',
-    utterances: result.utterances || [],
-    words:      result.words || [],
-    metadata:   result.metadata || {},
-  };
-  history.unshift(entry);
-  if (history.length > 20) history = history.slice(0, 20);
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-  renderHistory();
+function downloadSrt() {
+  if (!state.result || !state.result.utterances) { showToast('Нет данных для SRT', 'error'); return; }
+  let srt = '';
+  state.result.utterances.forEach((u, i) => {
+    srt += `${i+1}\n${toSrtTime(u.start)} --> ${toSrtTime(u.end)}\n${u.text}\n\n`;
+  });
+  const blob = new Blob([srt], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'subtitles.srt'; a.click();
+  URL.revokeObjectURL(url);
 }
 
-function getHistory() {
-  try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }
-  catch { return []; }
+function formatDuration(sec) {
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
-function clearHistory() {
-  if (!confirm('Очистить всю историю транскрипций?')) return;
-  localStorage.removeItem(HISTORY_KEY);
-  renderHistory();
-  showToast('История очищена', 'info');
+function formatTime(sec) {
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
-function renderHistory() {
-  const history = getHistory();
-  const el = document.getElementById('historyContent');
-  if (!history.length) {
-    el.innerHTML = '<div class="history-empty">История пуста</div>';
-    return;
-  }
-  el.innerHTML = `<div class="history-list">${history.map(h => {
-    const provDot = `dot-${h.provider}`;
-    return `
-      <div class="history-item" onclick="toggleHistoryItem(this, ${h.id})">
-        <div class="history-item-top">
-          <span class="history-item-name" title="${escHtml(h.filename)}">${escHtml(h.filename)}</span>
-          <span class="history-item-meta">
-            <span class="dot ${provDot}" style="display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:3px;vertical-align:middle"></span>
-            ${PROVIDERS[h.provider]?.name || h.provider} · ${formatDuration(h.duration)} · ${h.date}
-          </span>
-        </div>
-        <div class="history-item-preview">${escHtml(h.preview)}${h.preview.length >= 150 ? '...' : ''}</div>
-      </div>`;
-  }).join('')}</div>`;
+function toSrtTime(sec) {
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = Math.floor(sec % 60);
+  const ms = Math.floor((sec % 1) * 1000);
+  return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')},${ms.toString().padStart(3,'0')}`;
 }
 
-function toggleHistoryItem(el, id) {
-  el.classList.toggle('expanded');
+function escapeHtml(text) {
+  if (!text) return '';
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
-function toggleHistory() {
-  const body   = document.getElementById('historyBody');
-  const toggle = document.getElementById('historyToggle');
-  const open   = body.classList.toggle('open');
-  toggle.classList.toggle('open', open);
-}
-
-// ── Progress UI ──────────────────────────────────────────────────────────────
-function showProgress(visible) {
-  document.getElementById('progressSection').classList.toggle('visible', visible);
-  if (visible) {
-    document.getElementById('progressBar').classList.remove('indeterminate');
-    setProgress(0);
-  }
-}
-
-function setProgressText(text) {
-  document.getElementById('progressText').textContent = text;
-}
-
-function setProgress(pct, indeterminate = false) {
-  const bar = document.getElementById('progressBar');
-  if (indeterminate) {
-    bar.classList.add('indeterminate');
-  } else {
-    bar.classList.remove('indeterminate');
-    bar.style.width = pct + '%';
-  }
-}
-
-function showResult() {
-  document.getElementById('resultSection').classList.add('visible');
-}
-
-function hideResult() {
-  document.getElementById('resultSection').classList.remove('visible');
+function showToast(msg, type='info') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
 }
 
 function showError(msg) {
-  const el = document.getElementById('errorBlock');
-  el.textContent = '⚠ ' + msg;
-  el.classList.add('visible');
+  document.getElementById('progressBar').classList.remove('indeterminate');
+  document.getElementById('progressBar').style.width = '0%';
+  document.getElementById('progressText').textContent = 'Ошибка';
+  const errBlock = document.getElementById('errorBlock');
+  errBlock.textContent = msg;
+  errBlock.classList.add('visible');
 }
 
-function hideError() {
-  document.getElementById('errorBlock').classList.remove('visible');
+function addToHistory(data) {
+  let history = JSON.parse(localStorage.getItem('voxcraft_history') || '[]');
+  const item = {
+    date: new Date().toISOString(),
+    provider: data.provider,
+    duration: data.metadata.duration,
+    preview: data.transcript.substring(0, 100) + '...',
+    full: data
+  };
+  history.unshift(item);
+  if (history.length > 10) history.pop();
+  localStorage.setItem('voxcraft_history', JSON.stringify(history));
+  renderHistory();
 }
 
-// ── Toast ─────────────────────────────────────────────────────────────────────
-function showToast(message, type = 'info') {
-  const icons = { success: '✓', error: '✕', info: 'ℹ' };
-  const el = document.createElement('div');
-  el.className = `toast ${type}`;
-  el.innerHTML = `<span>${icons[type] || 'ℹ'}</span><span>${escHtml(message)}</span>`;
-  document.getElementById('toastContainer').appendChild(el);
-  setTimeout(() => el.remove(), 3500);
-}
-
-// ── Web Audio: декодирование любого формата → WAV 16kHz mono ─────────────────
-// Превращает 25MB MP4 в ~2MB WAV — в 10x меньше трафика на сервер
-async function decodeToWav(file, onProgress) {
-  const TARGET_SR = 16000; // 16 kHz — достаточно для речи, минимум трафика
-
-  onProgress && onProgress(0.05);
-
-  // 1. Читаем файл в ArrayBuffer
-  const arrayBuf = await file.arrayBuffer();
-  onProgress && onProgress(0.15);
-
-  // 2. Декодируем через Web Audio API (браузер сам разберёт mp4/mp3/webm/etc)
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: TARGET_SR });
-  let decoded;
-  try {
-    decoded = await audioCtx.decodeAudioData(arrayBuf);
-  } catch(decErr) {
-    audioCtx.close();
-    throw new Error('Web Audio decode failed: ' + decErr.message);
+function renderHistory() {
+  const history = JSON.parse(localStorage.getItem('voxcraft_history') || '[]');
+  const container = document.getElementById('historyContent');
+  if (history.length === 0) {
+    container.innerHTML = '<div class="history-empty">История пуста</div>';
+    return;
   }
-  audioCtx.close();
-  onProgress && onProgress(0.6);
-
-  // 3. Берём только первый канал (mono) и ресемплируем если нужно
-  const srcSR      = decoded.sampleRate;
-  const srcSamples = decoded.getChannelData(0); // Float32Array, mono
-
-  let samples;
-  if (srcSR !== TARGET_SR) {
-    // Линейная интерполяция ресемплирования
-    const ratio     = srcSR / TARGET_SR;
-    const outLength = Math.floor(srcSamples.length / ratio);
-    samples = new Float32Array(outLength);
-    for (let i = 0; i < outLength; i++) {
-      const pos   = i * ratio;
-      const idx   = Math.floor(pos);
-      const frac  = pos - idx;
-      const a     = srcSamples[idx]     ?? 0;
-      const b     = srcSamples[idx + 1] ?? 0;
-      samples[i]  = a + frac * (b - a);
-    }
-  } else {
-    samples = srcSamples;
-  }
-  onProgress && onProgress(0.85);
-
-  // 4. Кодируем в WAV PCM 16-bit
-  const wavBuf = encodeWav(samples, TARGET_SR);
-  onProgress && onProgress(1.0);
-
-  return new Blob([wavBuf], { type: 'audio/wav' });
-}
-
-function encodeWav(samples, sampleRate) {
-  const numSamples  = samples.length;
-  const bitsPerSamp = 16;
-  const bytesPerSamp = bitsPerSamp / 8;
-  const dataSize    = numSamples * bytesPerSamp;
-  const buffer      = new ArrayBuffer(44 + dataSize);
-  const view        = new DataView(buffer);
-
-  const writeStr = (off, str) => { for (let i = 0; i < str.length; i++) view.setUint8(off + i, str.charCodeAt(i)); };
-
-  writeStr(0, 'RIFF');
-  view.setUint32(4,  36 + dataSize, true);
-  writeStr(8, 'WAVE');
-  writeStr(12, 'fmt ');
-  view.setUint32(16, 16, true);           // chunk size
-  view.setUint16(20, 1, true);            // PCM
-  view.setUint16(22, 1, true);            // mono
-  view.setUint32(24, sampleRate, true);
-  view.setUint32(28, sampleRate * bytesPerSamp, true); // byte rate
-  view.setUint16(32, bytesPerSamp, true); // block align
-  view.setUint16(34, bitsPerSamp, true);
-  writeStr(36, 'data');
-  view.setUint32(40, dataSize, true);
-
-  // Float32 → Int16
-  let off = 44;
-  for (let i = 0; i < numSamples; i++) {
-    const s = Math.max(-1, Math.min(1, samples[i]));
-    view.setInt16(off, s < 0 ? s * 32768 : s * 32767, true);
-    off += 2;
-  }
-  return buffer;
-}
-
-// ── Утилиты ───────────────────────────────────────────────────────────────────
-function formatBytes(bytes) {
-  if (bytes < 1024) return bytes + ' B';
-  if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-  if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB';
-  return (bytes / 1073741824).toFixed(2) + ' GB';
-}
-
-function formatDuration(secs) {
-  if (!secs) return '0:00';
-  const h = Math.floor(secs / 3600);
-  const m = Math.floor((secs % 3600) / 60);
-  const s = Math.floor(secs % 60);
-  if (h > 0) return `${h}:${pad2(m)}:${pad2(s)}`;
-  return `${m}:${pad2(s)}`;
-}
-
-function formatTimecode(secs) {
-  if (!secs && secs !== 0) return '0:00';
-  const h = Math.floor(secs / 3600);
-  const m = Math.floor((secs % 3600) / 60);
-  const s = Math.floor(secs % 60);
-  if (h > 0) return `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
-  return `${pad2(m)}:${pad2(s)}`;
-}
-
-function pad2(n) { return String(n).padStart(2, '0'); }
-function pad3(n) { return String(n).padStart(3, '0'); }
-
-function escHtml(str) {
-  return String(str || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-// ── PATH CONFIRM MODAL ───────────────────────────────────────────────────────
-// Файл выбранный через диалог — пробуем получить путь на диске (только localhost)
-let _modalResolve = null;  // resolve pending promise
-let _modalFile    = null;  // оригинальный File объект
-
-function openPathModal(file) {
-  _modalFile = file;
-  const inp  = document.getElementById('modalPathInput');
-  const note = document.getElementById('modalNote');
-  const btn  = document.getElementById('modalConfirmBtn');
-
-  inp.value    = '';
-  btn.disabled = true;
-  note.textContent = `🔍 Ищем "${file.name}" на диске...`;
-
-  document.getElementById('pathConfirmModal').classList.add('open');
-
-  // Автопоиск файла на сервере
-  fetch('/api/find-file', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ name: file.name }),
-  }).then(r => r.json()).then(data => {
-    if (data.found) {
-      inp.value = data.path;
-      btn.disabled = false;
-      note.textContent = `✅ Найден: ${data.path} (${formatBytes(data.size)})`;
-    } else {
-      // Не нашли — подставляем типичный путь для ручного ввода
-      inp.value = `C:\\Users\\User\\Downloads\\${file.name}`;
-      btn.disabled = false;
-      note.textContent = `Файл не найден автоматически. Укажите путь вручную. Имя файла: ${file.name}`;
-    }
-    setTimeout(() => { inp.focus(); inp.select(); }, 50);
-  }).catch(() => {
-    inp.value = `C:\\Users\\User\\Downloads\\${file.name}`;
-    btn.disabled = false;
-    note.textContent = `Укажите полный путь к файлу: ${file.name}`;
-    setTimeout(() => { inp.focus(); inp.select(); }, 50);
+  const list = document.createElement('div');
+  list.className = 'history-list';
+  history.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    div.innerHTML = `
+      <div class="history-item-top">
+        <span class="history-item-name">${item.provider.toUpperCase()} • ${formatDuration(item.duration)}</span>
+        <span class="history-item-meta">${new Date(item.date).toLocaleDateString()}</span>
+      </div>
+      <div class="history-item-preview">${escapeHtml(item.preview)}</div>
+    `;
+    div.onclick = () => {
+      document.querySelectorAll('.history-item').forEach(i => i.classList.remove('expanded'));
+      div.classList.toggle('expanded');
+      if (div.classList.contains('expanded') && !state.result) {
+         state.result = item.full;
+         finishTranscription(item.full);
+      }
+    };
+    list.appendChild(div);
   });
-
-  return new Promise(resolve => { _modalResolve = resolve; });
+  container.innerHTML = '';
+  container.appendChild(list);
 }
 
-function onModalPathInput() {
-  const val = document.getElementById('modalPathInput').value.trim();
-  document.getElementById('modalConfirmBtn').disabled = val.length < 3;
+function toggleHistory() {
+  const body = document.getElementById('historyBody');
+  const toggle = document.getElementById('historyToggle');
+  body.classList.toggle('open');
+  toggle.classList.toggle('open');
 }
 
-async function confirmModalPath() {
-  const path = document.getElementById('modalPathInput').value.trim();
-  if (!path) return;
-
-  const note = document.getElementById('modalNote');
-  const btn  = document.getElementById('modalConfirmBtn');
-  btn.disabled = true;
-  note.textContent = 'Проверяем путь...';
-
-  try {
-    const resp = await fetch('/api/check-file', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ path }),
-    });
-    const data = await resp.json();
-    if (data.ok) {
-      // Путь найден — закрываем модал, переключаемся в path-режим
-      document.getElementById('pathConfirmModal').classList.remove('open');
-      // Переключаемся в path-режим
-      fileMode    = 'path';
-      pathFileInfo = data;
-      // Обновляем UI path-панели
-      setFileMode('path');
-      document.getElementById('filePathInput').value = path;
-      const ext = data.name.split('.').pop().toLowerCase();
-      const isVideo = VIDEO_EXTS.includes(ext);
-      document.getElementById('fileIconPath').className = `file-icon ${isVideo ? 'video' : 'audio'}`;
-      document.getElementById('fileIconPath').textContent = isVideo ? '\uD83C\uDFAC' : '\uD83C\uDFB5';
-      document.getElementById('fileNamePath').textContent = data.name;
-      document.getElementById('fileSizePath').textContent = formatBytes(data.size);
-      document.getElementById('filePreviewPath').style.display = 'flex';
-      updateTranscribeBtn();
-      showToast('\u26A1 \u0411\u0443\u0434\u0435\u043C \u0447\u0438\u0442\u0430\u0442\u044C \u043D\u0430\u043F\u0440\u044F\u043C\u0443\u044E \u0441 \u0434\u0438\u0441\u043A\u0430', 'success');
-      if (_modalResolve) { _modalResolve('path'); _modalResolve = null; }
-    } else {
-      note.innerHTML = `<span style="color:#fca5a5">\u26A0 ${data.error}</span><br>\u0418\u0441\u043F\u0440\u0430\u0432\u044C\u0442\u0435 \u043F\u0443\u0442\u044C \u0432\u0440\u0443\u0447\u043D\u0443\u044E`;
-      btn.disabled = false;
-    }
-  } catch(e) {
-    note.textContent = '\u041E\u0448\u0438\u0431\u043A\u0430 \u0441\u0432\u044F\u0437\u0438 \u0441 \u0441\u0435\u0440\u0432\u0435\u0440\u043E\u043C';
-    btn.disabled = false;
+function clearHistory() {
+  if(confirm('Очистить всю историю?')) {
+    localStorage.removeItem('voxcraft_history');
+    renderHistory();
   }
-}
-
-function cancelModalPath() {
-  document.getElementById('pathConfirmModal').classList.remove('open');
-  if (_modalFile) {
-    // Загружаем как обычный файл
-    setFileUpload(_modalFile);
-  }
-  if (_modalResolve) { _modalResolve('upload'); _modalResolve = null; }
-  _modalFile = null;
 }
 </script>
-<!-- PATH CONFIRM MODAL -->
-<div class="modal-overlay" id="pathConfirmModal">
-  <div class="modal-box">
-    <h3>⚡ Использовать путь на диске?</h3>
-    <p>Файл большой — сервер может прочитать его напрямую без загрузки через браузер. Подтвердите или исправьте путь:</p>
-    <input class="modal-path-input" id="modalPathInput"
-           placeholder="C:\Videos\file.mp4"
-           oninput="onModalPathInput()"
-           onkeydown="if(event.key==='Enter') confirmModalPath()">
-    <div class="modal-note" id="modalNote">Введите полный путь к файлу на вашем компьютере</div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost btn-sm" onclick="cancelModalPath()">Загрузить через браузер</button>
-      <button class="btn btn-primary btn-sm" id="modalConfirmBtn" onclick="confirmModalPath()" disabled>⚡ Использовать путь</button>
-    </div>
-  </div>
-</div>
-
 </body>
 </html>
