@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VoxCraft — Мульти-провайдерный транскрибер</title>
+<title>VoxCraft — Транскрибер</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -45,7 +45,7 @@ body::before {
   font-size: 2.8rem; font-weight: 700;
   background: linear-gradient(135deg, var(--accent), var(--accent2));
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  letter-spacing: -1px; line-height: 1; margin-bottom: 10px;
+  letter-spacing: -1px; line-height: 1; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 12px;
 }
 .header-sub { color: var(--text-muted); font-size: .95rem; font-weight: 400; }
 .header-free {
@@ -62,7 +62,8 @@ body::before {
 }
 .provider-card:hover { background: var(--glass-hover); border-color: rgba(255,255,255,0.2); transform: translateY(-2px); }
 .provider-card.active { border-color: var(--border-active); background: rgba(168,85,247,0.10); box-shadow: var(--glow), 0 0 0 1px rgba(168,85,247,0.3) inset; }
-.provider-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-size: 1.4rem; font-weight: 700; }
+.provider-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; }
+.provider-icon svg { width: 24px; height: 24px; }
 .provider-icon.deepgram { background: rgba(18,184,134,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
 .provider-icon.assemblyai { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); }
 .provider-icon.gladia { background: rgba(236,72,153,0.15); color: #f472b6; border: 1px solid rgba(244,114,182,0.3); }
@@ -129,14 +130,16 @@ select option { background: #302b63; color: #fff; }
 .path-error { margin-top: 8px; padding: 9px 12px; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); border-radius: var(--radius-sm); color: #fca5a5; font-size: .82rem; }
 .dropzone { border: 2px dashed var(--border); border-radius: var(--radius); padding: 40px 24px; text-align: center; cursor: pointer; transition: all .22s; background: rgba(0,0,0,0.15); }
 .dropzone:hover, .dropzone.drag-over { border-color: var(--accent); background: rgba(168,85,247,0.06); }
-.dropzone-icon { font-size: 2.5rem; margin-bottom: 12px; opacity: .6; }
+.dropzone-icon { margin-bottom: 12px; opacity: .6; }
+.dropzone-icon svg { width: 64px; height: 64px; color: var(--text-muted); }
 .dropzone-text { font-size: .95rem; font-weight: 500; color: var(--text-muted); }
 .dropzone-sub { font-size: .78rem; color: var(--text-dim); margin-top: 6px; }
 .file-preview { display: none; align-items: center; gap: 14px; padding: 14px 18px; background: rgba(0,0,0,0.2); border-radius: var(--radius-sm); border: 1px solid var(--border); }
 .file-preview.visible { display: flex; }
-.file-icon { width: 46px; height: 46px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
-.file-icon.audio { background: rgba(16,185,129,0.15); }
-.file-icon.video { background: rgba(99,102,241,0.15); }
+.file-icon { width: 46px; height: 46px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.file-icon svg { width: 24px; height: 24px; }
+.file-icon.audio { background: rgba(16,185,129,0.15); color: #10b981; }
+.file-icon.video { background: rgba(99,102,241,0.15); color: #6366f1; }
 .file-info { flex: 1; min-width: 0; }
 .file-name { font-weight: 500; font-size: .9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .file-size { font-size: .77rem; color: var(--text-muted); margin-top: 2px; }
@@ -162,7 +165,7 @@ select option { background: #302b63; color: #fff; }
 .tab-btn {
   flex: 1; padding: 9px; border: none; border-radius: 7px; font-family: 'Inter', sans-serif;
   font-size: .83rem; font-weight: 500; color: var(--text-muted); background: transparent;
-  cursor: pointer; transition: all .2s;
+  cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 6px;
 }
 .tab-btn.active { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; box-shadow: 0 2px 10px rgba(168,85,247,0.35); }
 .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.06); color: var(--text); }
@@ -176,9 +179,10 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
   flex-shrink: 0; padding: 3px 10px; border-radius: 20px; font-size: .72rem;
   font-weight: 600; font-family: 'JetBrains Mono', monospace; white-space: nowrap;
   height: fit-content; margin-top: 2px; cursor: pointer; border: 1px dashed transparent;
+  min-width: 80px; text-align: center;
 }
 .speaker-badge:hover { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.05); }
-.speaker-badge[contenteditable="true"]:focus { outline: 2px solid var(--accent); background: rgba(0,0,0,0.3); }
+.speaker-badge[contenteditable="true"]:focus { outline: 2px solid var(--accent); background: rgba(0,0,0,0.3); cursor: text; }
 .utterance-body { flex: 1; }
 .utterance-time { font-family: 'JetBrains Mono', monospace; font-size: .72rem; color: var(--text-dim); margin-bottom: 4px; }
 .utterance-text { font-size: .87rem; line-height: 1.6; }
@@ -191,7 +195,14 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
 .words-view { font-size: .87rem; line-height: 1.9; }
 .word-ts { display: inline; cursor: pointer; border-radius: 3px; padding: 1px 2px; transition: background .15s; }
 .word-ts:hover { background: rgba(168,85,247,0.2); }
-.ts-marker { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: .68rem; color: #a78bfa; background: rgba(168,85,247,0.12); border-radius: 4px; padding: 1px 5px; margin-right: 4px; vertical-align: middle; cursor: default; }
+.ts-marker { 
+  display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: .68rem; 
+  color: #a78bfa; background: rgba(168,85,247,0.12); border-radius: 4px; 
+  padding: 1px 5px; margin-right: 4px; vertical-align: middle; cursor: pointer; 
+  border: 1px solid rgba(168,85,247,0.3);
+}
+.ts-marker:hover { background: rgba(168,85,247,0.3); color: #fff; }
+.highlight-match { background: rgba(251, 191, 36, 0.3); border-bottom: 2px solid #fbbf24; }
 .result-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
 .history-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; padding: 4px 0; }
 .history-header h3 { font-size: .95rem; font-weight: 600; }
@@ -232,7 +243,7 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
   .input-row input, .input-row .btn-save { width: 100%; }
 }
 
-/* НОВЫЕ СТИЛИ ДЛЯ САММАРИ И СТАТИСТИКИ */
+/* НОВЫЕ СТИЛИ */
 .summary-block { padding: 16px; background: rgba(168,85,247,0.05); border: 1px solid rgba(168,85,247,0.2); border-radius: var(--radius-sm); margin-bottom: 16px; }
 .summary-title { font-size: 0.9rem; font-weight: 600; color: #c4b5fd; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
 .summary-list { list-style: none; padding-left: 0; }
@@ -243,7 +254,12 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
 .stat-val { font-size: 1.1rem; font-weight: 700; color: var(--text); }
 .stat-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
 .keywords-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
-.keyword-tag { background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; color: #d8b4fe; border: 1px solid rgba(168,85,247,0.2); }
+.keyword-tag { 
+  background: rgba(255,255,255,0.05); padding: 6px 12px; border-radius: 12px; 
+  font-size: 0.85rem; color: #d8b4fe; border: 1px solid rgba(168,85,247,0.2); 
+  cursor: pointer; transition: all 0.2s;
+}
+.keyword-tag:hover { background: rgba(168,85,247,0.2); border-color: var(--accent); transform: translateY(-2px); }
 </style>
 </head>
 <body>
@@ -253,9 +269,16 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
 <div class="container">
   <!-- HEADER -->
   <div class="header">
-    <div class="header-logo">🎙 VoxCraft</div>
+    <div class="header-logo">
+      <!-- SVG Logo Icon -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+      VoxCraft
+    </div>
     <div class="header-sub">Мульти-провайдерный аудио-транскрибер</div>
-    <div class="header-free">✨ Суммарно ~600+ часов бесплатной транскрибации</div>
+    <div class="header-free">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+      Суммарно ~600+ часов бесплатной транскрибации
+    </div>
   </div>
 
   <!-- БЛОК 1: ВЫБОР ПРОВАЙДЕРА -->
@@ -263,19 +286,25 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
     <div class="section-title">Выберите провайдера</div>
     <div class="providers">
       <div class="provider-card active" data-provider="deepgram" onclick="selectProvider('deepgram')">
-        <div class="provider-icon deepgram">DG</div>
+        <div class="provider-icon deepgram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/><path d="M12 6v6l4 2"/></svg>
+        </div>
         <div class="provider-name">Deepgram</div>
         <div class="provider-free">$200 кредитов бесплатно</div>
         <div class="provider-badge">~430 часов</div>
       </div>
       <div class="provider-card" data-provider="assemblyai" onclick="selectProvider('assemblyai')">
-        <div class="provider-icon assemblyai">AI</div>
+        <div class="provider-icon assemblyai">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        </div>
         <div class="provider-name">AssemblyAI</div>
         <div class="provider-free">$50 кредитов бесплатно</div>
         <div class="provider-badge">~100 часов</div>
       </div>
       <div class="provider-card" data-provider="gladia" onclick="selectProvider('gladia')">
-        <div class="provider-icon gladia">GL</div>
+        <div class="provider-icon gladia">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        </div>
         <div class="provider-name">Gladia</div>
         <div class="provider-free">10 часов/мес бесплатно</div>
         <div class="provider-badge">Solaria 100+ яз.</div>
@@ -289,9 +318,15 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
     <div class="form-group">
       <div class="input-row">
         <input type="password" id="apiKeyInput" placeholder="Введите API ключ..." autocomplete="off" oninput="updateTranscribeBtn()">
-        <button class="btn btn-save" onclick="saveApiKey()">Сохранить</button>
+        <button class="btn btn-save" onclick="saveApiKey()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Сохранить
+        </button>
       </div>
-      <a href="#" id="apiKeyLink" class="api-link" target="_blank" rel="noopener">🔑 Получить ключ бесплатно →</a>
+      <a href="#" id="apiKeyLink" class="api-link" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Получить ключ бесплатно →
+      </a>
     </div>
   </div>
 
@@ -310,7 +345,10 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
     </div>
     <div class="checkbox-row">
       <input type="checkbox" id="diarizeCheck">
-      <span onclick="document.getElementById('diarizeCheck').click()">Определение спикеров (диаризация)</span>
+      <span onclick="document.getElementById('diarizeCheck').click()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;vertical-align:text-bottom;margin-right:4px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        Определение спикеров (диаризация)
+      </span>
     </div>
   </div>
 
@@ -318,20 +356,30 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
   <div class="card">
     <div class="section-title">Аудио / Видео файл</div>
     <div class="file-mode-tabs" id="fileModeTabs">
-      <button class="file-mode-btn active" id="modeUploadBtn" onclick="setFileMode('upload')">📁 Загрузить файл</button>
-      <button class="file-mode-btn" id="modePathBtn" onclick="setFileMode('path')">⚡ Путь на диске <span class="mode-badge">Быстро</span></button>
+      <button class="file-mode-btn active" id="modeUploadBtn" onclick="setFileMode('upload')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Загрузить файл
+      </button>
+      <button class="file-mode-btn" id="modePathBtn" onclick="setFileMode('path')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        Путь на диске <span class="mode-badge">Быстро</span>
+      </button>
     </div>
 
     <!-- Режим: загрузка -->
     <div id="modeUploadPanel">
       <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()" ondrop="handleDrop(event)" ondragover="event.preventDefault(); this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')">
-        <div class="dropzone-icon">📁</div>
+        <div class="dropzone-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
         <div class="dropzone-text">Перетащите файл сюда или нажмите для выбора</div>
         <div class="dropzone-sub">MP3, WAV, OGG, FLAC, AAC, M4A, MP4, WebM, MKV, AVI, MOV · до 2 GB</div>
       </div>
       <input type="file" id="fileInput" accept="audio/*,video/*" style="display:none" onchange="handleFileSelect(event)">
       <div class="file-preview" id="filePreview">
-        <div class="file-icon" id="fileIcon">🎵</div>
+        <div class="file-icon" id="fileIcon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        </div>
         <div class="file-info">
           <div class="file-name" id="fileName"></div>
           <div class="file-size" id="fileSize"></div>
@@ -361,7 +409,9 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
         </div>
       </div>
       <div class="file-preview" id="filePreviewPath" style="display:none; margin-top:10px">
-        <div class="file-icon" id="fileIconPath">🎵</div>
+        <div class="file-icon" id="fileIconPath">
+           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        </div>
         <div class="file-info">
           <div class="file-name" id="fileNamePath"></div>
           <div class="file-size" id="fileSizePath"></div>
@@ -373,8 +423,13 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
   </div>
 
   <!-- БЛОК 5: КНОПКА ТРАНСКРИБАЦИИ -->
-  <button class="btn btn-primary btn-full" id="transcribeBtn" onclick="startTranscription()" disabled>🎙 Транскрибировать</button>
-  <div id="transcribeBtnHint" style="display:none; text-align:center; font-size:.8rem; color:#a78bfa; margin-top:6px; opacity:.85;">🔑 Введите API ключ и выберите файл</div>
+  <button class="btn btn-primary btn-full" id="transcribeBtn" onclick="startTranscription()" disabled>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+    Транскрибировать
+  </button>
+  <div id="transcribeBtnHint" style="display:none; text-align:center; font-size:.8rem; color:#a78bfa; margin-top:6px; opacity:.85;">
+    🔑 Введите API ключ и выберите файл
+  </div>
 
   <!-- БЛОК 6: ПРОГРЕСС -->
   <div class="card progress-section" id="progressSection">
@@ -389,11 +444,26 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
     
     <!-- ОБНОВЛЕННЫЕ ВКЛАДКИ -->
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('text')" id="tabText">📄 Текст</button>
-      <button class="tab-btn" onclick="switchTab('summary')" id="tabSummary">📋 Саммари</button>
-      <button class="tab-btn" onclick="switchTab('speakers')" id="tabSpeakers">👥 Спикеры</button>
-      <button class="tab-btn" onclick="switchTab('keywords')" id="tabKeywords">🏷 Ключевые слова</button>
-      <button class="tab-btn" onclick="switchTab('timestamps')" id="tabTimestamps">⏱ Таймкоды</button>
+      <button class="tab-btn active" onclick="switchTab('text')" id="tabText">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Текст
+      </button>
+      <button class="tab-btn" onclick="switchTab('summary')" id="tabSummary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="12" y1="9" x2="8" y2="9"/></svg>
+        Саммари
+      </button>
+      <button class="tab-btn" onclick="switchTab('speakers')" id="tabSpeakers">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        Спикеры
+      </button>
+      <button class="tab-btn" onclick="switchTab('keywords')" id="tabKeywords">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        Ключевые слова
+      </button>
+      <button class="tab-btn" onclick="switchTab('timestamps')" id="tabTimestamps">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Таймкоды
+      </button>
     </div>
 
     <!-- Вкладка: Текст -->
@@ -405,7 +475,10 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
     <div class="tab-content" id="tabContentSummary">
       <div id="summaryContent">
         <div class="summary-block">
-          <div class="summary-title">✨ Главные моменты</div>
+          <div class="summary-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Главные моменты
+          </div>
           <ul class="summary-list" id="summaryList">
             <li>Загрузите файл и выполните транскрибацию, чтобы увидеть саммари.</li>
           </ul>
@@ -418,7 +491,7 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
       <div class="stats-grid" id="speakerStats"></div>
       <div class="utterances-list" id="utterancesList"></div>
       <div style="margin-top:10px; font-size:0.75rem; color:var(--text-dim); text-align:center;">
-        💡 Нажмите на имя спикера (например, "Спикер 1"), чтобы переименовать его.
+        💡 Нажмите на имя спикера, чтобы переименовать его. Изменение применится ко всем репликам.
       </div>
     </div>
 
@@ -427,22 +500,34 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
       <div class="keywords-cloud" id="keywordsView"></div>
     </div>
 
-    <!-- Вкладка: Таймкоды -->
+    <!-- Вкладка: Таймкоды (ВОЗВРАЩЕНО) -->
     <div class="tab-content" id="tabContentTimestamps">
       <div class="words-view" id="wordsView"></div>
     </div>
 
     <div class="result-actions">
-      <button class="btn btn-ghost btn-sm" onclick="copyResult()">📋 Копировать</button>
-      <button class="btn btn-ghost btn-sm" onclick="downloadTxt()">⬇ Скачать .txt</button>
-      <button class="btn btn-ghost btn-sm" onclick="downloadSrt()">🎬 Скачать .srt</button>
+      <button class="btn btn-ghost btn-sm" onclick="copyResult()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Копировать
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="downloadTxt()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Скачать .txt
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="downloadSrt()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>
+        Скачать .srt
+      </button>
     </div>
   </div>
 
   <!-- БЛОК 8: ИСТОРИЯ -->
   <div class="card" id="historyCard" style="margin-top:16px">
     <div class="history-header" onclick="toggleHistory()">
-      <h3>🕑 История транскрипций</h3>
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;vertical-align:text-bottom;margin-right:6px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        История транскрипций
+      </h3>
       <span class="history-toggle" id="historyToggle">▼</span>
     </div>
     <div class="history-body" id="historyBody">
@@ -474,11 +559,11 @@ const PROVIDERS = {
 };
 
 const LANGUAGES = [
-  { value: 'ru', label: '🇷🇺 Русский' }, { value: 'en', label: '🇬🇧 English' }, { value: 'auto', label: '🌐 Авто-определение' },
-  { value: 'de', label: '🇩🇪 Deutsch' }, { value: 'fr', label: '🇫🇷 Français' }, { value: 'es', label: '🇪🇸 Español' },
-  { value: 'zh', label: '🇨🇳 中文' }, { value: 'ja', label: '🇯🇵 日本語' }, { value: 'ko', label: '🇰🇷 한국어' },
-  { value: 'hi', label: '🇮🇳 हिन्दी' }, { value: 'pt', label: '🇧🇷 Português' }, { value: 'it', label: '🇮🇹 Italiano' },
-  { value: 'nl', label: '🇳🇱 Nederlands' }, { value: 'tr', label: '🇹🇷 Türkçe' }, { value: 'pl', label: '🇵🇱 Polski' }, { value: 'uk', label: '🇺🇦 Українська' },
+  { value: 'ru', label: 'Русский' }, { value: 'en', label: 'English' }, { value: 'auto', label: 'Авто-определение' },
+  { value: 'de', label: 'Deutsch' }, { value: 'fr', label: 'Français' }, { value: 'es', label: 'Español' },
+  { value: 'zh', label: '中文' }, { value: 'ja', label: '日本語' }, { value: 'ko', label: '한국어' },
+  { value: 'hi', label: 'हिन्दी' }, { value: 'pt', label: 'Português' }, { value: 'it', label: 'Italiano' },
+  { value: 'nl', label: 'Nederlands' }, { value: 'tr', label: 'Türkçe' }, { value: 'pl', label: 'Polski' }, { value: 'uk', label: 'Українська' },
 ];
 
 let state = { provider: 'deepgram', file: null, result: null, activeTab: 'text', speakerNames: {} };
@@ -498,7 +583,7 @@ function selectProvider(name, silent) {
   document.getElementById('apiKeyInput').value = savedKey;
   const link = document.getElementById('apiKeyLink');
   link.href = PROVIDERS[name].keyLink;
-  link.textContent = `🔑 Получить ключ ${PROVIDERS[name].name} бесплатно →`;
+  link.textContent = `Получить ключ ${PROVIDERS[name].name} бесплатно →`;
   populateModels(name);
   populateLanguages();
   updateTranscribeBtn();
@@ -532,8 +617,9 @@ function onModelChange() {}
 function saveApiKey() {
   const key = document.getElementById('apiKeyInput').value.trim();
   if (!key) { showToast('Введите API ключ', 'error'); return; }
+  // СОХРАНЕНИЕ ТОЛЬКО ЛОКАЛЬНО В БРАУЗЕРЕ
   localStorage.setItem(`voxcraft_key_${state.provider}`, key);
-  showToast('Ключ сохранён', 'success');
+  showToast('Ключ сохранён локально в этом браузере', 'success');
   updateTranscribeBtn();
 }
 
@@ -575,7 +661,12 @@ function handleFile(file) {
   state.file = file;
   document.getElementById('fileName').textContent = file.name;
   document.getElementById('fileSize').textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
-  document.getElementById('fileIcon').textContent = file.type.startsWith('video') ? '🎬' : '🎵';
+  
+  const iconSvg = file.type.startsWith('video') 
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
+  
+  document.getElementById('fileIcon').innerHTML = iconSvg;
   document.getElementById('filePreview').classList.add('visible');
   document.getElementById('dropzone').style.display = 'none';
   updateTranscribeBtn();
@@ -601,7 +692,12 @@ function checkFilePath() {
         pathFileInfo = { path: data.path, name: data.name, size: data.size, isVideo: /\.(mp4|webm|mkv|avi|mov)$/i.test(data.name) };
         document.getElementById('fileNamePath').textContent = data.name;
         document.getElementById('fileSizePath').textContent = (data.size / (1024 * 1024)).toFixed(2) + ' MB';
-        document.getElementById('fileIconPath').textContent = pathFileInfo.isVideo ? '🎬' : '🎵';
+        
+        const iconSvg = pathFileInfo.isVideo
+          ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>'
+          : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
+        
+        document.getElementById('fileIconPath').innerHTML = iconSvg;
         document.getElementById('filePreviewPath').classList.add('visible');
         document.getElementById('pathError').style.display = 'none';
         updateTranscribeBtn();
@@ -650,8 +746,6 @@ function startTranscription() {
 }
 
 function runSSETranscription(filePath, apiKey, provider, language, model, diarize) {
-  // Используем EventSource для SSE, но передаем параметры через URL (для простоты примера)
-  // В продакшене лучше передавать через POST body, но для этого нужен более сложный клиент SSE
   const url = `/api/transcribe-by-path-sse?path=${encodeURIComponent(filePath)}&provider=${provider}&api_key=${encodeURIComponent(apiKey)}&language=${language}&model=${model}&diarize=${diarize}`;
   const evtSource = new EventSource(url);
   
@@ -745,7 +839,7 @@ function finishTranscription(data) {
   renderSummary(data);
   renderSpeakers(data);
   renderKeywords(data.transcript);
-  renderTimestamps(data);
+  renderTimestamps(data); // Восстановлено
 
   document.getElementById('progressSection').classList.remove('visible');
   document.getElementById('resultSection').classList.add('visible');
@@ -753,7 +847,7 @@ function finishTranscription(data) {
   addToHistory(data);
 }
 
-// --- НОВЫЕ ФУНКЦИИ ---
+// --- ФУНКЦИИ ОТРИСОВКИ ---
 
 function renderSummary(data) {
   const list = document.getElementById('summaryList');
@@ -761,7 +855,6 @@ function renderSummary(data) {
   
   let points = [];
   if (data.utterances && data.utterances.length > 0) {
-    // Берем топ-5 самых длинных реплик как "главные мысли"
     const sorted = [...data.utterances].sort((a, b) => b.text.length - a.text.length);
     points = sorted.slice(0, 5).map(u => u.text);
   } else {
@@ -789,7 +882,6 @@ function renderSpeakers(data) {
     return;
   }
 
-  // Статистика
   const speakerStats = {};
   data.utterances.forEach(u => {
     const spk = u.speaker;
@@ -811,7 +903,6 @@ function renderSpeakers(data) {
     statsContainer.appendChild(card);
   });
 
-  // Список реплик
   data.utterances.forEach((u, idx) => {
     const spkId = u.speaker;
     const defaultName = `Спикер ${spkId+1}`;
@@ -835,8 +926,13 @@ function renderSpeakers(data) {
 }
 
 function updateSpeakerName(spkId, newName) {
-  state.speakerNames[spkId] = newName.trim();
-  if (state.result) renderSpeakers(state.result);
+  const trimmed = newName.trim();
+  if (!trimmed) return;
+  state.speakerNames[spkId] = trimmed;
+  if (state.result) {
+    renderSpeakers(state.result);
+    showToast(`Спикер ${spkId+1} переименован в "${trimmed}"`, 'success');
+  }
 }
 
 function renderKeywords(text) {
@@ -865,11 +961,10 @@ function renderKeywords(text) {
     const tag = document.createElement('span');
     tag.className = 'keyword-tag';
     tag.textContent = `${word} (${count})`;
+    tag.onclick = () => highlightWordInText(word);
     container.appendChild(tag);
   });
 }
-
-// ---------------------
 
 function renderTimestamps(data) {
   const container = document.getElementById('wordsView');
@@ -879,14 +974,47 @@ function renderTimestamps(data) {
     return;
   }
   
+  let lastTime = -1;
+  
   data.words.forEach(w => {
-    const span = document.createElement('span');
-    span.className = 'word-ts';
-    span.textContent = w.word + ' ';
-    span.title = `${formatTime(w.start)} - ${formatTime(w.end)}`;
-    span.onclick = () => showToast(`Время: ${formatTime(w.start)}`, 'info');
-    container.appendChild(span);
+    // Добавляем таймкод, если время изменилось значительно (каждые 5 сек или новое предложение)
+    // Для простоты: показываем таймкод перед каждым словом для наглядности, как было раньше
+    const timeSpan = document.createElement('span');
+    timeSpan.className = 'ts-marker';
+    timeSpan.textContent = formatTime(w.start);
+    timeSpan.onclick = (e) => {
+      e.stopPropagation();
+      showToast(`Время: ${formatTime(w.start)}`, 'info');
+    };
+    
+    const wordSpan = document.createElement('span');
+    wordSpan.className = 'word-ts';
+    wordSpan.textContent = w.word + ' ';
+    
+    container.appendChild(timeSpan);
+    container.appendChild(wordSpan);
   });
+}
+
+function highlightWordInText(word) {
+  switchTab('text');
+  const textarea = document.getElementById('resultTextarea');
+  const text = textarea.value.toLowerCase();
+  const index = text.indexOf(word.toLowerCase());
+  
+  if (index !== -1) {
+    textarea.focus();
+    textarea.setSelectionRange(index, index + word.length);
+    // Прокрутка к выделенному
+    const lineHeight = 20; // примерная высота строки
+    const lines = text.substr(0, index).split('\n').length;
+    textarea.scrollTop = (lines - 5) * lineHeight;
+    
+    // Временная подсветка (можно усложнить через range, но для textarea сложно)
+    showToast(`Найдено: "${word}"`, 'info');
+  } else {
+    showToast('Слово не найдено в тексте', 'error');
+  }
 }
 
 function switchTab(tabName) {
