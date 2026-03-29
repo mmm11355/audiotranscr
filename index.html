@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VoxCraft — Транскрибер</title>
+<title>VoxCraft — Мульти-провайдерный транскрибер</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -34,26 +34,23 @@ body::before {
   pointer-events: none;
 }
 .container { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 24px 20px 60px; }
-
 .card {
   background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border); border-radius: var(--radius); padding: 24px;
   box-shadow: var(--shadow); transition: border-color .2s;
 }
 .card + .card { margin-top: 16px; }
-
-.header { text-align: center; padding: 20px 0 32px; }
+.header { text-align: center; padding: 44px 0 32px; }
 .header-logo {
-  display: flex; align-items: center; justify-content: center; gap: 12px;
-  font-size: 2rem; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+  font-size: 2.2rem; font-weight: 700;
   background: linear-gradient(135deg, var(--accent), var(--accent2));
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   letter-spacing: -1px; line-height: 1; margin-bottom: 10px;
 }
-/* Исправление логотипа */
 .header-logo svg {
-  width: 40px; height: 40px;
-  fill: var(--accent);
+  width: 48px; height: 48px;
+  fill: url(#logoGradient);
   flex-shrink: 0;
 }
 .header-sub { color: var(--text-muted); font-size: .95rem; font-weight: 400; }
@@ -62,7 +59,6 @@ body::before {
   padding: 5px 14px; border-radius: 20px; background: rgba(168,85,247,0.12);
   border: 1px solid rgba(168,85,247,0.3); font-size: .8rem; color: #c4b5fd; font-weight: 500;
 }
-
 .section-title { font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--text-dim); margin-bottom: 14px; }
 .providers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .provider-card {
@@ -82,7 +78,7 @@ body::before {
   display: inline-block; margin-top: 6px; padding: 2px 8px; border-radius: 10px;
   font-size: .65rem; font-weight: 600; background: rgba(168,85,247,0.2); color: #c4b5fd; border: 1px solid rgba(168,85,247,0.3);
 }
-
+.provider-card.active .provider-badge { background: rgba(168,85,247,0.3); }
 .form-group { margin-bottom: 14px; }
 .form-group:last-child { margin-bottom: 0; }
 label { display: block; font-size: .8rem; font-weight: 500; color: var(--text-muted); margin-bottom: 7px; }
@@ -102,7 +98,6 @@ select option { background: #302b63; color: #fff; }
 .checkbox-row { display: flex; align-items: center; gap: 10px; padding-top: 24px; }
 .checkbox-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
 .checkbox-row span { font-size: .88rem; color: var(--text-muted); cursor: pointer; user-select: none; }
-
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   padding: 10px 18px; border: none; border-radius: var(--radius-sm);
@@ -112,15 +107,16 @@ select option { background: #302b63; color: #fff; }
 .btn:disabled { opacity: .4; cursor: not-allowed; pointer-events: none; }
 .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; box-shadow: 0 4px 15px rgba(168,85,247,0.35); }
 .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(168,85,247,0.5); }
+.btn-primary:active { transform: translateY(0); }
 .btn-ghost { background: var(--glass); color: var(--text-muted); border: 1px solid var(--border); }
 .btn-ghost:hover { background: var(--glass-hover); color: var(--text); border-color: rgba(255,255,255,0.2); }
 .btn-danger { background: rgba(248,113,113,0.12); color: var(--danger); border: 1px solid rgba(248,113,113,0.25); }
+.btn-danger:hover { background: rgba(248,113,113,0.2); }
 .btn-sm { padding: 7px 13px; font-size: .8rem; }
 .btn-xs { padding: 5px 10px; font-size: .75rem; }
 .btn-full { width: 100%; padding: 15px; font-size: 1rem; font-weight: 600; border-radius: var(--radius); }
 .btn-save { background: rgba(168,85,247,0.2); color: #c4b5fd; border: 1px solid rgba(168,85,247,0.3); flex-shrink: 0; }
 .btn-save:hover { background: rgba(168,85,247,0.3); }
-
 .file-mode-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
 .file-mode-btn {
   flex: 1; padding: 9px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm);
@@ -132,10 +128,11 @@ select option { background: #302b63; color: #fff; }
 .file-mode-btn.active { background: rgba(168,85,247,0.15); border-color: rgba(168,85,247,0.4); color: #c4b5fd; }
 .mode-badge { font-size: .65rem; padding: 1px 6px; border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; font-weight: 600; }
 .path-hint { padding: 11px 14px; background: rgba(168,85,247,0.08); border: 1px solid rgba(168,85,247,0.2); border-radius: var(--radius-sm); font-size: .82rem; color: var(--text-muted); line-height: 1.6; }
+.path-hint strong { color: #c4b5fd; }
 .path-warning { margin-top: 10px; padding: 12px 14px; background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.35); border-radius: var(--radius-sm); font-size: .82rem; color: #fde68a; line-height: 1.65; }
-.path-warning code { display: inline-block; background: rgba(0,0,0,0.3); border-radius: 4px; padding: 1px 6px; font-family: monospace; font-size: .85em; color: #c4b5fd; }
+.path-warning strong { color: #fbbf24; }
+.path-warning code { display: inline-block; background: rgba(0,0,0,0.3); border-radius: 4px; padding: 1px 6px; font-family: monospace; font-size: .85em; color: #c4b5fd; user-select: all; }
 .path-error { margin-top: 8px; padding: 9px 12px; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); border-radius: var(--radius-sm); color: #fca5a5; font-size: .82rem; }
-
 .dropzone { border: 2px dashed var(--border); border-radius: var(--radius); padding: 40px 24px; text-align: center; cursor: pointer; transition: all .22s; background: rgba(0,0,0,0.15); }
 .dropzone:hover, .dropzone.drag-over { border-color: var(--accent); background: rgba(168,85,247,0.06); }
 .dropzone-icon { font-size: 2.5rem; margin-bottom: 12px; opacity: .6; }
@@ -150,7 +147,6 @@ select option { background: #302b63; color: #fff; }
 .file-name { font-weight: 500; font-size: .9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .file-size { font-size: .77rem; color: var(--text-muted); margin-top: 2px; }
 .file-remove { flex-shrink: 0; }
-
 .progress-section { display: none; }
 .progress-section.visible { display: block; }
 .progress-status { font-size: .88rem; color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
@@ -160,7 +156,6 @@ select option { background: #302b63; color: #fff; }
 .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 3px; transition: width .3s ease; box-shadow: 0 0 10px rgba(168,85,247,0.5); }
 .progress-bar-fill.indeterminate { width: 40% !important; animation: indeterminate 1.5s ease-in-out infinite; }
 @keyframes indeterminate { 0% { transform: translateX(-150%); } 100% { transform: translateX(350%); } }
-
 .result-section { display: none; }
 .result-section.visible { display: block; }
 .result-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
@@ -169,7 +164,6 @@ select option { background: #302b63; color: #fff; }
 .dot-deepgram { background: #10b981; }
 .dot-assemblyai { background: #60a5fa; }
 .dot-gladia { background: #f472b6; }
-
 .tabs { display: flex; gap: 4px; padding: 4px; background: rgba(0,0,0,0.2); border-radius: var(--radius-sm); margin-bottom: 16px; }
 .tab-btn {
   flex: 1; padding: 9px; border: none; border-radius: 7px; font-family: 'Inter', sans-serif;
@@ -180,9 +174,7 @@ select option { background: #302b63; color: #fff; }
 .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.06); color: var(--text); }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
-
 textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-size: .88rem; line-height: 1.7; padding: 16px; background: rgba(0,0,0,0.25); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-family: 'Inter', sans-serif; }
-
 .utterances-list { display: flex; flex-direction: column; gap: 10px; }
 .utterance-item { display: flex; gap: 12px; padding: 14px; background: rgba(0,0,0,0.2); border-radius: var(--radius-sm); border: 1px solid var(--border); transition: border-color .2s; }
 .utterance-item:hover { border-color: rgba(255,255,255,0.15); }
@@ -196,27 +188,17 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
 .utterance-body { flex: 1; }
 .utterance-time { font-family: 'JetBrains Mono', monospace; font-size: .72rem; color: var(--text-dim); margin-bottom: 4px; }
 .utterance-text { font-size: .87rem; line-height: 1.6; }
-
 .spk-0 { background: rgba(168,85,247,0.2); color: #c4b5fd; border: 1px solid rgba(168,85,247,0.3); }
 .spk-1 { background: rgba(236,72,153,0.2); color: #f9a8d4; border: 1px solid rgba(236,72,153,0.3); }
 .spk-2 { background: rgba(16,185,129,0.2); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
 .spk-3 { background: rgba(245,158,11,0.2); color: #fcd34d; border: 1px solid rgba(245,158,11,0.3); }
 .spk-4 { background: rgba(59,130,246,0.2); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
 .spk-5 { background: rgba(99,102,241,0.2); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.3); }
-
 .words-view { font-size: .87rem; line-height: 1.9; }
 .word-ts { display: inline; cursor: pointer; border-radius: 3px; padding: 1px 2px; transition: background .15s; }
 .word-ts:hover { background: rgba(168,85,247,0.2); }
-.ts-marker { 
-  display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: .68rem; 
-  color: #a78bfa; background: rgba(168,85,247,0.12); border-radius: 4px; 
-  padding: 1px 5px; margin-right: 6px; vertical-align: middle; cursor: pointer; 
-  border: 1px solid rgba(168,85,247,0.3);
-}
-.ts-marker:hover { background: rgba(168,85,247,0.3); color: #fff; }
-
+.ts-marker { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: .68rem; color: #a78bfa; background: rgba(168,85,247,0.12); border-radius: 4px; padding: 1px 5px; margin-right: 4px; vertical-align: middle; cursor: default; }
 .result-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
-
 .history-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; padding: 4px 0; }
 .history-header h3 { font-size: .95rem; font-weight: 600; }
 .history-toggle { font-size: .8rem; color: var(--text-dim); transition: transform .2s; }
@@ -232,13 +214,11 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
 .history-item-meta { font-size: .72rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
 .history-item-preview { font-size: .8rem; color: var(--text-muted); margin-top: 6px; line-height: 1.5; display: none; }
 .history-item.expanded .history-item-preview { display: block; }
-
 .footer { text-align: center; padding: 32px 0 16px; color: var(--text-dim); font-size: .8rem; }
 .footer-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; margin-top: 12px; }
 .footer-link { display: flex; align-items: center; gap: 5px; color: var(--text-muted); text-decoration: none; font-size: .8rem; transition: color .2s; }
 .footer-link:hover { color: #a78bfa; }
 .footer-dot { width: 6px; height: 6px; border-radius: 50%; }
-
 .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; max-width: 340px; }
 .toast { padding: 12px 16px; border-radius: var(--radius-sm); backdrop-filter: blur(20px); font-size: .84rem; font-weight: 500; animation: slideIn .3s ease; display: flex; align-items: center; gap: 10px; }
 .toast.success { background: rgba(52,211,153,0.2); border: 1px solid rgba(52,211,153,0.4); color: #6ee7b7; }
@@ -247,9 +227,8 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
 @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 .error-block { display: none; padding: 14px 16px; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); border-radius: var(--radius-sm); color: #fca5a5; font-size: .87rem; line-height: 1.6; margin-top: 12px; }
 .error-block.visible { display: block; }
-
 @media (max-width: 640px) {
-  .header-logo { font-size: 1.5rem; }
+  .header-logo { font-size: 2rem; }
   .providers { grid-template-columns: 1fr; }
   .settings-grid { grid-template-columns: 1fr; }
   .result-actions { flex-direction: column; }
@@ -259,7 +238,7 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
   .input-row input, .input-row .btn-save { width: 100%; }
 }
 
-/* Новые стили для саммари и статистики */
+/* НОВЫЕ СТИЛИ ДЛЯ САММАРИ И СТАТИСТИКИ */
 .summary-block { padding: 16px; background: rgba(168,85,247,0.05); border: 1px solid rgba(168,85,247,0.2); border-radius: var(--radius-sm); margin-bottom: 16px; }
 .summary-title { font-size: 0.9rem; font-weight: 600; color: #c4b5fd; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
 .summary-list { list-style: none; padding-left: 0; }
@@ -270,33 +249,44 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
 .stat-val { font-size: 1.1rem; font-weight: 700; color: var(--text); }
 .stat-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
 .keywords-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
-.keyword-tag { background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; color: #d8b4fe; border: 1px solid rgba(168,85,247,0.2); cursor: pointer; transition: all 0.2s; }
-.keyword-tag:hover { background: rgba(168,85,247,0.2); border-color: var(--accent); }
+.keyword-tag { background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; color: #d8b4fe; border: 1px solid rgba(168,85,247,0.2); }
 
-/* Стили для модального окна виджета */
-.modal-overlay {
-  display: none; position: fixed; inset: 0; z-index: 10000;
-  background: rgba(0,0,0,.75); backdrop-filter: blur(6px);
-  align-items: center; justify-content: center;
+/* Стили для вкладки Таймкоды (список) */
+.timestamps-list { display: flex; flex-direction: column; gap: 8px; }
+.timestamp-row {
+  display: flex; gap: 12px; padding: 10px;
+  background: rgba(0,0,0,0.15); border-radius: 8px;
+  border: 1px solid transparent; transition: all 0.2s;
+  cursor: pointer;
 }
-.modal-overlay.open { display: flex; }
-.modal-box {
-  background: #1e1b2e; border: 1px solid rgba(168,85,247,.35);
-  border-radius: 14px; padding: 28px; max-width: 600px; width: 92%;
-  box-shadow: 0 24px 60px rgba(0,0,0,.6); animation: fadeUp .25s ease;
+.timestamp-row:hover {
+  background: rgba(168,85,247,0.1);
+  border-color: rgba(168,85,247,0.3);
 }
-.modal-box h3 { margin: 0 0 16px; font-size: 1.1rem; color: #e2d9f3; }
-.widget-code-area {
-  width: 100%; height: 200px; background: rgba(0,0,0,0.3);
-  border: 1px solid var(--border); border-radius: 8px; color: #a78bfa;
-  font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; padding: 12px;
-  resize: vertical; margin-bottom: 16px;
+.ts-time-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--accent);
+  background: rgba(168,85,247,0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  min-width: 60px;
+  text-align: center;
 }
-.modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
-@keyframes fadeUp { from { opacity:0; transform: translateY(18px); } to { opacity:1; transform: translateY(0); } }
+.ts-text-content { font-size: 0.9rem; color: var(--text); line-height: 1.5; }
 </style>
 </head>
 <body>
+
+<!-- SVG Defs for Logo -->
+<svg style="display: none;">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a855f7;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>
 
 <div class="toast-container" id="toastContainer"></div>
 
@@ -304,15 +294,14 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
   <!-- HEADER -->
   <div class="header">
     <div class="header-logo">
-      <!-- SVG Логотип -->
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 14C13.66 14 15 12.66 15 11V5C15 3.34 13.66 2 12 2C10.34 2 9 3.34 9 5V11C9 12.66 10.34 14 12 14Z"/>
-        <path d="M19 11C19 14.53 16.39 17.44 13 17.93V21H11V17.93C7.61 17.44 5 14.53 5 11H7C7 13.76 9.24 16 12 16C14.76 16 17 13.76 17 11H19Z"/>
+      <svg viewBox="0 0 24 24">
+        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
       </svg>
       VoxCraft
     </div>
     <div class="header-sub">Мульти-провайдерный аудио-транскрибер</div>
-    <div class="header-free">✨ ~600+ часов бесплатной транскрибации</div>
+    <div class="header-free">✨ Суммарно ~600+ часов бесплатной транскрибации</div>
   </div>
 
   <!-- БЛОК 1: ВЫБОР ПРОВАЙДЕРА -->
@@ -449,8 +438,8 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
       <button class="tab-btn active" onclick="switchTab('text')" id="tabText">📄 Текст</button>
       <button class="tab-btn" onclick="switchTab('summary')" id="tabSummary">📋 Саммари</button>
       <button class="tab-btn" onclick="switchTab('speakers')" id="tabSpeakers">👥 Спикеры</button>
-      <button class="tab-btn" onclick="switchTab('keywords')" id="tabKeywords">🏷 Ключевые слова</button>
       <button class="tab-btn" onclick="switchTab('timestamps')" id="tabTimestamps">⏱ Таймкоды</button>
+      <button class="tab-btn" onclick="switchTab('keywords')" id="tabKeywords">🏷 Ключевые слова</button>
     </div>
 
     <!-- Вкладка: Текст -->
@@ -475,8 +464,13 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
       <div class="stats-grid" id="speakerStats"></div>
       <div class="utterances-list" id="utterancesList"></div>
       <div style="margin-top:10px; font-size:0.75rem; color:var(--text-dim); text-align:center;">
-        💡 Нажмите на имя спикера, чтобы переименовать его.
+        💡 Нажмите на имя спикера (например, "Спикер 1"), чтобы переименовать его.
       </div>
+    </div>
+
+    <!-- Вкладка: Таймкоды (Список) -->
+    <div class="tab-content" id="tabContentTimestamps">
+      <div class="timestamps-list" id="timestampsList"></div>
     </div>
 
     <!-- Вкладка: Ключевые слова -->
@@ -484,16 +478,11 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
       <div class="keywords-cloud" id="keywordsView"></div>
     </div>
 
-    <!-- Вкладка: Таймкоды -->
-    <div class="tab-content" id="tabContentTimestamps">
-      <div class="words-view" id="wordsView"></div>
-    </div>
-
     <div class="result-actions">
       <button class="btn btn-ghost btn-sm" onclick="copyResult()">📋 Копировать текст</button>
       <button class="btn btn-ghost btn-sm" onclick="downloadTxt()">⬇ Скачать .txt</button>
       <button class="btn btn-ghost btn-sm" onclick="downloadSrt()">🎬 Скачать .srt</button>
-      <button class="btn btn-primary btn-sm" onclick="openWidgetModal()">🌐 Создать виджет</button>
+      <button class="btn btn-primary btn-sm" onclick="exportWidget()">✨ Экспорт Виджета</button>
     </div>
   </div>
 
@@ -522,21 +511,6 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
   </div>
 </div>
 
-<!-- Модальное окно для виджета -->
-<div class="modal-overlay" id="widgetModal">
-  <div class="modal-box">
-    <h3>Код виджета для сайта</h3>
-    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
-      Скопируйте этот код и вставьте на свой сайт. Вы можете изменить цвета в начале кода.
-    </p>
-    <textarea class="widget-code-area" id="widgetCodeOutput" readonly></textarea>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeWidgetModal()">Закрыть</button>
-      <button class="btn btn-primary" onclick="copyWidgetCode()">Копировать код</button>
-    </div>
-  </div>
-</div>
-
 <script>
 'use strict';
 
@@ -554,7 +528,7 @@ const LANGUAGES = [
   { value: 'nl', label: '🇳🇱 Nederlands' }, { value: 'tr', label: '🇹🇷 Türkçe' }, { value: 'pl', label: '🇵🇱 Polski' }, { value: 'uk', label: '🇺🇦 Українська' },
 ];
 
-let state = { provider: 'deepgram', file: null, result: null, activeTab: 'text', speakerNames: {} };
+let state = { provider: 'deepgram', file: null, result: null, activeTab: 'text', speakerNames: {}, fileName: 'audio' };
 let fileMode = 'upload';
 let pathFileInfo = null;
 const IS_LOCAL = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
@@ -606,7 +580,7 @@ function saveApiKey() {
   const key = document.getElementById('apiKeyInput').value.trim();
   if (!key) { showToast('Введите API ключ', 'error'); return; }
   localStorage.setItem(`voxcraft_key_${state.provider}`, key);
-  showToast('Ключ сохранён (локально)', 'success');
+  showToast('Ключ сохранён', 'success');
   updateTranscribeBtn();
 }
 
@@ -646,6 +620,7 @@ function handleFileSelect(e) {
 
 function handleFile(file) {
   state.file = file;
+  state.fileName = file.name.replace(/\.[^/.]+$/, "");
   document.getElementById('fileName').textContent = file.name;
   document.getElementById('fileSize').textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
   document.getElementById('fileIcon').textContent = file.type.startsWith('video') ? '🎬' : '🎵';
@@ -672,6 +647,7 @@ function checkFilePath() {
     .then(data => {
       if (data.ok) {
         pathFileInfo = { path: data.path, name: data.name, size: data.size, isVideo: /\.(mp4|webm|mkv|avi|mov)$/i.test(data.name) };
+        state.fileName = data.name.replace(/\.[^/.]+$/, "");
         document.getElementById('fileNamePath').textContent = data.name;
         document.getElementById('fileSizePath').textContent = (data.size / (1024 * 1024)).toFixed(2) + ' MB';
         document.getElementById('fileIconPath').textContent = pathFileInfo.isVideo ? '🎬' : '🎵';
@@ -815,16 +791,14 @@ function finishTranscription(data) {
   document.getElementById('resultTextarea').value = data.transcript;
   renderSummary(data);
   renderSpeakers(data);
+  renderTimestampsList(data); // Новая функция для списка таймкодов
   renderKeywords(data.transcript);
-  renderTimestamps(data);
 
   document.getElementById('progressSection').classList.remove('visible');
   document.getElementById('resultSection').classList.add('visible');
   switchTab('text');
   addToHistory(data);
 }
-
-// --- НОВЫЕ ФУНКЦИИ ---
 
 function renderSummary(data) {
   const list = document.getElementById('summaryList');
@@ -904,7 +878,40 @@ function renderSpeakers(data) {
 
 function updateSpeakerName(spkId, newName) {
   state.speakerNames[spkId] = newName.trim();
-  if (state.result) renderSpeakers(state.result);
+  if (state.result) {
+    renderSpeakers(state.result);
+    renderTimestampsList(state.result); // Обновить и список таймкодов
+  }
+}
+
+// Рендеринг списка таймкодов (как в субтитрах)
+function renderTimestampsList(data) {
+  const container = document.getElementById('timestampsList');
+  container.innerHTML = '';
+
+  if (!data.utterances || data.utterances.length === 0) {
+    container.innerHTML = '<div style="text-align:center;color:var(--text-muted)">Нет данных</div>';
+    return;
+  }
+
+  data.utterances.forEach((u, idx) => {
+    const spkId = u.speaker;
+    const defaultName = `Спикер ${spkId+1}`;
+    const displayName = state.speakerNames[spkId] || defaultName;
+    
+    const row = document.createElement('div');
+    row.className = 'timestamp-row';
+    row.onclick = () => seekAudio(u.start); // Функция перемотки (заглушка для виджета, в основном приложении пока нет плеера)
+    
+    row.innerHTML = `
+      <div class="ts-time-badge">${formatTime(u.start)}</div>
+      <div class="ts-text-content">
+        <strong style="color:var(--accent); font-size:0.8em; margin-right:6px;">${displayName}:</strong>
+        ${escapeHtml(u.text)}
+      </div>
+    `;
+    container.appendChild(row);
+  });
 }
 
 function renderKeywords(text) {
@@ -933,71 +940,32 @@ function renderKeywords(text) {
     const tag = document.createElement('span');
     tag.className = 'keyword-tag';
     tag.textContent = `${word} (${count})`;
-    tag.onclick = () => highlightWordInText(word);
+    tag.onclick = () => {
+      switchTab('text');
+      const textarea = document.getElementById('resultTextarea');
+      const index = textarea.value.toLowerCase().indexOf(word);
+      if (index !== -1) {
+        textarea.focus();
+        textarea.setSelectionRange(index, index + word.length);
+        textarea.scrollTop = textarea.scrollHeight; // Прокрутка к слову
+      }
+    };
     container.appendChild(tag);
   });
 }
 
-function highlightWordInText(word) {
-  switchTab('text');
-  const textarea = document.getElementById('resultTextarea');
-  const text = textarea.value;
-  const index = text.toLowerCase().indexOf(word);
-  if (index !== -1) {
-    textarea.focus();
-    textarea.setSelectionRange(index, index + word.length);
-    showToast(`Найдено: "${word}"`, 'info');
-  }
-}
-
-function renderTimestamps(data) {
-  const container = document.getElementById('wordsView');
-  container.innerHTML = '';
-  if (!data.words || data.words.length === 0) {
-    container.innerHTML = '<div style="text-align:center;color:var(--text-muted)">Нет пословных данных</div>';
-    return;
-  }
-  
-  // Группируем слова по предложениям или просто выводим с таймкодами
-  let html = '';
-  let lastSpeaker = -1;
-  
-  data.words.forEach(w => {
-    if (w.speaker !== lastSpeaker && w.speaker !== undefined) {
-       const spkName = state.speakerNames[w.speaker] || `Спикер ${w.speaker+1}`;
-       html += `<div style="margin-top:10px; margin-bottom:5px; color:var(--accent); font-weight:600;">${spkName}</div>`;
-       lastSpeaker = w.speaker;
-    }
-    
-    const timeStr = formatTime(w.start);
-    html += `<span class="ts-marker" onclick="scrollToTime(${w.start})">[${timeStr}]</span>`;
-    html += `<span class="word-ts">${w.word} </span>`;
-  });
-  
-  container.innerHTML = html;
-}
-
-function scrollToTime(seconds) {
-  showToast(`Перемотка на ${formatTime(seconds)} (требуется плеер)`, 'info');
-  // Здесь можно добавить логику управления внешним плеером, если он есть на странице
-}
-
 function switchTab(tabName) {
-  // Проверка на существование элементов перед обращением
-  const btn = document.getElementById(`tab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
-  const content = document.getElementById(`tabContent${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
-  
-  if (!btn || !content) {
-    console.error(`Элементы для вкладки ${tabName} не найдены`);
-    return;
-  }
-
   state.activeTab = tabName;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
   
-  btn.classList.add('active');
-  content.classList.add('active');
+  const btn = document.getElementById(`tab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
+  const content = document.getElementById(`tabContent${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
+  
+  if (btn && content) {
+    btn.classList.add('active');
+    content.classList.add('active');
+  }
 }
 
 function copyResult() {
@@ -1010,7 +978,7 @@ function downloadTxt() {
   const blob = new Blob([text], { type: 'text/plain' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = 'transcript.txt'; a.click();
+  a.href = url; a.download = `${state.fileName}_transcript.txt`; a.click();
   URL.revokeObjectURL(url);
 }
 
@@ -1023,86 +991,97 @@ function downloadSrt() {
   const blob = new Blob([srt], { type: 'text/plain' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = 'subtitles.srt'; a.click();
+  a.href = url; a.download = `${state.fileName}_subtitles.srt`; a.click();
   URL.revokeObjectURL(url);
 }
 
-// --- ВИДЖЕТ ГЕНЕРАТОР ---
-function openWidgetModal() {
-  if (!state.result) { showToast('Сначала выполните транскрибацию', 'error'); return; }
-  
-  const modal = document.getElementById('widgetModal');
-  const output = document.getElementById('widgetCodeOutput');
-  
-  // Генерируем HTML код виджета
-  const widgetHtml = generateWidgetHtml(state.result);
-  output.value = widgetHtml;
-  
-  modal.classList.add('open');
-}
-
-function closeWidgetModal() {
-  document.getElementById('widgetModal').classList.remove('open');
-}
-
-function copyWidgetCode() {
-  const output = document.getElementById('widgetCodeOutput');
-  output.select();
-  document.execCommand('copy');
-  showToast('Код виджета скопирован в буфер!', 'success');
-}
-
-function generateWidgetHtml(data) {
-  // Собираем текст с таймкодами
-  let transcriptWithTimecodes = '';
-  if (data.words && data.words.length > 0) {
-    data.words.forEach(w => {
-      const t = formatTime(w.start);
-      transcriptWithTimecodes += `<span class="vc-time" data-t="${w.start}">[${t}]</span> ${w.word} `;
-    });
-  } else {
-    transcriptWithTimecodes = `<p>${escapeHtml(data.transcript)}</p>`;
+// ЭКСПОРТ ВИДЖЕТА
+function exportWidget() {
+  if (!state.result || !state.result.utterances) {
+    showToast('Сначала выполните транскрибацию', 'error');
+    return;
   }
 
-  return `<!-- VoxCraft Widget Start -->
-<div id="voxcraft-widget" style="--vc-primary: #a855f7; --vc-bg: #1e1b2e; --vc-text: #e2d9f3; --vc-border: rgba(168,85,247,0.3); font-family: sans-serif; max-width: 800px; margin: 20px auto; background: var(--vc-bg); border: 1px solid var(--vc-border); border-radius: 12px; overflow: hidden; color: var(--vc-text);">
-  <div style="padding: 20px; border-bottom: 1px solid var(--vc-border); background: rgba(0,0,0,0.2);">
-    <h3 style="margin:0; font-size: 1.2rem; color: #fff;">Транскрибация</h3>
-    <p style="margin: 5px 0 0; font-size: 0.85rem; opacity: 0.7;">Длительность: ${formatDuration(data.metadata.duration)}</p>
+  const duration = formatDuration(state.result.metadata.duration);
+  const utterancesHtml = state.result.utterances.map(u => {
+    const spkName = state.speakerNames[u.speaker] || `Спикер ${u.speaker+1}`;
+    return `
+      <div class="vc-row" onclick="seekTo(${u.start})">
+        <span class="vc-time">${formatTime(u.start)}</span>
+        <div class="vc-line">
+          <strong>${spkName}:</strong> ${escapeHtml(u.text)}
+        </div>
+      </div>`;
+  }).join('');
+
+  // Определяем тип медиа (пытаемся угадать или ставим аудио по умолчанию)
+  // В реальном виджете пользователь должен будет вставить ссылку на свой файл
+  const widgetCode = `<!-- VoxCraft Widget Start -->
+<div id="voxcraft-widget" style="--vc-primary: #a855f7; --vc-bg: #ffffff; --vc-text: #333333; --vc-border: rgba(0,0,0,0.1); font-family: 'Inter', sans-serif; max-width: 800px; margin: 20px auto; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.4); border-radius: 16px; overflow: hidden; color: var(--vc-text); box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+  <div style="padding: 20px; border-bottom: 1px solid var(--vc-border); background: rgba(255,255,255,0.5);">
+    <h3 style="margin:0; font-size: 1.2rem; color: var(--vc-primary); display:flex; align-items:center; gap:10px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+      Таймкоды
+    </h3>
+    <p style="margin: 5px 0 0; font-size: 0.85rem; opacity: 0.7;">Длительность: ${duration}</p>
   </div>
-  <div style="padding: 20px; line-height: 1.8; font-size: 0.95rem;">
-    ${transcriptWithTimecodes}
+  
+  <div style="padding: 0;">
+    <audio id="vc-audio" controls style="width:100%; padding: 10px 20px; background:transparent; border-bottom:1px solid var(--vc-border);">
+      <source src="ВАША_ССЫЛКА_НА_ФАЙЛ.mp3" type="audio/mpeg">
+      Ваш браузер не поддерживает аудио.
+    </audio>
+    
+    <div style="max-height: 400px; overflow-y: auto; padding: 10px;">
+      ${utterancesHtml}
+    </div>
   </div>
+
   <style>
+    #voxcraft-widget .vc-row {
+      display: flex; gap: 12px; padding: 12px 20px;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      cursor: pointer; transition: background 0.2s;
+    }
+    #voxcraft-widget .vc-row:hover { background: rgba(168,85,247,0.05); }
     #voxcraft-widget .vc-time {
-      color: var(--vc-primary);
-      cursor: pointer;
-      font-family: monospace;
-      font-size: 0.8em;
-      margin-right: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem; color: var(--vc-primary);
       background: rgba(168,85,247,0.1);
-      padding: 1px 4px;
-      border-radius: 4px;
-      transition: all 0.2s;
+      padding: 2px 6px; border-radius: 4px;
+      min-width: 50px; text-align: center;
+      height: fit-content;
     }
-    #voxcraft-widget .vc-time:hover {
-      background: var(--vc-primary);
-      color: #fff;
-    }
+    #voxcraft-widget .vc-line { font-size: 0.95rem; line-height: 1.5; }
+    #voxcraft-widget .vc-line strong { color: var(--vc-primary); font-size: 0.85em; margin-right: 6px; }
+    /* Scrollbar styling */
+    #voxcraft-widget ::-webkit-scrollbar { width: 6px; }
+    #voxcraft-widget ::-webkit-scrollbar-track { background: transparent; }
+    #voxcraft-widget ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
   </style>
   <script>
-    document.querySelectorAll('#voxcraft-widget .vc-time').forEach(el => {
-      el.addEventListener('click', function() {
-        const t = parseFloat(this.getAttribute('data-t'));
-        alert('Перемотка на: ' + t + ' сек (интегрируйте с вашим плеером)');
-        // Здесь можно добавить: window.player.currentTime = t;
-      });
-    });
+    function seekTo(time) {
+      const audio = document.getElementById('vc-audio');
+      if(audio) {
+        audio.currentTime = time;
+        audio.play();
+      }
+    }
   <\/script>
 </div>
 <!-- VoxCraft Widget End -->`;
+
+  navigator.clipboard.writeText(widgetCode).then(() => {
+    showToast('HTML код виджета скопирован в буфер!', 'success');
+  }).catch(() => {
+    showToast('Ошибка копирования', 'error');
+  });
 }
-// ---------------------
+
+function seekAudio(time) {
+  // Заглушка, так как в основном интерфейсе нет плеера
+  showToast(`Перемотка на ${formatTime(time)} (доступно в экспортированном виджете)`, 'info');
+}
 
 function formatDuration(sec) {
   const m = Math.floor(sec / 60);
