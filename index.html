@@ -42,13 +42,13 @@ body::before {
 .card + .card { margin-top: 16px; }
 .header { text-align: center; padding: 44px 0 32px; }
 .header-logo {
-  display: inline-flex; align-items: center; gap: 12px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 12px;
   font-size: 2rem; font-weight: 700;
   background: linear-gradient(135deg, var(--accent), var(--accent2));
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   letter-spacing: -1px; line-height: 1; margin-bottom: 10px;
 }
-.header-logo svg { width: 40px; height: 40px; fill: var(--accent); flex-shrink: 0; }
+.header-logo svg { width: 40px; height: 40px; fill: url(#grad1); }
 .header-sub { color: var(--text-muted); font-size: .95rem; font-weight: 400; }
 .header-free {
   display: inline-flex; align-items: center; gap: 6px; margin-top: 12px;
@@ -190,30 +190,10 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
 .spk-3 { background: rgba(245,158,11,0.2); color: #fcd34d; border: 1px solid rgba(245,158,11,0.3); }
 .spk-4 { background: rgba(59,130,246,0.2); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
 .spk-5 { background: rgba(99,102,241,0.2); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.3); }
-
-/* Вкладка Таймкоды - Список */
-.timestamps-list { display: flex; flex-direction: column; gap: 8px; }
-.ts-item {
-  display: flex; align-items: baseline; gap: 12px;
-  padding: 8px 12px;
-  background: rgba(255,255,255,0.03);
-  border-radius: 6px;
-  transition: background 0.2s;
-  cursor: pointer;
-}
-.ts-item:hover { background: rgba(168,85,247,0.15); }
-.ts-time {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.8rem;
-  color: var(--accent);
-  font-weight: 600;
-  min-width: 50px;
-}
-.ts-text { font-size: 0.9rem; color: var(--text); line-height: 1.5; }
-
 .words-view { font-size: .87rem; line-height: 1.9; }
 .word-ts { display: inline; cursor: pointer; border-radius: 3px; padding: 1px 2px; transition: background .15s; }
 .word-ts:hover { background: rgba(168,85,247,0.2); }
+.ts-marker { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: .68rem; color: #a78bfa; background: rgba(168,85,247,0.12); border-radius: 4px; padding: 1px 5px; margin-right: 4px; vertical-align: middle; cursor: default; }
 .result-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
 .history-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; padding: 4px 0; }
 .history-header h3 { font-size: .95rem; font-weight: 600; }
@@ -266,9 +246,48 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
 .stat-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
 .keywords-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
 .keyword-tag { background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; color: #d8b4fe; border: 1px solid rgba(168,85,247,0.2); }
+
+/* Стили для вкладки таймкодов (список) */
+.timestamps-list { display: flex; flex-direction: column; gap: 8px; }
+.timestamp-row {
+  display: flex; gap: 12px; padding: 10px;
+  background: rgba(0,0,0,0.2); border-radius: 8px;
+  border: 1px solid var(--border);
+  transition: all 0.2s; cursor: pointer;
+}
+.timestamp-row:hover {
+  background: rgba(168,85,247,0.1);
+  border-color: var(--accent);
+  transform: translateX(4px);
+}
+.ts-time-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--accent);
+  background: rgba(168,85,247,0.1);
+  padding: 4px 8px;
+  border-radius: 6px;
+  min-width: 60px;
+  text-align: center;
+}
+.ts-text-content {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
 </style>
 </head>
 <body>
+
+<!-- SVG Defs for Logo -->
+<svg style="display: none;">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a855f7;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>
 
 <div class="toast-container" id="toastContainer"></div>
 
@@ -276,8 +295,7 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
   <!-- HEADER -->
   <div class="header">
     <div class="header-logo">
-      <!-- SVG Logo -->
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
       VoxCraft
     </div>
     <div class="header-sub">Мульти-провайдерный аудио-транскрибер</div>
@@ -342,14 +360,14 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
 
   <!-- БЛОК 4: ЗАГРУЗКА ФАЙЛА / ССЫЛКИ -->
   <div class="card">
-    <div class="section-title">Источник аудио / видео</div>
+    <div class="section-title">Источник медиа</div>
     <div class="file-mode-tabs" id="fileModeTabs">
       <button class="file-mode-btn active" id="modeUploadBtn" onclick="setFileMode('upload')">📁 Файл</button>
-      <button class="file-mode-btn" id="modeUrlBtn" onclick="setFileMode('url')">🔗 Ссылка</button>
-      <button class="file-mode-btn" id="modePathBtn" onclick="setFileMode('path')">💻 Путь на диске</button>
+      <button class="file-mode-btn" id="modePathBtn" onclick="setFileMode('path')">💾 Путь на диске</button>
+      <button class="file-mode-btn" id="modeUrlBtn" onclick="setFileMode('url')">🔗 Ссылка (URL)</button>
     </div>
 
-    <!-- Режим: Загрузка файла -->
+    <!-- Режим: загрузка -->
     <div id="modeUploadPanel">
       <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()" ondrop="handleDrop(event)" ondragover="event.preventDefault(); this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')">
         <div class="dropzone-icon">📁</div>
@@ -365,30 +383,6 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
         </div>
         <div class="file-remove"><button class="btn btn-ghost btn-sm" onclick="clearFile()">✕ Убрать</button></div>
       </div>
-    </div>
-
-    <!-- Режим: Ссылка -->
-    <div id="modeUrlPanel" style="display:none">
-      <div class="path-hint">
-        💡 Вставьте прямую ссылку на аудио или видео файл.<br>
-        Файл будет загружен браузером и отправлен на обработку.
-      </div>
-      <div class="form-group" style="margin-top:12px">
-        <label>URL файла</label>
-        <div class="input-row">
-          <input type="text" id="fileUrlInput" placeholder="https://example.com/audio.mp3 или video.mp4" oninput="onUrlInput()">
-          <button class="btn btn-save" onclick="checkFileUrl()">Проверить</button>
-        </div>
-      </div>
-      <div class="file-preview" id="filePreviewUrl" style="display:none; margin-top:10px">
-        <div class="file-icon" id="fileIconUrl">🔗</div>
-        <div class="file-info">
-          <div class="file-name" id="fileNameUrl"></div>
-          <div class="file-size" id="fileSizeUrl">Готов к загрузке</div>
-        </div>
-        <div class="file-remove"><button class="btn btn-ghost btn-sm" onclick="clearUrlFile()">✕ Убрать</button></div>
-      </div>
-      <div class="path-error" id="urlError" style="display:none"></div>
     </div>
 
     <!-- Режим: путь на диске -->
@@ -421,11 +415,32 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
       </div>
       <div class="path-error" id="pathError" style="display:none"></div>
     </div>
+
+    <!-- Режим: Ссылка -->
+    <div id="modeUrlPanel" style="display:none">
+      <div class="path-hint">🔗 Вставьте прямую ссылку на аудио или видео файл (mp3, mp4, wav и т.д.).<br>Файл будет скачан браузером и отправлен на обработку.</div>
+      <div class="form-group" style="margin-top:12px">
+        <label>URL файла</label>
+        <div class="input-row">
+          <input type="text" id="fileUrlInput" placeholder="https://example.com/audio.mp3" oninput="onUrlInput()">
+          <button class="btn btn-save" onclick="checkFileUrl()">Проверить</button>
+        </div>
+      </div>
+      <div class="file-preview" id="filePreviewUrl" style="display:none; margin-top:10px">
+        <div class="file-icon" id="fileIconUrl">🌐</div>
+        <div class="file-info">
+          <div class="file-name" id="fileNameUrl"></div>
+          <div class="file-size" id="fileSizeUrl">Готов к загрузке</div>
+        </div>
+        <div class="file-remove"><button class="btn btn-ghost btn-sm" onclick="clearUrlFile()">✕ Убрать</button></div>
+      </div>
+      <div class="path-error" id="urlError" style="display:none"></div>
+    </div>
   </div>
 
   <!-- БЛОК 5: КНОПКА ТРАНСКРИБАЦИИ -->
   <button class="btn btn-primary btn-full" id="transcribeBtn" onclick="startTranscription()" disabled>🎙 Транскрибировать</button>
-  <div id="transcribeBtnHint" style="display:none; text-align:center; font-size:.8rem; color:#a78bfa; margin-top:6px; opacity:.85;">🔑 Введите API ключ и выберите файл/ссылку</div>
+  <div id="transcribeBtnHint" style="display:none; text-align:center; font-size:.8rem; color:#a78bfa; margin-top:6px; opacity:.85;">🔑 Введите API ключ и выберите источник</div>
 
   <!-- БЛОК 6: ПРОГРЕСС -->
   <div class="card progress-section" id="progressSection">
@@ -469,7 +484,7 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
       <div class="stats-grid" id="speakerStats"></div>
       <div class="utterances-list" id="utterancesList"></div>
       <div style="margin-top:10px; font-size:0.75rem; color:var(--text-dim); text-align:center;">
-        💡 Нажмите на имя спикера (например, "Спикер 1"), чтобы переименовать его.
+        💡 Нажмите на имя спикера, чтобы переименовать его.
       </div>
     </div>
 
@@ -487,7 +502,7 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
       <button class="btn btn-ghost btn-sm" onclick="copyResult()">📋 Копировать текст</button>
       <button class="btn btn-ghost btn-sm" onclick="downloadTxt()">⬇ Скачать .txt</button>
       <button class="btn btn-ghost btn-sm" onclick="downloadSrt()">🎬 Скачать .srt</button>
-      <button class="btn btn-primary btn-sm" onclick="exportWidget()">✨ Создать Виджет</button>
+      <button class="btn btn-primary btn-sm" onclick="exportWidget()">✨ Экспорт виджета</button>
     </div>
   </div>
 
@@ -533,7 +548,7 @@ const LANGUAGES = [
   { value: 'nl', label: '🇳🇱 Nederlands' }, { value: 'tr', label: '🇹🇷 Türkçe' }, { value: 'pl', label: '🇵🇱 Polski' }, { value: 'uk', label: '🇺🇦 Українська' },
 ];
 
-let state = { provider: 'deepgram', file: null, fileUrl: null, result: null, activeTab: 'text', speakerNames: {} };
+let state = { provider: 'deepgram', file: null, fileUrl: null, result: null, activeTab: 'text', speakerNames: {}, mediaType: 'audio' };
 let fileMode = 'upload';
 let pathFileInfo = null;
 const IS_LOCAL = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
@@ -597,8 +612,8 @@ function updateTranscribeBtn() {
   const hasKey = getApiKey().length > 5;
   let hasSource = false;
   if (fileMode === 'upload' && state.file) hasSource = true;
-  if (fileMode === 'url' && state.fileUrl) hasSource = true;
   if (fileMode === 'path' && pathFileInfo) hasSource = true;
+  if (fileMode === 'url' && state.fileUrl) hasSource = true;
   
   const btn = document.getElementById('transcribeBtn');
   const hint = document.getElementById('transcribeBtnHint');
@@ -609,12 +624,12 @@ function updateTranscribeBtn() {
 function setFileMode(mode) {
   fileMode = mode;
   document.getElementById('modeUploadBtn').classList.toggle('active', mode === 'upload');
-  document.getElementById('modeUrlBtn').classList.toggle('active', mode === 'url');
   document.getElementById('modePathBtn').classList.toggle('active', mode === 'path');
+  document.getElementById('modeUrlBtn').classList.toggle('active', mode === 'url');
   
   document.getElementById('modeUploadPanel').style.display = mode === 'upload' ? 'block' : 'none';
-  document.getElementById('modeUrlPanel').style.display = mode === 'url' ? 'block' : 'none';
   document.getElementById('modePathPanel').style.display = mode === 'path' ? 'block' : 'none';
+  document.getElementById('modeUrlPanel').style.display = mode === 'url' ? 'block' : 'none';
   
   if (mode === 'path' && !IS_LOCAL) document.getElementById('pathLocalWarning').style.display = 'block';
   else document.getElementById('pathLocalWarning').style.display = 'none';
@@ -622,7 +637,7 @@ function setFileMode(mode) {
   updateTranscribeBtn();
 }
 
-// --- Обработка Файла ---
+// --- Обработка файлов ---
 function handleDrop(e) {
   e.preventDefault();
   document.getElementById('dropzone').classList.remove('drag-over');
@@ -635,10 +650,11 @@ function handleFileSelect(e) {
 
 function handleFile(file) {
   state.file = file;
-  state.fileUrl = null; // сброс ссылки
+  state.fileUrl = null;
+  state.mediaType = file.type.startsWith('video') ? 'video' : 'audio';
   document.getElementById('fileName').textContent = file.name;
   document.getElementById('fileSize').textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
-  document.getElementById('fileIcon').textContent = file.type.startsWith('video') ? '🎬' : '🎵';
+  document.getElementById('fileIcon').textContent = state.mediaType === 'video' ? '🎬' : '🎵';
   document.getElementById('filePreview').classList.add('visible');
   document.getElementById('dropzone').style.display = 'none';
   updateTranscribeBtn();
@@ -652,45 +668,8 @@ function clearFile() {
   updateTranscribeBtn();
 }
 
-// --- Обработка Ссылки ---
-function onUrlInput() { document.getElementById('urlError').style.display = 'none'; }
-
-function checkFileUrl() {
-  const url = document.getElementById('fileUrlInput').value.trim();
-  if (!url) return;
-  
-  // Простая валидация расширения
-  const validExts = ['.mp3', '.wav', '.ogg', '.mp4', '.webm', '.m4a', '.flac'];
-  const hasValidExt = validExts.some(ext => url.toLowerCase().includes(ext));
-  
-  if (!hasValidExt) {
-    document.getElementById('urlError').textContent = 'Ссылка должна вести на прямой файл (mp3, mp4, wav и т.д.)';
-    document.getElementById('urlError').style.display = 'block';
-    state.fileUrl = null;
-    updateTranscribeBtn();
-    return;
-  }
-
-  state.fileUrl = url;
-  state.file = null; // сброс файла
-  
-  const fileName = url.split('/').pop().split('?')[0] || 'audio_file';
-  document.getElementById('fileNameUrl').textContent = fileName;
-  document.getElementById('filePreviewUrl').classList.add('visible');
-  document.getElementById('urlError').style.display = 'none';
-  updateTranscribeBtn();
-}
-
-function clearUrlFile() {
-  state.fileUrl = null;
-  document.getElementById('fileUrlInput').value = '';
-  document.getElementById('filePreviewUrl').classList.remove('visible');
-  updateTranscribeBtn();
-}
-
-// --- Обработка Пути ---
+// --- Обработка пути ---
 function onPathInput() { document.getElementById('pathError').style.display = 'none'; }
-
 function checkFilePath() {
   const path = document.getElementById('filePathInput').value.trim();
   if (!path) return;
@@ -699,9 +678,10 @@ function checkFilePath() {
     .then(data => {
       if (data.ok) {
         pathFileInfo = { path: data.path, name: data.name, size: data.size, isVideo: /\.(mp4|webm|mkv|avi|mov)$/i.test(data.name) };
+        state.mediaType = pathFileInfo.isVideo ? 'video' : 'audio';
         document.getElementById('fileNamePath').textContent = data.name;
         document.getElementById('fileSizePath').textContent = (data.size / (1024 * 1024)).toFixed(2) + ' MB';
-        document.getElementById('fileIconPath').textContent = pathFileInfo.isVideo ? '🎬' : '🎵';
+        document.getElementById('fileIconPath').textContent = state.mediaType === 'video' ? '🎬' : '🎵';
         document.getElementById('filePreviewPath').classList.add('visible');
         document.getElementById('pathError').style.display = 'none';
         updateTranscribeBtn();
@@ -720,7 +700,6 @@ function checkFilePath() {
       updateTranscribeBtn();
     });
 }
-
 function clearPathFile() {
   pathFileInfo = null;
   document.getElementById('filePathInput').value = '';
@@ -728,6 +707,38 @@ function clearPathFile() {
   updateTranscribeBtn();
 }
 
+// --- Обработка URL ---
+function onUrlInput() { document.getElementById('urlError').style.display = 'none'; }
+function checkFileUrl() {
+  const url = document.getElementById('fileUrlInput').value.trim();
+  if (!url) return;
+  
+  // Простая проверка формата
+  try { new URL(url); } catch { 
+    document.getElementById('urlError').textContent = 'Неверный формат URL';
+    document.getElementById('urlError').style.display = 'block';
+    return;
+  }
+
+  state.fileUrl = url;
+  state.file = null; // Очищаем файл если был
+  const fileName = url.substring(url.lastIndexOf('/') + 1).split('?')[0] || 'media_file';
+  state.mediaType = /\.(mp4|webm|mov|avi|mkv)$/i.test(url) ? 'video' : 'audio';
+  
+  document.getElementById('fileNameUrl').textContent = fileName;
+  document.getElementById('fileIconUrl').textContent = state.mediaType === 'video' ? '🎬' : '🎵';
+  document.getElementById('filePreviewUrl').classList.add('visible');
+  document.getElementById('urlError').style.display = 'none';
+  updateTranscribeBtn();
+}
+function clearUrlFile() {
+  state.fileUrl = null;
+  document.getElementById('fileUrlInput').value = '';
+  document.getElementById('filePreviewUrl').classList.remove('visible');
+  updateTranscribeBtn();
+}
+
+// --- Запуск транскрипции ---
 function startTranscription() {
   const apiKey = getApiKey();
   const language = document.getElementById('languageSelect').value;
@@ -755,13 +766,6 @@ function runSSETranscription(filePath, apiKey, provider, language, model, diariz
   const url = `/api/transcribe-by-path-sse?path=${encodeURIComponent(filePath)}&provider=${provider}&api_key=${encodeURIComponent(apiKey)}&language=${language}&model=${model}&diarize=${diarize}`;
   const evtSource = new EventSource(url);
   
-  evtSource.onmessage = (e) => {
-    try {
-        const data = JSON.parse(e.data);
-        if(data.success) finishTranscription(data);
-    } catch(err) {}
-  };
-
   evtSource.addEventListener('progress', (e) => {
     const data = JSON.parse(e.data);
     document.getElementById('progressBar').style.width = data.pct + '%';
@@ -829,23 +833,22 @@ function runUploadTranscription(file, apiKey, provider, language, model, diarize
   xhr.send(formData);
 }
 
-function runUrlTranscription(urlStr, apiKey, provider, language, model, diarize) {
-  // Скачиваем файл по ссылке через fetch, затем отправляем как файл
+function runUrlTranscription(url, apiKey, provider, language, model, diarize) {
   document.getElementById('progressText').textContent = 'Скачивание файла по ссылке...';
   document.getElementById('progressBar').classList.add('indeterminate');
   
-  fetch(urlStr)
-    .then(res => {
-      if (!res.ok) throw new Error('Не удалось скачать файл. Проверьте ссылку.');
-      return res.blob();
+  fetch(url)
+    .then(response => {
+      if (!response.ok) throw new Error('Не удалось скачать файл. Проверьте ссылку.');
+      return response.blob();
     })
     .then(blob => {
-      const fileName = urlStr.split('/').pop().split('?')[0] || 'downloaded_file';
+      const fileName = url.substring(url.lastIndexOf('/') + 1).split('?')[0] || 'media_file';
       const file = new File([blob], fileName, { type: blob.type });
       runUploadTranscription(file, apiKey, provider, language, model, diarize);
     })
     .catch(err => {
-      showError(err.message || 'Ошибка загрузки файла по ссылке');
+      showError(err.message);
     });
 }
 
@@ -872,6 +875,8 @@ function finishTranscription(data) {
   switchTab('text');
   addToHistory(data);
 }
+
+// --- Функции рендеринга ---
 
 function renderSummary(data) {
   const list = document.getElementById('summaryList');
@@ -954,25 +959,31 @@ function updateSpeakerName(spkId, newName) {
   if (state.result) renderSpeakers(state.result);
 }
 
-// Рендер списка таймкодов (как в спикерах, но без имен)
 function renderTimestampsList(data) {
   const container = document.getElementById('timestampsList');
   container.innerHTML = '';
   
   if (!data.utterances || data.utterances.length === 0) {
-    container.innerHTML = '<div style="text-align:center;color:var(--text-muted)">Нет данных</div>';
+    container.innerHTML = '<div style="text-align:center;color:var(--text-muted)">Нет данных для таймкодов</div>';
     return;
   }
 
   data.utterances.forEach((u, idx) => {
-    const div = document.createElement('div');
-    div.className = 'ts-item';
-    div.onclick = () => seekAudio(u.start); // Функция перемотки (будет определена в виджете или глобально если есть плеер)
-    div.innerHTML = `
-      <div class="ts-time">[${formatTime(u.start)}]</div>
-      <div class="ts-text">${escapeHtml(u.text)}</div>
-    `;
-    container.appendChild(div);
+    const row = document.createElement('div');
+    row.className = 'timestamp-row';
+    row.onclick = () => seekMedia(u.start);
+    
+    const timeBadge = document.createElement('div');
+    timeBadge.className = 'ts-time-badge';
+    timeBadge.textContent = formatTime(u.start);
+    
+    const textContent = document.createElement('div');
+    textContent.className = 'ts-text-content';
+    textContent.textContent = u.text;
+    
+    row.appendChild(timeBadge);
+    row.appendChild(textContent);
+    container.appendChild(row);
   });
 }
 
@@ -1002,8 +1013,29 @@ function renderKeywords(text) {
     const tag = document.createElement('span');
     tag.className = 'keyword-tag';
     tag.textContent = `${word} (${count})`;
+    tag.onclick = () => highlightWord(word);
     container.appendChild(tag);
   });
+}
+
+function highlightWord(word) {
+  switchTab('text');
+  const textarea = document.getElementById('resultTextarea');
+  const text = textarea.value;
+  const index = text.toLowerCase().indexOf(word.toLowerCase());
+  if (index !== -1) {
+    textarea.focus();
+    textarea.setSelectionRange(index, index + word.length);
+    showToast(`Найдено: "${word}"`, 'info');
+  }
+}
+
+function seekMedia(time) {
+  // В будущем здесь будет управление плеером
+  showToast(`Перемотка на ${formatTime(time)}`, 'info');
+  // Если бы плеер был встроен в страницу:
+  // const player = document.getElementById('embeddedPlayer');
+  // if(player) player.currentTime = time;
 }
 
 function switchTab(tabName) {
@@ -1011,12 +1043,12 @@ function switchTab(tabName) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
   
-  const btn = document.getElementById(`tab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
-  const content = document.getElementById(`tabContent${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
+  const tabBtn = document.getElementById(`tab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
+  const tabContent = document.getElementById(`tabContent${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
   
-  if (btn && content) {
-    btn.classList.add('active');
-    content.classList.add('active');
+  if (tabBtn && tabContent) {
+    tabBtn.classList.add('active');
+    tabContent.classList.add('active');
   }
 }
 
@@ -1047,106 +1079,112 @@ function downloadSrt() {
   URL.revokeObjectURL(url);
 }
 
-// ГЕНЕРАЦИЯ ВИДЖЕТА
+// --- ЭКСПОРТ ВИДЖЕТА ---
 function exportWidget() {
-  if (!state.result || !state.result.utterances) {
-    showToast('Сначала выполните транскрибацию', 'error');
-    return;
+  if (!state.result) { showToast('Нет результатов для экспорта', 'error'); return; }
+  
+  const isVideo = state.mediaType === 'video';
+  const mediaSrc = state.fileUrl || ''; // Для локальных файлов URL не будет, виджет будет работать только с URL
+  
+  if (!mediaSrc && state.file) {
+    showToast('Для экспорта виджета с медиа используйте режим "Ссылка". Локальные файлы нельзя встроить в HTML.', 'warning');
+    // Продолжаем экспорт, но без медиа (только текст) или просим пользователя загрузить файл куда-то
   }
 
-  const utterances = state.result.utterances;
-  const duration = state.result.metadata.duration;
+  const utterances = state.result.utterances || [];
+  let rowsHtml = '';
   
-  // Генерируем HTML строк
-  let linesHtml = '';
   utterances.forEach(u => {
-    const timeStr = formatTime(u.start);
-    linesHtml += `<div class="vc-line" data-t="${u.start}"><span class="vc-time-badge">${timeStr}</span><span class="vc-text">${escapeHtml(u.text)}</span></div>`;
+    const speakerName = state.speakerNames[u.speaker] || `Спикер ${u.speaker+1}`;
+    rowsHtml += `
+      <div class="vc-row" onclick="seekTo(${u.start})">
+        <div class="vc-time">[${formatTime(u.start)}]</div>
+        <div class="vc-speaker">${speakerName}:</div>
+        <div class="vc-text">${escapeHtml(u.text)}</div>
+      </div>`;
   });
 
-  const widgetCode = `<!-- VoxCraft Widget Start -->
-<div id="voxcraft-widget-root" style="--vc-primary: #a855f7; --vc-bg: #ffffff; --vc-text: #1f2937; --vc-border: #e5e7eb; font-family: 'Inter', sans-serif; max-width: 800px; margin: 40px auto; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.5); border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); overflow: hidden; color: var(--vc-text);">
-  <div style="padding: 20px; border-bottom: 1px solid var(--vc-border); background: rgba(255,255,255,0.5); display:flex; justify-content:space-between; align-items:center;">
-    <div>
-      <h3 style="margin:0; font-size: 1.1rem; font-weight: 700; color: #111827;">Таймкоды</h3>
-      <p style="margin: 4px 0 0; font-size: 0.8rem; color: #6b7280;">Длительность: ${formatDuration(duration)}</p>
-    </div>
-    <audio id="vc-audio-player" controls style="height: 32px; width: 200px;"></audio>
+  const widgetHtml = `
+<!-- VoxCraft Widget Start -->
+<div id="voxcraft-widget" style="--vc-primary: #a855f7; --vc-bg: #ffffff; --vc-text: #1f2937; --vc-border: #e5e7eb; font-family: 'Inter', sans-serif; max-width: 800px; margin: 20px auto; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.5); border-radius: 16px; overflow: hidden; color: var(--vc-text); box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+  <div style="padding: 20px; border-bottom: 1px solid var(--vc-border); background: rgba(255,255,255,0.5);">
+    <h3 style="margin:0; font-size: 1.2rem; color: #374151; display:flex; align-items:center; gap:10px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--vc-primary)" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+      Таймкоды
+    </h3>
+    <p style="margin: 5px 0 0; font-size: 0.85rem; color: #6b7280;">Длительность: ${formatDuration(state.result.metadata.duration)}</p>
   </div>
-  <div id="vc-content" style="padding: 20px; max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;">
-    ${linesHtml}
+  
+  ${mediaSrc ? `
+  <div style="width:100%; background:#000;">
+    ${isVideo 
+      ? `<video controls width="100%" style="display:block; max-height:400px;" src="${mediaSrc}"></video>` 
+      : `<audio controls width="100%" style="display:block; width:100%; margin:10px 0;" src="${mediaSrc}"></audio>`
+    }
+  </div>` : ''}
+
+  <div style="padding: 20px; max-height: 500px; overflow-y: auto; background: rgba(255,255,255,0.4);">
+    ${rowsHtml}
   </div>
+
   <style>
-    #voxcraft-widget-root .vc-line {
-      display: flex; gap: 12px; padding: 8px 12px; border-radius: 8px; transition: all 0.2s; cursor: pointer; align-items: baseline;
+    #voxcraft-widget .vc-row {
+      display: flex; gap: 10px; padding: 12px; border-radius: 8px; margin-bottom: 8px;
+      transition: all 0.2s; cursor: pointer; border: 1px solid transparent;
     }
-    #voxcraft-widget-root .vc-line:hover { background: rgba(168,85,247,0.08); }
-    #voxcraft-widget-root .vc-line.active { background: rgba(168,85,247,0.15); border-left: 3px solid var(--vc-primary); }
-    #voxcraft-widget-root .vc-time-badge {
-      font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 600;
-      color: var(--vc-primary); background: rgba(168,85,247,0.1); padding: 2px 6px; border-radius: 4px; flex-shrink: 0;
+    #voxcraft-widget .vc-row:hover {
+      background: rgba(168,85,247,0.1); border-color: var(--vc-primary);
     }
-    #voxcraft-widget-root .vc-text { font-size: 0.95rem; line-height: 1.5; color: #374151; }
+    #voxcraft-widget .vc-time {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--vc-primary);
+      background: rgba(168,85,247,0.1); padding: 2px 6px; border-radius: 4px; height: fit-content;
+    }
+    #voxcraft-widget .vc-speaker {
+      font-weight: 600; font-size: 0.85rem; color: #4b5563; min-width: 80px;
+    }
+    #voxcraft-widget .vc-text {
+      font-size: 0.95rem; line-height: 1.5; color: #374151;
+    }
     /* Scrollbar styling */
-    #vc-content::-webkit-scrollbar { width: 6px; }
-    #vc-content::-webkit-scrollbar-track { background: transparent; }
-    #vc-content::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
+    #voxcraft-widget ::-webkit-scrollbar { width: 6px; }
+    #voxcraft-widget ::-webkit-scrollbar-track { background: transparent; }
+    #voxcraft-widget ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+    #voxcraft-widget ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
   </style>
   <script>
-    (function() {
-      const root = document.getElementById('voxcraft-widget-root');
-      const audio = document.getElementById('vc-audio-player');
-      // ВСТАВЬТЕ ССЫЛКУ НА ВАШ АУДИО/ВИДЕО ФАЙЛ НИЖЕ:
-      audio.src = ""; 
-      
-      const lines = root.querySelectorAll('.vc-line');
-      lines.forEach(line => {
-        line.addEventListener('click', function() {
-          const t = parseFloat(this.getAttribute('data-t'));
-          audio.currentTime = t;
-          audio.play();
-          
-          lines.forEach(l => l.classList.remove('active'));
-          this.classList.add('active');
-        });
-      });
-      
-      audio.addEventListener('timeupdate', () => {
-        const curr = audio.currentTime;
-        lines.forEach(line => {
-          const t = parseFloat(line.getAttribute('data-t'));
-          const nextT = line.nextElementSibling ? parseFloat(line.nextElementSibling.getAttribute('data-t')) : 99999;
-          if (curr >= t && curr < nextT) {
-            lines.forEach(l => l.classList.remove('active'));
-            line.classList.add('active');
-            line.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-          }
-        });
-      });
-    })();
+    function seekTo(t) {
+      const media = document.querySelector('#voxcraft-widget video, #voxcraft-widget audio');
+      if(media) { media.currentTime = t; media.play(); }
+      else { alert('Время: ' + t + ' сек (медиафайл не найден)'); }
+    }
   <\/script>
 </div>
-<!-- VoxCraft Widget End -->`;
+<!-- VoxCraft Widget End -->
+  `;
 
-  navigator.clipboard.writeText(widgetCode).then(() => {
-    showToast('Код виджета скопирован! Вставьте его на свой сайт.', 'success');
+  navigator.clipboard.writeText(widgetHtml).then(() => {
+    showToast('HTML код виджета скопирован в буфер!', 'success');
   }).catch(() => {
-    showToast('Не удалось скопировать. Проверьте разрешения.', 'error');
+    showToast('Не удалось скопировать. Скачиваем файл...', 'error');
+    const blob = new Blob([widgetHtml], {type: 'text/html'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'widget.html';
+    a.click();
   });
 }
 
+// --- Утилиты ---
 function formatDuration(sec) {
   const m = Math.floor(sec / 60);
   const s = Math.floor(sec % 60);
   return `${m}:${s.toString().padStart(2, '0')}`;
 }
-
 function formatTime(sec) {
   const m = Math.floor(sec / 60);
   const s = Math.floor(sec % 60);
   return `${m}:${s.toString().padStart(2, '0')}`;
 }
-
 function toSrtTime(sec) {
   const h = Math.floor(sec / 3600);
   const m = Math.floor((sec % 3600) / 60);
@@ -1154,12 +1192,10 @@ function toSrtTime(sec) {
   const ms = Math.floor((sec % 1) * 1000);
   return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')},${ms.toString().padStart(3,'0')}`;
 }
-
 function escapeHtml(text) {
   if (!text) return '';
   return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
-
 function showToast(msg, type='info') {
   const container = document.getElementById('toastContainer');
   const toast = document.createElement('div');
@@ -1171,7 +1207,6 @@ function showToast(msg, type='info') {
     setTimeout(() => toast.remove(), 300);
   }, 3000);
 }
-
 function showError(msg) {
   document.getElementById('progressBar').classList.remove('indeterminate');
   document.getElementById('progressBar').style.width = '0%';
@@ -1181,6 +1216,7 @@ function showError(msg) {
   errBlock.classList.add('visible');
 }
 
+// История
 function addToHistory(data) {
   let history = JSON.parse(localStorage.getItem('voxcraft_history') || '[]');
   const item = {
@@ -1241,11 +1277,6 @@ function clearHistory() {
     localStorage.removeItem('voxcraft_history');
     renderHistory();
   }
-}
-
-// Заглушка для функции перемотки (используется в списке таймкодов, если бы был глобальный плеер)
-function seekTime(t) {
-  showToast(`Перемотка на ${formatTime(t)} (доступно в виджете)`, 'info');
 }
 </script>
 </body>
