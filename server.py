@@ -60,15 +60,61 @@ def build_multipart(fields, files, boundary=None):
     return body, f"multipart/form-data; boundary={boundary}"
 
 def find_ffmpeg():
-    # На Render.com ffmpeg уже установлен
     cmd = shutil.which("ffmpeg")
     if cmd: return cmd
-    # Проверяем стандартные пути
     common_paths = ["/usr/bin/ffmpeg", "/bin/ffmpeg"]
     for path in common_paths:
         if os.path.exists(path):
             return path
     return None
+
+def fix_moov_atom(input_path, output_path):
+    """Пытается восстановить видео с отсутствующим moov atom"""
+    ffmpeg_cmd = find_ffmpeg()
+    if not ffmpeg_cmd:
+        raise RuntimeError("ffmpeg не найден")
+    
+    # Метод 1: Перекодирование с игнорированием ошибок
+    cmd = [
+        ffmpeg_cmd, "-y",
+        "-err_detect", "ignore_err",
+        "-fflags", "+genpts+igndts+discardcorrupt",
+        "-i", input_path,
+        "-c:v", "libx264",
+        "-c:a", "aac",
+        "-movflags", "+faststart",
+        "-vf", "fps=30",
+        "-b:v", "1M",
+        "-preset", "fast",
+        "-strict", "unofficial",
+        output_path
+    ]
+    
+    result = subprocess.run(cmd, capture_output=True, timeout=300)
+    
+    if result.returncode != 0:
+        # Метод 2: Только аудио
+        cmd = [
+            ffmpeg_cmd, "-y",
+            "-err_detect", "ignore_err",
+            "-fflags", "+genpts+igndts",
+            "-i", input_path,
+            "-vn",
+            "-acodec", "libmp3lame",
+            "-ac", "1",
+            "-ar", "16000",
+            "-b:a", "64k",
+            output_path.replace('.mp4', '.mp3')
+        ]
+        result = subprocess.run(cmd, capture_output=True, timeout=300)
+        if result.returncode == 0:
+            return output_path.replace('.mp4', '.mp3')
+    
+    if result.returncode != 0:
+        err = result.stderr.decode("utf-8", errors="replace")
+        raise RuntimeError(f"Не удалось восстановить видео: {err[-300:]}")
+    
+    return output_path
 
 def extract_audio_from_path(input_path):
     ffmpeg_cmd = find_ffmpeg()
@@ -76,19 +122,29 @@ def extract_audio_from_path(input_path):
         raise RuntimeError("ffmpeg не найден на сервере")
     
     with tempfile.TemporaryDirectory() as tmpdir:
+        # Сначала пробуем восстановить видео
+        fixed_path = os.path.join(tmpdir, "fixed.mp4")
+        try:
+            fixed_path = fix_moov_atom(input_path, fixed_path)
+        except:
+            fixed_path = input_path
+        
         output_path = os.path.join(tmpdir, "output.mp3")
         
         # Пробуем разные методы извлечения аудио
         methods = [
-            # Метод 1: Стандартный
-            [ffmpeg_cmd, "-y", "-i", input_path, "-vn", "-acodec", "libmp3lame", 
+            # Метод 1: Стандартный с восстановленным видео
+            [ffmpeg_cmd, "-y", "-i", fixed_path, "-vn", "-acodec", "libmp3lame", 
              "-ac", "1", "-ar", "16000", "-b:a", "64k", output_path],
             # Метод 2: С игнорированием ошибок
             [ffmpeg_cmd, "-y", "-err_detect", "ignore_err", "-fflags", "+genpts+igndts",
-             "-i", input_path, "-vn", "-acodec", "libmp3lame", "-ac", "1", 
+             "-i", fixed_path, "-vn", "-acodec", "libmp3lame", "-ac", "1", 
              "-ar", "16000", "-b:a", "64k", output_path],
-            # Метод 3: Только аудио
-            [ffmpeg_cmd, "-y", "-i", input_path, "-vn", "-acodec", "copy", output_path]
+            # Метод 3: Только аудио поток
+            [ffmpeg_cmd, "-y", "-i", fixed_path, "-vn", "-acodec", "copy", output_path],
+            # Метод 4: Принудительное извлечение
+            [ffmpeg_cmd, "-y", "-i", fixed_path, "-f", "mp3", "-vn", "-acodec", "libmp3lame",
+             "-ac", "1", "-ar", "16000", "-b:a", "64k", output_path]
         ]
         
         success = False
@@ -359,7 +415,6 @@ class VoxCraftHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        # Пробуем найти index.html в разных местах
         possible_paths = [
             os.path.join(os.path.dirname(os.path.abspath(__file__)), "index.html"),
             os.path.join(os.getcwd(), "index.html"),
@@ -389,19 +444,10 @@ class VoxCraftHandler(http.server.BaseHTTPRequestHandler):
         path = self.path.split("?")[0]
         
         if path == "/api/check-file":
-            try:
-                body = self._read_body()
-                req = json.loads(body)
-                fpath = req.get("path", "").strip().strip('"\'')
-                
-                # На Render.com путь на диске не работает
-                self.send_json({"ok": False, "error": "Режим 'Путь на диске' недоступен в облаке. Используйте загрузку файла."})
-            except Exception as e:
-                self.send_json({"ok": False, "error": str(e)})
+            self.send_json({"ok": False, "error": "Режим 'Путь на диске' недоступен в облаке. Используйте загрузку файла."})
             return
 
         if path == "/api/transcribe-by-path-sse":
-            # На Render.com путь на диске не работает
             self.send_error_json("Режим 'Путь на диске' недоступен в облаке. Используйте загрузку файла.", 400)
             return
 
@@ -423,12 +469,16 @@ class VoxCraftHandler(http.server.BaseHTTPRequestHandler):
                 self.send_error_json("Файл не передан", 400)
                 return
 
-            print(f"  [transcribe/{provider}] lang={language} model={model} is_video={is_video}")
+            print(f"  [transcribe/{provider}] lang={language} model={model} is_video={is_video} size={content_length}")
 
             tmpdir_obj = None
             try:
-                # Читаем файл
                 file_bytes = self._read_body()
+                
+                if not file_bytes or len(file_bytes) == 0:
+                    raise RuntimeError("Файл пуст")
+                
+                print(f"  Получено {len(file_bytes)} байт")
                 
                 if is_video:
                     import tempfile as _tf
@@ -438,9 +488,11 @@ class VoxCraftHandler(http.server.BaseHTTPRequestHandler):
                     with open(tmp_input, "wb") as f:
                         f.write(file_bytes)
                     
-                    # Извлекаем аудио
+                    print(f"  Видео сохранено: {tmp_input}, размер: {os.path.getsize(tmp_input)}")
+                    
                     audio_bytes = extract_audio_from_path(tmp_input)
                     audio_mime = "audio/mpeg"
+                    print(f"  Аудио извлечено: {len(audio_bytes)} байт")
                 else:
                     audio_bytes = file_bytes
                     audio_mime = "audio/mpeg"
@@ -472,7 +524,7 @@ class VoxCraftHandler(http.server.BaseHTTPRequestHandler):
 if __name__ == "__main__":
     with socketserver.TCPServer(("0.0.0.0", PORT), VoxCraftHandler) as httpd:
         print(f"🚀 VoxCraft запущен на порту {PORT}")
-        print(f"✅ Адаптировано для Render.com")
+        print(f"✅ Добавлена поддержка поврежденных видео (moov atom fix)")
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:
