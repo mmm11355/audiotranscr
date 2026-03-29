@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-VoxCraft — Мульти-провайдерный аудио-транскрибер (Обновленная версия)
-Запуск: python server.py
-Порт: 8800
+VoxCraft — Мульти-провайдерный аудио-транскрибер (для Render.com)
 """
 
 import http.server
@@ -19,7 +17,7 @@ import shutil
 import socketserver
 import io
 
-PORT = 8800
+PORT = int(os.environ.get("PORT", 8800))
 POLL_INTERVAL = 3
 MAX_POLL_TIME = 600
 
@@ -62,24 +60,54 @@ def build_multipart(fields, files, boundary=None):
     return body, f"multipart/form-data; boundary={boundary}"
 
 def find_ffmpeg():
+    # На Render.com ffmpeg уже установлен
     cmd = shutil.which("ffmpeg")
     if cmd: return cmd
-    for name in ("ffmpeg.exe", "ffmpeg"):
-        local = os.path.join(os.path.dirname(os.path.abspath(__file__)), name)
-        if os.path.exists(local): return local
+    # Проверяем стандартные пути
+    common_paths = ["/usr/bin/ffmpeg", "/bin/ffmpeg"]
+    for path in common_paths:
+        if os.path.exists(path):
+            return path
     return None
 
 def extract_audio_from_path(input_path):
     ffmpeg_cmd = find_ffmpeg()
     if not ffmpeg_cmd:
-        raise RuntimeError("ffmpeg не найден. Установите его или положите рядом с server.py")
+        raise RuntimeError("ffmpeg не найден на сервере")
+    
     with tempfile.TemporaryDirectory() as tmpdir:
         output_path = os.path.join(tmpdir, "output.mp3")
-        cmd = [ffmpeg_cmd, "-y", "-i", input_path, "-vn", "-acodec", "libmp3lame", "-ac", "1", "-ar", "16000", "-b:a", "64k", output_path]
-        result = subprocess.run(cmd, capture_output=True, timeout=600)
-        if result.returncode != 0:
-            err = result.stderr.decode("utf-8", errors="replace")
-            raise RuntimeError(f"ffmpeg ошибка: {err[-1000:]}")
+        
+        # Пробуем разные методы извлечения аудио
+        methods = [
+            # Метод 1: Стандартный
+            [ffmpeg_cmd, "-y", "-i", input_path, "-vn", "-acodec", "libmp3lame", 
+             "-ac", "1", "-ar", "16000", "-b:a", "64k", output_path],
+            # Метод 2: С игнорированием ошибок
+            [ffmpeg_cmd, "-y", "-err_detect", "ignore_err", "-fflags", "+genpts+igndts",
+             "-i", input_path, "-vn", "-acodec", "libmp3lame", "-ac", "1", 
+             "-ar", "16000", "-b:a", "64k", output_path],
+            # Метод 3: Только аудио
+            [ffmpeg_cmd, "-y", "-i", input_path, "-vn", "-acodec", "copy", output_path]
+        ]
+        
+        success = False
+        last_error = ""
+        
+        for cmd in methods:
+            try:
+                result = subprocess.run(cmd, capture_output=True, timeout=300)
+                if result.returncode == 0 and os.path.exists(output_path) and os.path.getsize(output_path) > 0:
+                    success = True
+                    break
+                else:
+                    last_error = result.stderr.decode("utf-8", errors="replace")[-500:]
+            except Exception as e:
+                last_error = str(e)
+        
+        if not success:
+            raise RuntimeError(f"Не удалось извлечь аудио: {last_error}")
+        
         with open(output_path, "rb") as f:
             return f.read()
 
@@ -331,11 +359,23 @@ class VoxCraftHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        html_path = os.path.join(base_dir, "index.html")
-        if not os.path.exists(html_path):
+        # Пробуем найти index.html в разных местах
+        possible_paths = [
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), "index.html"),
+            os.path.join(os.getcwd(), "index.html"),
+            "/opt/render/project/src/index.html"
+        ]
+        
+        html_path = None
+        for path in possible_paths:
+            if os.path.exists(path):
+                html_path = path
+                break
+        
+        if not html_path:
             self.send_error(404, "index.html not found")
             return
+        
         with open(html_path, "rb") as f:
             html = f.read()
         self.send_bytes(html, "text/html; charset=utf-8")
@@ -343,119 +383,26 @@ class VoxCraftHandler(http.server.BaseHTTPRequestHandler):
     def _read_body(self):
         content_length = int(self.headers.get("Content-Length", 0))
         if content_length <= 0: return b""
-        buf = io.BytesIO()
-        remaining = content_length
-        chunk_size = 1024 * 1024
-        while remaining > 0:
-            chunk = self.rfile.read(min(chunk_size, remaining))
-            if not chunk: break
-            buf.write(chunk)
-            remaining -= len(chunk)
-        return buf.getvalue()
-
-    def _stream_body_to_file(self, path):
-        content_length = int(self.headers.get("Content-Length", 0))
-        if content_length <= 0: return 0
-        written = 0
-        remaining = content_length
-        chunk_size = 2 * 1024 * 1024
-        with open(path, "wb") as fout:
-            while remaining > 0:
-                chunk = self.rfile.read(min(chunk_size, remaining))
-                if not chunk: break
-                fout.write(chunk)
-                written += len(chunk)
-                remaining -= len(chunk)
-        return written
+        return self.rfile.read(content_length)
 
     def do_POST(self):
         path = self.path.split("?")[0]
-        content_length = int(self.headers.get("Content-Length", 0))
-        STREAM_THRESHOLD = 50 * 1024 * 1024
-        large_file = content_length > STREAM_THRESHOLD
-
+        
         if path == "/api/check-file":
             try:
                 body = self._read_body()
                 req = json.loads(body)
                 fpath = req.get("path", "").strip().strip('"\'')
-                if not fpath or not os.path.exists(fpath):
-                    self.send_json({"ok": False, "error": f"Файл не найден: {fpath}"})
-                    return
-                if not os.path.isfile(fpath):
-                    self.send_json({"ok": False, "error": "Это не файл"})
-                    return
-                self.send_json({"ok": True, "path": fpath, "name": os.path.basename(fpath), "size": os.path.getsize(fpath)})
+                
+                # На Render.com путь на диске не работает
+                self.send_json({"ok": False, "error": "Режим 'Путь на диске' недоступен в облаке. Используйте загрузку файла."})
             except Exception as e:
                 self.send_json({"ok": False, "error": str(e)})
             return
 
         if path == "/api/transcribe-by-path-sse":
-            try:
-                body = self._read_body()
-                req = json.loads(body)
-                fpath = req.get("path", "").strip().strip('"\'')
-                provider = req.get("provider", "")
-                api_key = req.get("api_key", "")
-                language = req.get("language", "ru")
-                model = req.get("model", "")
-                diarize = bool(req.get("diarize", False))
-
-                if not fpath or not os.path.exists(fpath):
-                    self.send_error_json(f"Файл не найден: {fpath}", 400)
-                    return
-                if not api_key:
-                    self.send_error_json("API ключ не передан", 400)
-                    return
-
-                self.send_response(200)
-                self.send_header("Content-Type", "text/event-stream; charset=utf-8")
-                self.send_header("Cache-Control", "no-cache")
-                self.send_header("Access-Control-Allow-Origin", "*")
-                self.end_headers()
-
-                def sse(event, data):
-                    msg = f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
-                    try:
-                        self.wfile.write(msg.encode("utf-8"))
-                        self.wfile.flush()
-                    except: pass
-
-                ext = os.path.splitext(fpath)[1].lstrip(".").lower()
-                size_mb = os.path.getsize(fpath) / (1024 * 1024)
-                fname = os.path.basename(fpath)
-                sse("progress", {"step": "start", "pct": 5, "text": f"📂 Файл найден: {fname} ({size_mb:.0f} MB)"})
-
-                VIDEO_EXTS = {"mp4","webm","mkv","avi","mov","m4v","3gp","flv","wmv","ts"}
-                if ext in VIDEO_EXTS:
-                    sse("progress", {"step": "ffmpeg", "pct": 15, "text": f"🎬 Извлечение аудио..."})
-                    audio_bytes = extract_audio_from_path(fpath)
-                    audio_mime = "audio/mpeg"
-                    sse("progress", {"step": "ffmpeg_done", "pct": 40, "text": f"✅ Аудио извлечено"})
-                else:
-                    sse("progress", {"step": "read", "pct": 20, "text": f"📖 Читаем файл..."})
-                    with open(fpath, "rb") as f:
-                        audio_bytes = f.read()
-                    audio_mime = "audio/mpeg"
-                    sse("progress", {"step": "read_done", "pct": 40, "text": f"✅ Файл прочитан"})
-
-                sse("progress", {"step": "upload", "pct": 45, "text": f"📤 Загрузка на {provider.capitalize()}..."})
-
-                if provider == "deepgram":
-                    result = transcribe_deepgram(api_key, audio_bytes, audio_mime, language, model, diarize)
-                elif provider == "assemblyai":
-                    result = transcribe_assemblyai(api_key, audio_bytes, language, model, diarize)
-                elif provider == "gladia":
-                    result = transcribe_gladia(api_key, audio_bytes, language, diarize)
-                else:
-                    sse("error", {"error": f"Неизвестный провайдер: {provider}"})
-                    return
-
-                sse("progress", {"step": "done", "pct": 100, "text": "✅ Готово!"})
-                sse("result", result)
-            except Exception as e:
-                try: sse("error", {"error": str(e)})
-                except: pass
+            # На Render.com путь на диске не работает
+            self.send_error_json("Режим 'Путь на диске' недоступен в облаке. Используйте загрузку файла.", 400)
             return
 
         if path.startswith("/api/transcribe/"):
@@ -464,50 +411,39 @@ class VoxCraftHandler(http.server.BaseHTTPRequestHandler):
             language = self.headers.get("X-Language", "ru")
             model = self.headers.get("X-Model", "")
             diarize = self.headers.get("X-Diarize", "false").lower() in ("true", "1", "yes")
-            mime = self.headers.get("Content-Type", "audio/mpeg")
             is_video = self.headers.get("X-Is-Video", "false").lower() in ("true", "1", "yes")
             file_ext = self.headers.get("X-File-Extension", "mp4").lstrip(".")
 
             if not api_key:
                 self.send_error_json("API ключ не передан", 400)
                 return
+            
+            content_length = int(self.headers.get("Content-Length", 0))
             if content_length <= 0:
-                self.send_error_json("Аудиоданные не переданы", 400)
+                self.send_error_json("Файл не передан", 400)
                 return
 
-            print(f"  [transcribe/{provider}] lang={language} model={model} size={content_length//1024}KB")
+            print(f"  [transcribe/{provider}] lang={language} model={model} is_video={is_video}")
 
             tmpdir_obj = None
             try:
-                audio_bytes = None
-                audio_mime = mime
-
-                if large_file and is_video:
+                # Читаем файл
+                file_bytes = self._read_body()
+                
+                if is_video:
                     import tempfile as _tf
                     tmpdir_obj = _tf.TemporaryDirectory()
                     tmp_input = os.path.join(tmpdir_obj.name, f"input.{file_ext}")
-                    tmp_output = os.path.join(tmpdir_obj.name, "output.mp3")
-                    written = self._stream_body_to_file(tmp_input)
-                    ffmpeg_cmd = find_ffmpeg()
-                    if not ffmpeg_cmd: raise RuntimeError("ffmpeg не найден")
-                    cmd = [ffmpeg_cmd, "-y", "-i", tmp_input, "-vn", "-acodec", "libmp3lame", "-ac", "1", "-ar", "16000", "-b:a", "64k", tmp_output]
-                    proc = subprocess.run(cmd, capture_output=True, timeout=600)
-                    if proc.returncode != 0:
-                        err = proc.stderr.decode("utf-8", errors="replace")
-                        raise RuntimeError(f"ffmpeg ошибка: {err[-1000:]}")
-                    with open(tmp_output, "rb") as f:
-                        audio_bytes = f.read()
+                    
+                    with open(tmp_input, "wb") as f:
+                        f.write(file_bytes)
+                    
+                    # Извлекаем аудио
+                    audio_bytes = extract_audio_from_path(tmp_input)
                     audio_mime = "audio/mpeg"
                 else:
-                    body = self._read_body()
-                    if not body:
-                        self.send_error_json("Аудиоданные не переданы", 400)
-                        return
-                    if is_video:
-                        audio_bytes = extract_audio(body, file_ext) if (extract_audio := lambda b, e: _extract_audio_tmpfile(b, e, find_ffmpeg())) else _extract_audio_tmpfile(body, file_ext, find_ffmpeg())
-                        audio_mime = "audio/mpeg"
-                    else:
-                        audio_bytes = body
+                    audio_bytes = file_bytes
+                    audio_mime = "audio/mpeg"
 
                 if provider == "deepgram":
                     result = transcribe_deepgram(api_key, audio_bytes, audio_mime, language, model, diarize)
@@ -524,33 +460,19 @@ class VoxCraftHandler(http.server.BaseHTTPRequestHandler):
                 print(f"  [transcribe/{provider}] ERROR: {e}")
                 self.send_error_json(str(e))
             finally:
-                if tmpdir_obj: tmpdir_obj.cleanup()
+                if tmpdir_obj:
+                    try:
+                        tmpdir_obj.cleanup()
+                    except:
+                        pass
             return
-        
-        # Fallback для extract_audio если не определен выше в scope (хак для краткости)
-        if path == "/api/extract-audio":
-             # Эта ветка может быть удалена если используется только path или полный стрим
-             self.send_error_json("Используйте прямой метод транскрипции", 400)
-             return
 
         self.send_error(404, "Not found")
 
-def _extract_audio_tmpfile(video_bytes, ext, ffmpeg_cmd):
-    with tempfile.TemporaryDirectory() as tmpdir:
-        input_path = os.path.join(tmpdir, f"input.{ext.lstrip('.')}")
-        output_path = os.path.join(tmpdir, "output.mp3")
-        with open(input_path, "wb") as f: f.write(video_bytes)
-        cmd = [ffmpeg_cmd, "-y", "-i", input_path, "-vn", "-acodec", "libmp3lame", "-ac", "1", "-ar", "16000", "-b:a", "64k", output_path]
-        result = subprocess.run(cmd, capture_output=True, timeout=600)
-        if result.returncode != 0:
-            err = result.stderr.decode("utf-8", errors="replace")
-            raise RuntimeError(f"ffmpeg ошибка: {err[-1000:]}")
-        with open(output_path, "rb") as f: return f.read()
-
 if __name__ == "__main__":
-    with socketserver.TCPServer(("", PORT), VoxCraftHandler) as httpd:
-        print(f"🚀 VoxCraft запущен на http://127.0.0.1:{PORT}")
-        print(f"📂 Откройте index.html в браузере или просто перейдите по ссылке выше")
+    with socketserver.TCPServer(("0.0.0.0", PORT), VoxCraftHandler) as httpd:
+        print(f"🚀 VoxCraft запущен на порту {PORT}")
+        print(f"✅ Адаптировано для Render.com")
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:
