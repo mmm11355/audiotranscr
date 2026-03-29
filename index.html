@@ -3,11 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VoxCraft — Транскрибер</title>
+<title>VoxCraft — Мульти-провайдерный транскрибер</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* ══════════════════════════════════════════════════════ BASE ══════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════
+   BASE & RESET
+══════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --bg-from: #0f0c29; --bg-mid: #302b63; --bg-to: #24243e;
@@ -19,6 +21,7 @@
   --radius: 16px; --radius-sm: 10px;
   --shadow: 0 8px 32px rgba(0,0,0,0.4); --glow: 0 0 20px rgba(168,85,247,0.3);
 }
+html { scroll-behavior: smooth; }
 body {
   font-family: 'Inter', sans-serif; color: var(--text); min-height: 100vh;
   background: linear-gradient(135deg, var(--bg-from) 0%, var(--bg-mid) 50%, var(--bg-to) 100%);
@@ -31,24 +34,21 @@ body::before {
   pointer-events: none;
 }
 .container { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 24px 20px 60px; }
-
-/* ══════════════════════════════════════════════════════ COMPONENTS ══════════════════════════════════════════════════════ */
 .card {
   background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border); border-radius: var(--radius); padding: 24px;
   box-shadow: var(--shadow); transition: border-color .2s;
 }
 .card + .card { margin-top: 16px; }
-.header { text-align: center; padding: 30px 0 20px; }
+.header { text-align: center; padding: 44px 0 32px; }
 .header-logo {
-  display: inline-flex; align-items: center; gap: 12px;
-  font-size: 2rem; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+  font-size: 2.2rem; font-weight: 700;
   background: linear-gradient(135deg, var(--accent), var(--accent2));
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   letter-spacing: -1px; line-height: 1; margin-bottom: 10px;
 }
-/* Исправленный логотип SVG */
-.header-logo svg { width: 40px; height: 40px; fill: url(#grad1); flex-shrink: 0; }
+.header-logo svg { width: 48px; height: 48px; fill: url(#grad1); flex-shrink: 0; }
 .header-sub { color: var(--text-muted); font-size: .95rem; font-weight: 400; }
 .header-free {
   display: inline-flex; align-items: center; gap: 6px; margin-top: 12px;
@@ -56,8 +56,6 @@ body::before {
   border: 1px solid rgba(168,85,247,0.3); font-size: .8rem; color: #c4b5fd; font-weight: 500;
 }
 .section-title { font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--text-dim); margin-bottom: 14px; }
-
-/* Providers */
 .providers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .provider-card {
   background: var(--glass); backdrop-filter: blur(20px); border: 1px solid var(--border);
@@ -76,26 +74,26 @@ body::before {
   display: inline-block; margin-top: 6px; padding: 2px 8px; border-radius: 10px;
   font-size: .65rem; font-weight: 600; background: rgba(168,85,247,0.2); color: #c4b5fd; border: 1px solid rgba(168,85,247,0.3);
 }
-
-/* Forms */
+.provider-card.active .provider-badge { background: rgba(168,85,247,0.3); }
 .form-group { margin-bottom: 14px; }
+.form-group:last-child { margin-bottom: 0; }
 label { display: block; font-size: .8rem; font-weight: 500; color: var(--text-muted); margin-bottom: 7px; }
-input[type="text"], input[type="password"], select, textarea {
+input[type="text"], input[type="password"], input[type="url"], select, textarea {
   width: 100%; background: rgba(0,0,0,0.25); border: 1px solid var(--border);
   border-radius: var(--radius-sm); padding: 11px 14px; color: var(--text);
-  font-family: 'Inter', sans-serif; font-size: .9rem; outline: none; transition: border-color .2s, box-shadow .2s;
+  font-family: 'Inter', sans-serif; font-size: .9rem; outline: none; transition: border-color .2s, box-shadow .2s; -webkit-appearance: none;
 }
-input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(168,85,247,0.15); }
+input[type="text"]:focus, input[type="password"]:focus, input[type="url"]:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(168,85,247,0.15); }
+select { cursor: pointer; }
+select option { background: #302b63; color: #fff; }
 .input-row { display: flex; gap: 10px; align-items: flex-end; }
 .input-row input { flex: 1; }
-.api-link { display: inline-flex; align-items: center; gap: 5px; font-size: .75rem; color: #a78bfa; text-decoration: none; margin-top: 8px; opacity: .8; }
+.api-link { display: inline-flex; align-items: center; gap: 5px; font-size: .75rem; color: #a78bfa; text-decoration: none; margin-top: 8px; opacity: .8; transition: opacity .2s; }
 .api-link:hover { opacity: 1; text-decoration: underline; }
-.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
 .checkbox-row { display: flex; align-items: center; gap: 10px; padding-top: 24px; }
 .checkbox-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
-.checkbox-row span { font-size: .88rem; color: var(--text-muted); cursor: pointer; }
-
-/* Buttons */
+.checkbox-row span { font-size: .88rem; color: var(--text-muted); cursor: pointer; user-select: none; }
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   padding: 10px 18px; border: none; border-radius: var(--radius-sm);
@@ -105,15 +103,16 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
 .btn:disabled { opacity: .4; cursor: not-allowed; pointer-events: none; }
 .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; box-shadow: 0 4px 15px rgba(168,85,247,0.35); }
 .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(168,85,247,0.5); }
+.btn-primary:active { transform: translateY(0); }
 .btn-ghost { background: var(--glass); color: var(--text-muted); border: 1px solid var(--border); }
 .btn-ghost:hover { background: var(--glass-hover); color: var(--text); border-color: rgba(255,255,255,0.2); }
 .btn-danger { background: rgba(248,113,113,0.12); color: var(--danger); border: 1px solid rgba(248,113,113,0.25); }
+.btn-danger:hover { background: rgba(248,113,113,0.2); }
 .btn-sm { padding: 7px 13px; font-size: .8rem; }
 .btn-xs { padding: 5px 10px; font-size: .75rem; }
 .btn-full { width: 100%; padding: 15px; font-size: 1rem; font-weight: 600; border-radius: var(--radius); }
 .btn-save { background: rgba(168,85,247,0.2); color: #c4b5fd; border: 1px solid rgba(168,85,247,0.3); flex-shrink: 0; }
-
-/* File Modes */
+.btn-save:hover { background: rgba(168,85,247,0.3); }
 .file-mode-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
 .file-mode-btn {
   flex: 1; padding: 9px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm);
@@ -121,9 +120,15 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
   font-size: .83rem; font-weight: 500; cursor: pointer; transition: all .2s;
   display: flex; align-items: center; justify-content: center; gap: 6px;
 }
+.file-mode-btn:hover { background: var(--glass-hover); color: var(--text); }
 .file-mode-btn.active { background: rgba(168,85,247,0.15); border-color: rgba(168,85,247,0.4); color: #c4b5fd; }
 .mode-badge { font-size: .65rem; padding: 1px 6px; border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; font-weight: 600; }
-
+.path-hint { padding: 11px 14px; background: rgba(168,85,247,0.08); border: 1px solid rgba(168,85,247,0.2); border-radius: var(--radius-sm); font-size: .82rem; color: var(--text-muted); line-height: 1.6; }
+.path-hint strong { color: #c4b5fd; }
+.path-warning { margin-top: 10px; padding: 12px 14px; background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.35); border-radius: var(--radius-sm); font-size: .82rem; color: #fde68a; line-height: 1.65; }
+.path-warning strong { color: #fbbf24; }
+.path-warning code { display: inline-block; background: rgba(0,0,0,0.3); border-radius: 4px; padding: 1px 6px; font-family: monospace; font-size: .85em; color: #c4b5fd; user-select: all; }
+.path-error { margin-top: 8px; padding: 9px 12px; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); border-radius: var(--radius-sm); color: #fca5a5; font-size: .82rem; }
 .dropzone { border: 2px dashed var(--border); border-radius: var(--radius); padding: 40px 24px; text-align: center; cursor: pointer; transition: all .22s; background: rgba(0,0,0,0.15); }
 .dropzone:hover, .dropzone.drag-over { border-color: var(--accent); background: rgba(168,85,247,0.06); }
 .dropzone-icon { font-size: 2.5rem; margin-bottom: 12px; opacity: .6; }
@@ -131,43 +136,49 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
 .dropzone-sub { font-size: .78rem; color: var(--text-dim); margin-top: 6px; }
 .file-preview { display: none; align-items: center; gap: 14px; padding: 14px 18px; background: rgba(0,0,0,0.2); border-radius: var(--radius-sm); border: 1px solid var(--border); }
 .file-preview.visible { display: flex; }
-.file-icon { width: 46px; height: 46px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; background: rgba(16,185,129,0.15); }
+.file-icon { width: 46px; height: 46px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+.file-icon.audio { background: rgba(16,185,129,0.15); }
+.file-icon.video { background: rgba(99,102,241,0.15); }
 .file-info { flex: 1; min-width: 0; }
 .file-name { font-weight: 500; font-size: .9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .file-size { font-size: .77rem; color: var(--text-muted); margin-top: 2px; }
-
-/* Progress */
+.file-remove { flex-shrink: 0; }
 .progress-section { display: none; }
 .progress-section.visible { display: block; }
 .progress-status { font-size: .88rem; color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-.spinner { width: 16px; height: 16px; border: 2px solid rgba(168,85,247,0.25); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
+.spinner { width: 16px; height: 16px; border: 2px solid rgba(168,85,247,0.25); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; flex-shrink: 0; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .progress-bar-wrap { height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
 .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 3px; transition: width .3s ease; box-shadow: 0 0 10px rgba(168,85,247,0.5); }
-.error-block { display: none; padding: 14px 16px; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); border-radius: var(--radius-sm); color: #fca5a5; font-size: .87rem; line-height: 1.6; margin-top: 12px; }
-.error-block.visible { display: block; }
-
-/* Result Tabs */
+.progress-bar-fill.indeterminate { width: 40% !important; animation: indeterminate 1.5s ease-in-out infinite; }
+@keyframes indeterminate { 0% { transform: translateX(-150%); } 100% { transform: translateX(350%); } }
 .result-section { display: none; }
 .result-section.visible { display: block; }
 .result-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
 .meta-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px; border-radius: 20px; font-family: 'JetBrains Mono', monospace; font-size: .72rem; font-weight: 500; background: rgba(255,255,255,0.07); border: 1px solid var(--border); color: var(--text-muted); }
 .meta-badge .dot { width: 6px; height: 6px; border-radius: 50%; }
-.dot-deepgram { background: #10b981; } .dot-assemblyai { background: #60a5fa; } .dot-gladia { background: #f472b6; }
-
+.dot-deepgram { background: #10b981; }
+.dot-assemblyai { background: #60a5fa; }
+.dot-gladia { background: #f472b6; }
 .tabs { display: flex; gap: 4px; padding: 4px; background: rgba(0,0,0,0.2); border-radius: var(--radius-sm); margin-bottom: 16px; }
-.tab-btn { flex: 1; padding: 9px; border: none; border-radius: 7px; font-family: 'Inter', sans-serif; font-size: .83rem; font-weight: 500; color: var(--text-muted); background: transparent; cursor: pointer; transition: all .2s; }
+.tab-btn {
+  flex: 1; padding: 9px; border: none; border-radius: 7px; font-family: 'Inter', sans-serif;
+  font-size: .83rem; font-weight: 500; color: var(--text-muted); background: transparent;
+  cursor: pointer; transition: all .2s;
+}
 .tab-btn.active { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; box-shadow: 0 2px 10px rgba(168,85,247,0.35); }
+.tab-btn:hover:not(.active) { background: rgba(255,255,255,0.06); color: var(--text); }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
-
 textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-size: .88rem; line-height: 1.7; padding: 16px; background: rgba(0,0,0,0.25); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-family: 'Inter', sans-serif; }
-
-/* Speakers & Timestamps */
 .utterances-list { display: flex; flex-direction: column; gap: 10px; }
 .utterance-item { display: flex; gap: 12px; padding: 14px; background: rgba(0,0,0,0.2); border-radius: var(--radius-sm); border: 1px solid var(--border); transition: border-color .2s; }
 .utterance-item:hover { border-color: rgba(255,255,255,0.15); }
-.speaker-badge { flex-shrink: 0; padding: 3px 10px; border-radius: 20px; font-size: .72rem; font-weight: 600; font-family: 'JetBrains Mono', monospace; white-space: nowrap; height: fit-content; margin-top: 2px; cursor: pointer; border: 1px dashed transparent; }
+.speaker-badge {
+  flex-shrink: 0; padding: 3px 10px; border-radius: 20px; font-size: .72rem;
+  font-weight: 600; font-family: 'JetBrains Mono', monospace; white-space: nowrap;
+  height: fit-content; margin-top: 2px; cursor: pointer; border: 1px dashed transparent;
+}
 .speaker-badge:hover { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.05); }
 .speaker-badge[contenteditable="true"]:focus { outline: 2px solid var(--accent); background: rgba(0,0,0,0.3); }
 .utterance-body { flex: 1; }
@@ -177,28 +188,20 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
 .spk-1 { background: rgba(236,72,153,0.2); color: #f9a8d4; border: 1px solid rgba(236,72,153,0.3); }
 .spk-2 { background: rgba(16,185,129,0.2); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
 .spk-3 { background: rgba(245,158,11,0.2); color: #fcd34d; border: 1px solid rgba(245,158,11,0.3); }
-
+.spk-4 { background: rgba(59,130,246,0.2); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
+.spk-5 { background: rgba(99,102,241,0.2); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.3); }
 .words-view { font-size: .87rem; line-height: 1.9; }
 .word-ts { display: inline; cursor: pointer; border-radius: 3px; padding: 1px 2px; transition: background .15s; }
 .word-ts:hover { background: rgba(168,85,247,0.2); }
-
-/* Summary & Keywords */
-.summary-block { padding: 16px; background: rgba(168,85,247,0.05); border: 1px solid rgba(168,85,247,0.2); border-radius: var(--radius-sm); margin-bottom: 16px; }
-.summary-title { font-size: 0.9rem; font-weight: 600; color: #c4b5fd; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-.summary-list { list-style: none; padding-left: 0; }
-.summary-list li { position: relative; padding-left: 20px; margin-bottom: 8px; font-size: 0.9rem; line-height: 1.5; color: var(--text-muted); }
-.summary-list li::before { content: '•'; color: var(--accent); position: absolute; left: 0; font-weight: bold; }
-.keywords-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
-.keyword-tag { background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; color: #d8b4fe; border: 1px solid rgba(168,85,247,0.2); cursor: pointer; }
-.keyword-tag:hover { background: rgba(168,85,247,0.2); }
-
-/* History */
+.ts-marker { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: .68rem; color: #a78bfa; background: rgba(168,85,247,0.12); border-radius: 4px; padding: 1px 5px; margin-right: 4px; vertical-align: middle; cursor: default; }
+.result-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
 .history-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; padding: 4px 0; }
 .history-header h3 { font-size: .95rem; font-weight: 600; }
 .history-toggle { font-size: .8rem; color: var(--text-dim); transition: transform .2s; }
 .history-toggle.open { transform: rotate(180deg); }
 .history-body { display: none; margin-top: 14px; }
 .history-body.open { display: block; }
+.history-empty { font-size: .85rem; color: var(--text-dim); text-align: center; padding: 20px 0; }
 .history-list { display: flex; flex-direction: column; gap: 8px; }
 .history-item { padding: 12px 14px; background: rgba(0,0,0,0.18); border-radius: var(--radius-sm); border: 1px solid var(--border); cursor: pointer; transition: all .2s; }
 .history-item:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.15); }
@@ -207,8 +210,6 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
 .history-item-meta { font-size: .72rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
 .history-item-preview { font-size: .8rem; color: var(--text-muted); margin-top: 6px; line-height: 1.5; display: none; }
 .history-item.expanded .history-item-preview { display: block; }
-
-/* Footer & Toast */
 .footer { text-align: center; padding: 32px 0 16px; color: var(--text-dim); font-size: .8rem; }
 .footer-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; margin-top: 12px; }
 .footer-link { display: flex; align-items: center; gap: 5px; color: var(--text-muted); text-decoration: none; font-size: .8rem; transition: color .2s; }
@@ -220,9 +221,10 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
 .toast.error { background: rgba(248,113,113,0.2); border: 1px solid rgba(248,113,113,0.4); color: #fca5a5; }
 .toast.info { background: rgba(168,85,247,0.2); border: 1px solid rgba(168,85,247,0.4); color: #c4b5fd; }
 @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
+.error-block { display: none; padding: 14px 16px; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); border-radius: var(--radius-sm); color: #fca5a5; font-size: .87rem; line-height: 1.6; margin-top: 12px; }
+.error-block.visible { display: block; }
 @media (max-width: 640px) {
-  .header-logo { font-size: 1.5rem; }
+  .header-logo { font-size: 2rem; }
   .providers { grid-template-columns: 1fr; }
   .settings-grid { grid-template-columns: 1fr; }
   .result-actions { flex-direction: column; }
@@ -231,11 +233,55 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
   .input-row { flex-direction: column; }
   .input-row input, .input-row .btn-save { width: 100%; }
 }
+
+/* НОВЫЕ СТИЛИ ДЛЯ САММАРИ И СТАТИСТИКИ */
+.summary-block { padding: 16px; background: rgba(168,85,247,0.05); border: 1px solid rgba(168,85,247,0.2); border-radius: var(--radius-sm); margin-bottom: 16px; }
+.summary-title { font-size: 0.9rem; font-weight: 600; color: #c4b5fd; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.summary-list { list-style: none; padding-left: 0; }
+.summary-list li { position: relative; padding-left: 20px; margin-bottom: 8px; font-size: 0.9rem; line-height: 1.5; color: var(--text-muted); }
+.summary-list li::before { content: '•'; color: var(--accent); position: absolute; left: 0; font-weight: bold; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px; }
+.stat-card { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; border: 1px solid var(--border); text-align: center; }
+.stat-val { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+.stat-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+.keywords-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
+.keyword-tag { background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; color: #d8b4fe; border: 1px solid rgba(168,85,247,0.2); cursor: pointer; transition: all 0.2s; }
+.keyword-tag:hover { background: rgba(168,85,247,0.2); transform: translateY(-2px); }
+
+/* Стили для вкладки таймкодов (список) */
+.timestamps-list { display: flex; flex-direction: column; gap: 8px; }
+.timestamp-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 10px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.timestamp-item:hover {
+  background: rgba(168,85,247,0.1);
+  border-color: var(--accent);
+}
+.ts-time-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  background: rgba(168,85,247,0.2);
+  color: #c4b5fd;
+  padding: 2px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.ts-text-preview {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
 </style>
 </head>
 <body>
 
-<!-- SVG Definitions (Hidden) -->
+<!-- SVG Definitions for Logo -->
 <svg style="display: none;">
   <defs>
     <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -251,7 +297,6 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
   <!-- HEADER -->
   <div class="header">
     <div class="header-logo">
-      <!-- SVG Logo -->
       <svg viewBox="0 0 24 24">
         <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
         <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
@@ -262,32 +307,32 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
     <div class="header-free">✨ Суммарно ~600+ часов бесплатной транскрибации</div>
   </div>
 
-  <!-- PROVIDER -->
+  <!-- БЛОК 1: ВЫБОР ПРОВАЙДЕРА -->
   <div class="card">
     <div class="section-title">Выберите провайдера</div>
     <div class="providers">
       <div class="provider-card active" data-provider="deepgram" onclick="selectProvider('deepgram')">
         <div class="provider-icon deepgram">DG</div>
         <div class="provider-name">Deepgram</div>
-        <div class="provider-free">$200 кредитов</div>
+        <div class="provider-free">$200 кредитов бесплатно</div>
         <div class="provider-badge">~430 часов</div>
       </div>
       <div class="provider-card" data-provider="assemblyai" onclick="selectProvider('assemblyai')">
         <div class="provider-icon assemblyai">AI</div>
         <div class="provider-name">AssemblyAI</div>
-        <div class="provider-free">$50 кредитов</div>
+        <div class="provider-free">$50 кредитов бесплатно</div>
         <div class="provider-badge">~100 часов</div>
       </div>
       <div class="provider-card" data-provider="gladia" onclick="selectProvider('gladia')">
         <div class="provider-icon gladia">GL</div>
         <div class="provider-name">Gladia</div>
-        <div class="provider-free">10 часов/мес</div>
-        <div class="provider-badge">Solaria</div>
+        <div class="provider-free">10 часов/мес бесплатно</div>
+        <div class="provider-badge">Solaria 100+ яз.</div>
       </div>
     </div>
   </div>
 
-  <!-- API KEY -->
+  <!-- БЛОК 2: API КЛЮЧ -->
   <div class="card">
     <div class="section-title">API ключ</div>
     <div class="form-group">
@@ -299,7 +344,7 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
     </div>
   </div>
 
-  <!-- SETTINGS -->
+  <!-- БЛОК 3: НАСТРОЙКИ -->
   <div class="card">
     <div class="section-title">Настройки</div>
     <div class="settings-grid">
@@ -318,20 +363,21 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
     </div>
   </div>
 
-  <!-- FILE INPUT -->
+  <!-- БЛОК 4: ЗАГРУЗКА ФАЙЛА / ССЫЛКА -->
   <div class="card">
-    <div class="section-title">Источник файла</div>
+    <div class="section-title">Источник медиа</div>
     <div class="file-mode-tabs" id="fileModeTabs">
-      <button class="file-mode-btn active" id="modeUploadBtn" onclick="setFileMode('upload')">📁 Загрузить файл</button>
-      <button class="file-mode-btn" id="modeLinkBtn" onclick="setFileMode('link')">🔗 Ссылка (URL)</button>
+      <button class="file-mode-btn active" id="modeUploadBtn" onclick="setFileMode('upload')">📁 Файл</button>
+      <button class="file-mode-btn" id="modeLinkBtn" onclick="setFileMode('link')">🔗 Ссылка</button>
+      <button class="file-mode-btn" id="modePathBtn" onclick="setFileMode('path')">💻 Путь на диске</button>
     </div>
 
-    <!-- Upload Mode -->
+    <!-- Режим: Загрузка файла -->
     <div id="modeUploadPanel">
       <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()" ondrop="handleDrop(event)" ondragover="event.preventDefault(); this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')">
         <div class="dropzone-icon">📁</div>
-        <div class="dropzone-text">Перетащите файл сюда или нажмите</div>
-        <div class="dropzone-sub">MP3, WAV, MP4, MOV и др. · до 2 GB</div>
+        <div class="dropzone-text">Перетащите файл сюда или нажмите для выбора</div>
+        <div class="dropzone-sub">MP3, WAV, MP4, WebM, MOV · до 500 MB (зависит от хостинга)</div>
       </div>
       <input type="file" id="fileInput" accept="audio/*,video/*" style="display:none" onchange="handleFileSelect(event)">
       <div class="file-preview" id="filePreview">
@@ -344,82 +390,118 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
       </div>
     </div>
 
-    <!-- Link Mode -->
+    <!-- Режим: Ссылка -->
     <div id="modeLinkPanel" style="display:none">
-      <div class="form-group">
-        <label>Прямая ссылка на аудио или видео</label>
+      <div class="path-hint">
+        💡 Вставьте прямую ссылку на аудио или видео файл.<br>
+        Файл будет загружен браузером и отправлен на обработку.
+      </div>
+      <div class="form-group" style="margin-top:12px">
+        <label>URL медиафайла</label>
         <div class="input-row">
-          <input type="text" id="fileUrlInput" placeholder="https://example.com/audio.mp3 или video.mp4" oninput="onUrlInput()">
-          <button class="btn btn-save" onclick="validateUrl()">Проверить</button>
-        </div>
-        <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 8px;">
-          💡 Работает только с прямыми ссылками на файлы (заканчиваются на .mp3, .mp4 и т.д.). Ссылки на YouTube не поддерживаются напрямую.
+          <input type="url" id="mediaUrlInput" placeholder="https://example.com/audio.mp3 или video.mp4" oninput="onLinkInput()">
+          <button class="btn btn-save" onclick="validateLink()">Проверить</button>
         </div>
       </div>
-      <div class="file-preview" id="filePreviewUrl" style="display:none; margin-top:10px">
-        <div class="file-icon" id="fileIconUrl">🔗</div>
+      <div class="file-preview" id="filePreviewLink" style="display:none; margin-top:10px">
+        <div class="file-icon" id="fileIconLink">🔗</div>
         <div class="file-info">
-          <div class="file-name" id="fileNameUrl"></div>
-          <div class="file-size" id="fileSizeUrl">Готов к загрузке</div>
+          <div class="file-name" id="fileNameLink"></div>
+          <div class="file-size" id="fileSizeLink">Готово к загрузке</div>
         </div>
-        <div class="file-remove"><button class="btn btn-ghost btn-sm" onclick="clearUrl()">✕ Убрать</button></div>
+        <div class="file-remove"><button class="btn btn-ghost btn-sm" onclick="clearLink()">✕ Убрать</button></div>
       </div>
-      <div class="path-error" id="urlError" style="display:none"></div>
+      <div class="path-error" id="linkError" style="display:none"></div>
+    </div>
+
+    <!-- Режим: Путь на диске -->
+    <div id="modePathPanel" style="display:none">
+      <div class="path-hint">💡 Файл читается <strong>напрямую с вашего диска</strong> — сеть не используется.<br>Идеально для больших файлов (500MB+).</div>
+      <div class="path-warning" id="pathLocalWarning" style="display:none">
+        ⚠️ <strong>Режим «Путь на диске» работает только при локальном запуске.</strong><br>
+        Сейчас сервер работает удалённо и не имеет доступа к вашим файлам.<br><br>
+        Для работы с большими файлами:
+        <ol style="margin:8px 0 0 18px; line-height:1.8">
+          <li>Скачайте архив проекта</li>
+          <li>Запустите <code>start.bat</code> на своём компьютере</li>
+          <li>Откройте <code>http://127.0.0.1:8800</code> — путь к файлу будет работать</li>
+        </ol>
+      </div>
+      <div class="form-group" style="margin-top:12px">
+        <label>Полный путь к файлу</label>
+        <div class="input-row">
+          <input type="text" id="filePathInput" placeholder="C:\Videos\recording.mp4  или  /Users/name/video.mp4" oninput="onPathInput()" onkeydown="if(event.key==='Enter') checkFilePath()">
+          <button class="btn btn-save" onclick="checkFilePath()">Проверить</button>
+        </div>
+      </div>
+      <div class="file-preview" id="filePreviewPath" style="display:none; margin-top:10px">
+        <div class="file-icon" id="fileIconPath">🎵</div>
+        <div class="file-info">
+          <div class="file-name" id="fileNamePath"></div>
+          <div class="file-size" id="fileSizePath"></div>
+        </div>
+        <div class="file-remove"><button class="btn btn-ghost btn-sm" onclick="clearPathFile()">✕ Убрать</button></div>
+      </div>
+      <div class="path-error" id="pathError" style="display:none"></div>
     </div>
   </div>
 
-  <!-- TRANSCRIBE BTN -->
+  <!-- БЛОК 5: КНОПКА ТРАНСКРИБАЦИИ -->
   <button class="btn btn-primary btn-full" id="transcribeBtn" onclick="startTranscription()" disabled>🎙 Транскрибировать</button>
   <div id="transcribeBtnHint" style="display:none; text-align:center; font-size:.8rem; color:#a78bfa; margin-top:6px; opacity:.85;">🔑 Введите API ключ и выберите файл/ссылку</div>
 
-  <!-- PROGRESS -->
+  <!-- БЛОК 6: ПРОГРЕСС -->
   <div class="card progress-section" id="progressSection">
     <div class="progress-status"><div class="spinner"></div><span id="progressText">Подготовка...</span></div>
     <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
     <div class="error-block" id="errorBlock"></div>
   </div>
 
-  <!-- RESULT -->
+  <!-- БЛОК 7: РЕЗУЛЬТАТ -->
   <div class="card result-section" id="resultSection">
     <div class="result-meta" id="resultMeta"></div>
     
+    <!-- ОБНОВЛЕННЫЕ ВКЛАДКИ -->
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('text')" id="tabText">📄 Текст</button>
+      <button class="tab-btn" onclick="switchTab('summary')" id="tabSummary">📋 Саммари</button>
       <button class="tab-btn" onclick="switchTab('speakers')" id="tabSpeakers">👥 Спикеры</button>
       <button class="tab-btn" onclick="switchTab('timestamps')" id="tabTimestamps">⏱ Таймкоды</button>
-      <button class="tab-btn" onclick="switchTab('summary')" id="tabSummary">📋 Саммари</button>
       <button class="tab-btn" onclick="switchTab('keywords')" id="tabKeywords">🏷 Ключевые слова</button>
     </div>
 
-    <!-- Text Tab -->
+    <!-- Вкладка: Текст -->
     <div class="tab-content active" id="tabContentText">
-      <textarea class="result-text" id="resultTextarea" readonly placeholder="Текст появится здесь..."></textarea>
+      <textarea class="result-text" id="resultTextarea" readonly placeholder="Результат транскрибации появится здесь..."></textarea>
     </div>
 
-    <!-- Speakers Tab -->
+    <!-- Вкладка: Саммари -->
+    <div class="tab-content" id="tabContentSummary">
+      <div id="summaryContent">
+        <div class="summary-block">
+          <div class="summary-title">✨ Главные моменты</div>
+          <ul class="summary-list" id="summaryList">
+            <li>Загрузите файл и выполните транскрибацию, чтобы увидеть саммари.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Вкладка: Спикеры -->
     <div class="tab-content" id="tabContentSpeakers">
+      <div class="stats-grid" id="speakerStats"></div>
       <div class="utterances-list" id="utterancesList"></div>
       <div style="margin-top:10px; font-size:0.75rem; color:var(--text-dim); text-align:center;">
-        💡 Нажмите на имя спикера, чтобы переименовать его.
+        💡 Нажмите на имя спикера (например, "Спикер 1"), чтобы переименовать его.
       </div>
     </div>
 
-    <!-- Timestamps Tab -->
+    <!-- Вкладка: Таймкоды (Список) -->
     <div class="tab-content" id="tabContentTimestamps">
-      <div class="words-view" id="wordsView"></div>
+      <div class="timestamps-list" id="timestampsList"></div>
     </div>
 
-    <!-- Summary Tab -->
-    <div class="tab-content" id="tabContentSummary">
-      <div class="summary-block">
-        <div class="summary-title">✨ Главные моменты</div>
-        <ul class="summary-list" id="summaryList">
-          <li>Загрузите файл для анализа.</li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- Keywords Tab -->
+    <!-- Вкладка: Ключевые слова -->
     <div class="tab-content" id="tabContentKeywords">
       <div class="keywords-cloud" id="keywordsView"></div>
     </div>
@@ -428,20 +510,20 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
       <button class="btn btn-ghost btn-sm" onclick="copyResult()">📋 Копировать текст</button>
       <button class="btn btn-ghost btn-sm" onclick="downloadTxt()">⬇ Скачать .txt</button>
       <button class="btn btn-ghost btn-sm" onclick="downloadSrt()">🎬 Скачать .srt</button>
-      <button class="btn btn-ghost btn-sm" onclick="exportWidget()">🌐 Экспорт виджета</button>
+      <button class="btn btn-primary btn-sm" onclick="exportWidget()">🌐 Создать виджет</button>
     </div>
   </div>
 
-  <!-- HISTORY -->
+  <!-- БЛОК 8: ИСТОРИЯ -->
   <div class="card" id="historyCard" style="margin-top:16px">
     <div class="history-header" onclick="toggleHistory()">
-      <h3>🕑 История</h3>
+      <h3>🕑 История транскрипций</h3>
       <span class="history-toggle" id="historyToggle">▼</span>
     </div>
     <div class="history-body" id="historyBody">
       <div id="historyContent"></div>
       <div style="margin-top:12px;text-align:right">
-        <button class="btn btn-danger btn-xs" onclick="clearHistory()">Очистить</button>
+        <button class="btn btn-danger btn-xs" onclick="clearHistory()">Очистить историю</button>
       </div>
     </div>
   </div>
@@ -450,9 +532,9 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
   <div class="footer">
     <div>Бесплатные API ключи</div>
     <div class="footer-links">
-      <a href="https://console.deepgram.com/" class="footer-link" target="_blank" rel="noopener"><span class="footer-dot" style="background:#10b981"></span>Deepgram</a>
-      <a href="https://www.assemblyai.com/app/api-keys" class="footer-link" target="_blank" rel="noopener"><span class="footer-dot" style="background:#60a5fa"></span>AssemblyAI</a>
-      <a href="https://app.gladia.io/" class="footer-link" target="_blank" rel="noopener"><span class="footer-dot" style="background:#f472b6"></span>Gladia</a>
+      <a href="https://console.deepgram.com/" class="footer-link" target="_blank" rel="noopener"><span class="footer-dot" style="background:#10b981"></span>Deepgram Console</a>
+      <a href="https://www.assemblyai.com/app/api-keys" class="footer-link" target="_blank" rel="noopener"><span class="footer-dot" style="background:#60a5fa"></span>AssemblyAI Dashboard</a>
+      <a href="https://app.gladia.io/" class="footer-link" target="_blank" rel="noopener"><span class="footer-dot" style="background:#f472b6"></span>Gladia App</a>
     </div>
   </div>
 </div>
@@ -461,21 +543,22 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
 'use strict';
 
 const PROVIDERS = {
-  deepgram: { name: 'Deepgram', keyLink: 'https://console.deepgram.com/', models: [{ value: 'nova-3', label: 'Nova-3 (Best)' }, { value: 'nova-2', label: 'Nova-2' }, { value: 'whisper', label: 'Whisper' }], supportedLangs: null },
-  assemblyai: { name: 'AssemblyAI', keyLink: 'https://www.assemblyai.com/app/api-keys', models: [{ value: 'universal-2', label: 'Universal-2' }, { value: 'best', label: 'Universal-3 Pro' }], supportedLangs: null },
-  gladia: { name: 'Gladia', keyLink: 'https://app.gladia.io/', models: [{ value: 'solaria', label: 'Solaria' }], supportedLangs: null },
+  deepgram: { name: 'Deepgram', keyLink: 'https://console.deepgram.com/', models: [{ value: 'nova-3', label: 'Nova-3 (рекомендуется)' }, { value: 'nova-2', label: 'Nova-2' }, { value: 'whisper', label: 'Whisper' }], supportedLangs: null },
+  assemblyai: { name: 'AssemblyAI', keyLink: 'https://www.assemblyai.com/app/api-keys', models: [{ value: 'universal-2', label: 'Universal-2 (99 яз.)' }, { value: 'best', label: 'Universal-3 Pro (6 яз.)' }], supportedLangs: null },
+  gladia: { name: 'Gladia', keyLink: 'https://app.gladia.io/', models: [{ value: 'solaria', label: 'Solaria (100+ яз.)' }], supportedLangs: null },
 };
 
 const LANGUAGES = [
-  { value: 'ru', label: '🇷🇺 Русский' }, { value: 'en', label: '🇬🇧 English' }, { value: 'auto', label: '🌐 Авто' },
+  { value: 'ru', label: '🇷🇺 Русский' }, { value: 'en', label: '🇬🇧 English' }, { value: 'auto', label: '🌐 Авто-определение' },
   { value: 'de', label: '🇩🇪 Deutsch' }, { value: 'fr', label: '🇫🇷 Français' }, { value: 'es', label: '🇪🇸 Español' },
   { value: 'zh', label: '🇨🇳 中文' }, { value: 'ja', label: '🇯🇵 日本語' }, { value: 'ko', label: '🇰🇷 한국어' },
   { value: 'hi', label: '🇮🇳 हिन्दी' }, { value: 'pt', label: '🇧🇷 Português' }, { value: 'it', label: '🇮🇹 Italiano' },
   { value: 'nl', label: '🇳🇱 Nederlands' }, { value: 'tr', label: '🇹🇷 Türkçe' }, { value: 'pl', label: '🇵🇱 Polski' }, { value: 'uk', label: '🇺🇦 Українська' },
 ];
 
-let state = { provider: 'deepgram', file: null, fileUrl: null, result: null, activeTab: 'text', speakerNames: {} };
-let fileMode = 'upload'; // 'upload' | 'link'
+let state = { provider: 'deepgram', file: null, fileUrl: null, result: null, activeTab: 'text', speakerNames: {}, mediaType: 'audio' };
+let fileMode = 'upload';
+let pathFileInfo = null;
 const IS_LOCAL = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
 
 (function init() {
@@ -525,7 +608,7 @@ function saveApiKey() {
   const key = document.getElementById('apiKeyInput').value.trim();
   if (!key) { showToast('Введите API ключ', 'error'); return; }
   localStorage.setItem(`voxcraft_key_${state.provider}`, key);
-  showToast('Ключ сохранён локально', 'success');
+  showToast('Ключ сохранён', 'success');
   updateTranscribeBtn();
 }
 
@@ -535,23 +618,34 @@ function getApiKey() {
 
 function updateTranscribeBtn() {
   const hasKey = getApiKey().length > 5;
-  const hasFile = (fileMode === 'upload' && state.file) || (fileMode === 'link' && state.fileUrl);
+  let hasSource = false;
+  if (fileMode === 'upload' && state.file) hasSource = true;
+  if (fileMode === 'link' && state.fileUrl) hasSource = true;
+  if (fileMode === 'path' && pathFileInfo) hasSource = true;
+  
   const btn = document.getElementById('transcribeBtn');
   const hint = document.getElementById('transcribeBtnHint');
-  btn.disabled = !(hasKey && hasFile);
-  hint.style.display = (hasKey && hasFile) ? 'none' : 'block';
+  btn.disabled = !(hasKey && hasSource);
+  hint.style.display = (hasKey && hasSource) ? 'none' : 'block';
 }
 
 function setFileMode(mode) {
   fileMode = mode;
   document.getElementById('modeUploadBtn').classList.toggle('active', mode === 'upload');
   document.getElementById('modeLinkBtn').classList.toggle('active', mode === 'link');
+  document.getElementById('modePathBtn').classList.toggle('active', mode === 'path');
+  
   document.getElementById('modeUploadPanel').style.display = mode === 'upload' ? 'block' : 'none';
   document.getElementById('modeLinkPanel').style.display = mode === 'link' ? 'block' : 'none';
+  document.getElementById('modePathPanel').style.display = mode === 'path' ? 'block' : 'none';
+  
+  if (mode === 'path' && !IS_LOCAL) document.getElementById('pathLocalWarning').style.display = 'block';
+  else document.getElementById('pathLocalWarning').style.display = 'none';
+  
   updateTranscribeBtn();
 }
 
-// --- UPLOAD HANDLERS ---
+// --- UPLOAD MODE ---
 function handleDrop(e) {
   e.preventDefault();
   document.getElementById('dropzone').classList.remove('drag-over');
@@ -564,10 +658,12 @@ function handleFileSelect(e) {
 
 function handleFile(file) {
   state.file = file;
-  state.fileUrl = null;
+  state.fileUrl = null; // Clear link
   document.getElementById('fileName').textContent = file.name;
   document.getElementById('fileSize').textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
-  document.getElementById('fileIcon').textContent = file.type.startsWith('video') ? '🎬' : '🎵';
+  const isVideo = file.type.startsWith('video') || file.name.match(/\.(mp4|webm|mov|avi)$/i);
+  state.mediaType = isVideo ? 'video' : 'audio';
+  document.getElementById('fileIcon').textContent = isVideo ? '🎬' : '🎵';
   document.getElementById('filePreview').classList.add('visible');
   document.getElementById('dropzone').style.display = 'none';
   updateTranscribeBtn();
@@ -581,44 +677,84 @@ function clearFile() {
   updateTranscribeBtn();
 }
 
-// --- LINK HANDLERS ---
-function onUrlInput() { document.getElementById('urlError').style.display = 'none'; }
+// --- LINK MODE ---
+function onLinkInput() { document.getElementById('linkError').style.display = 'none'; }
 
-function validateUrl() {
-  const url = document.getElementById('fileUrlInput').value.trim();
+function validateLink() {
+  const url = document.getElementById('mediaUrlInput').value.trim();
   if (!url) return;
   
-  // Basic validation
+  // Simple validation
   try {
     new URL(url);
     state.fileUrl = url;
-    state.file = null; // Clear file mode
-    
+    state.file = null; // Clear file
     const fileName = url.split('/').pop().split('?')[0] || 'media_file';
-    document.getElementById('fileNameUrl').textContent = fileName;
-    document.getElementById('fileIconUrl').textContent = /\.(mp4|webm|mov)$/i.test(fileName) ? '🎬' : '🎵';
+    const ext = fileName.split('.').pop().toLowerCase();
+    const isVideo = ['mp4','webm','mov','avi','mkv'].includes(ext);
+    state.mediaType = isVideo ? 'video' : 'audio';
     
-    document.getElementById('filePreviewUrl').classList.add('visible');
-    document.getElementById('urlError').style.display = 'none';
+    document.getElementById('fileNameLink').textContent = fileName;
+    document.getElementById('fileIconLink').textContent = isVideo ? '🎬' : '🎵';
+    document.getElementById('filePreviewLink').classList.add('visible');
+    document.getElementById('linkError').style.display = 'none';
     updateTranscribeBtn();
-    showToast('Ссылка принята', 'success');
   } catch (e) {
     state.fileUrl = null;
-    document.getElementById('urlError').textContent = 'Некорректная ссылка';
-    document.getElementById('urlError').style.display = 'block';
-    document.getElementById('filePreviewUrl').classList.remove('visible');
+    document.getElementById('linkError').textContent = 'Некорректная ссылка';
+    document.getElementById('linkError').style.display = 'block';
+    document.getElementById('filePreviewLink').classList.remove('visible');
     updateTranscribeBtn();
   }
 }
 
-function clearUrl() {
+function clearLink() {
   state.fileUrl = null;
-  document.getElementById('fileUrlInput').value = '';
-  document.getElementById('filePreviewUrl').classList.remove('visible');
+  document.getElementById('mediaUrlInput').value = '';
+  document.getElementById('filePreviewLink').classList.remove('visible');
   updateTranscribeBtn();
 }
 
-// --- TRANSCRIPTION LOGIC ---
+// --- PATH MODE ---
+function onPathInput() { document.getElementById('pathError').style.display = 'none'; }
+
+function checkFilePath() {
+  const path = document.getElementById('filePathInput').value.trim();
+  if (!path) return;
+  fetch('/api/check-file', { method: 'POST', body: JSON.stringify({ path }) })
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        pathFileInfo = { path: data.path, name: data.name, size: data.size, isVideo: /\.(mp4|webm|mkv|avi|mov)$/i.test(data.name) };
+        document.getElementById('fileNamePath').textContent = data.name;
+        document.getElementById('fileSizePath').textContent = (data.size / (1024 * 1024)).toFixed(2) + ' MB';
+        document.getElementById('fileIconPath').textContent = pathFileInfo.isVideo ? '🎬' : '🎵';
+        document.getElementById('filePreviewPath').classList.add('visible');
+        document.getElementById('pathError').style.display = 'none';
+        updateTranscribeBtn();
+      } else {
+        pathFileInfo = null;
+        document.getElementById('pathError').textContent = data.error || 'Файл не найден';
+        document.getElementById('pathError').style.display = 'block';
+        document.getElementById('filePreviewPath').classList.remove('visible');
+        updateTranscribeBtn();
+      }
+    })
+    .catch(err => {
+      pathFileInfo = null;
+      document.getElementById('pathError').textContent = 'Ошибка соединения с сервером';
+      document.getElementById('pathError').style.display = 'block';
+      updateTranscribeBtn();
+    });
+}
+
+function clearPathFile() {
+  pathFileInfo = null;
+  document.getElementById('filePathInput').value = '';
+  document.getElementById('filePreviewPath').classList.remove('visible');
+  updateTranscribeBtn();
+}
+
 function startTranscription() {
   const apiKey = getApiKey();
   const language = document.getElementById('languageSelect').value;
@@ -633,29 +769,64 @@ function startTranscription() {
   document.getElementById('progressBar').classList.remove('indeterminate');
   document.getElementById('progressText').textContent = 'Инициализация...';
 
-  if (fileMode === 'link' && state.fileUrl) {
+  if (fileMode === 'path' && pathFileInfo) {
+    runSSETranscription(pathFileInfo.path, apiKey, provider, language, model, diarize);
+  } else if (fileMode === 'link' && state.fileUrl) {
     runLinkTranscription(state.fileUrl, apiKey, provider, language, model, diarize);
   } else if (fileMode === 'upload' && state.file) {
     runUploadTranscription(state.file, apiKey, provider, language, model, diarize);
   }
 }
 
+function runSSETranscription(filePath, apiKey, provider, language, model, diarize) {
+  const url = `/api/transcribe-by-path-sse?path=${encodeURIComponent(filePath)}&provider=${provider}&api_key=${encodeURIComponent(apiKey)}&language=${language}&model=${model}&diarize=${diarize}`;
+  const evtSource = new EventSource(url);
+  
+  evtSource.onmessage = (e) => {
+    try {
+        const data = JSON.parse(e.data);
+        if(data.success) finishTranscription(data);
+    } catch(err) {}
+  };
+
+  evtSource.addEventListener('progress', (e) => {
+    const data = JSON.parse(e.data);
+    document.getElementById('progressBar').style.width = data.pct + '%';
+    document.getElementById('progressText').textContent = data.text;
+    if (data.step === 'upload' || data.step === 'ffmpeg') document.getElementById('progressBar').classList.add('indeterminate');
+    else document.getElementById('progressBar').classList.remove('indeterminate');
+  });
+
+  evtSource.addEventListener('result', (e) => {
+    const data = JSON.parse(e.data);
+    finishTranscription(data);
+    evtSource.close();
+  });
+
+  evtSource.addEventListener('error', (e) => {
+    const data = JSON.parse(e.data);
+    showError(data.error || 'Ошибка транскрибации');
+    evtSource.close();
+  });
+}
+
 function runLinkTranscription(url, apiKey, provider, language, model, diarize) {
-  // Fetch file via browser and upload as blob
-  document.getElementById('progressText').textContent = 'Скачивание файла по ссылке...';
+  // Скачиваем файл по ссылке через браузер и отправляем как FormData
+  document.getElementById('progressText').textContent = 'Загрузка файла по ссылке...';
   document.getElementById('progressBar').classList.add('indeterminate');
   
   fetch(url)
     .then(res => {
-      if (!res.ok) throw new Error('Ошибка загрузки файла по ссылке: ' + res.status);
+      if (!res.ok) throw new Error('Не удалось скачать файл по ссылке');
       return res.blob();
     })
     .then(blob => {
-      const file = new File([blob], "media_from_url", { type: blob.type });
+      const fileName = url.split('/').pop().split('?')[0] || 'media_file';
+      const file = new File([blob], fileName, { type: blob.type });
       runUploadTranscription(file, apiKey, provider, language, model, diarize);
     })
     .catch(err => {
-      showError('Ошибка загрузки: ' + err.message + '. Попробуйте скачать файл и загрузить его вручную.');
+      showError('Ошибка загрузки по ссылке: ' + err.message);
     });
 }
 
@@ -664,11 +835,15 @@ function runUploadTranscription(file, apiKey, provider, language, model, diarize
   formData.append('file', file);
   
   const xhr = new XMLHttpRequest();
+  // Важно: отправляем файл целиком, сервер сам разберется (видео или аудио)
   const url = `/api/transcribe/${provider}?language=${language}&model=${model}&diarize=${diarize}`;
   
   xhr.open('POST', url, true);
   xhr.setRequestHeader('X-Api-Key', apiKey);
-  if (file.type.startsWith('video')) {
+  
+  // Не указываем X-Is-Video явно, пусть сервер определит по MIME или расширению, 
+  // но лучше отправить заголовок, если знаем тип
+  if (state.mediaType === 'video' || file.type.startsWith('video')) {
     xhr.setRequestHeader('X-Is-Video', 'true');
     xhr.setRequestHeader('X-File-Extension', file.name.split('.').pop());
   }
@@ -677,7 +852,8 @@ function runUploadTranscription(file, apiKey, provider, language, model, diarize
     if (e.lengthComputable) {
       const pct = Math.round((e.loaded / e.total) * 40);
       document.getElementById('progressBar').style.width = pct + '%';
-      document.getElementById('progressText').textContent = `Загрузка: ${pct}%`;
+      document.getElementById('progressText').textContent = `Загрузка файла: ${pct}%`;
+      document.getElementById('progressBar').classList.remove('indeterminate');
     }
   };
 
@@ -696,12 +872,12 @@ function runUploadTranscription(file, apiKey, provider, language, model, diarize
         const errData = JSON.parse(xhr.responseText);
         showError(errData.error || 'Ошибка сервера');
       } catch {
-        showError(`HTTP Error ${xhr.status}: ${xhr.responseText.substring(0, 100)}`);
+        showError(`HTTP Error ${xhr.status}: ${xhr.statusText}`);
       }
     }
   };
 
-  xhr.onerror = () => showError('Ошибка сети или таймаут. Файл может быть слишком большим для бесплатного тарифа.');
+  xhr.onerror = () => showError('Ошибка сети');
   xhr.send(formData);
 }
 
@@ -718,104 +894,15 @@ function finishTranscription(data) {
   `;
 
   document.getElementById('resultTextarea').value = data.transcript;
-  renderSpeakers(data);
-  renderTimestamps(data);
   renderSummary(data);
+  renderSpeakers(data);
+  renderTimestampsList(data); // Новая функция для списка таймкодов
   renderKeywords(data.transcript);
 
   document.getElementById('progressSection').classList.remove('visible');
   document.getElementById('resultSection').classList.add('visible');
   switchTab('text');
   addToHistory(data);
-}
-
-// --- RENDER FUNCTIONS ---
-
-function renderSpeakers(data) {
-  const container = document.getElementById('utterancesList');
-  container.innerHTML = '';
-
-  if (!data.utterances || data.utterances.length === 0) {
-    container.innerHTML = '<div style="text-align:center;color:var(--text-muted)">Нет данных о спикерах</div>';
-    return;
-  }
-
-  data.utterances.forEach((u, idx) => {
-    const spkId = u.speaker;
-    const defaultName = `Спикер ${spkId+1}`;
-    const displayName = state.speakerNames[spkId] || defaultName;
-    
-    const div = document.createElement('div');
-    div.className = 'utterance-item';
-    div.innerHTML = `
-      <div class="speaker-badge spk-${spkId % 4}" contenteditable="true" 
-           onblur="updateSpeakerName(${spkId}, this.textContent)" 
-           title="Нажмите чтобы переименовать">
-        ${displayName}
-      </div>
-      <div class="utterance-body">
-        <div class="utterance-time">${formatTime(u.start)} - ${formatTime(u.end)}</div>
-        <div class="utterance-text">${escapeHtml(u.text)}</div>
-      </div>
-    `;
-    container.appendChild(div);
-  });
-}
-
-function updateSpeakerName(spkId, newName) {
-  state.speakerNames[spkId] = newName.trim();
-  if (state.result) renderSpeakers(state.result);
-}
-
-function renderTimestamps(data) {
-  const container = document.getElementById('wordsView');
-  container.innerHTML = '';
-  
-  if (!data.utterances || data.utterances.length === 0) {
-     // Fallback to words if no utterances
-     if(data.words && data.words.length > 0) {
-        data.words.forEach(w => {
-            const div = document.createElement('div');
-            div.style.marginBottom = '8px';
-            div.innerHTML = `<span class="word-ts" style="color:var(--accent); font-weight:bold; cursor:pointer;" onclick="scrollToTime(${w.start})">[${formatTime(w.start)}]</span> <span style="color:var(--text-muted)">${escapeHtml(w.word)}</span>`;
-            container.appendChild(div);
-        });
-     } else {
-        container.innerHTML = '<div style="text-align:center;color:var(--text-muted)">Нет данных</div>';
-     }
-     return;
-  }
-
-  // Render by utterances (like speakers tab but with clickable timestamps)
-  data.utterances.forEach((u, idx) => {
-    const spkId = u.speaker;
-    const defaultName = `Спикер ${spkId+1}`;
-    const displayName = state.speakerNames[spkId] || defaultName;
-    
-    const div = document.createElement('div');
-    div.className = 'utterance-item';
-    div.style.cursor = 'pointer';
-    div.onclick = (e) => {
-        if(e.target.tagName !== 'INPUT' && e.target.getAttribute('contenteditable') !== 'true') {
-            scrollToTime(u.start);
-        }
-    };
-    div.innerHTML = `
-      <div class="speaker-badge spk-${spkId % 4}">${displayName}</div>
-      <div class="utterance-body">
-        <div class="utterance-time" style="color:var(--accent); font-weight:bold;">[${formatTime(u.start)}]</div>
-        <div class="utterance-text">${escapeHtml(u.text)}</div>
-      </div>
-    `;
-    container.appendChild(div);
-  });
-}
-
-function scrollToTime(seconds) {
-    // Since we don't have a persistent player in the main UI yet, we just show a toast or alert
-    // In a full app, this would control an <audio> element.
-    showToast(`Время: ${formatTime(seconds)}`, 'info');
-    // If we had a player: document.getElementById('mainPlayer').currentTime = seconds;
 }
 
 function renderSummary(data) {
@@ -837,6 +924,88 @@ function renderSummary(data) {
     const li = document.createElement('li');
     li.textContent = text.trim();
     list.appendChild(li);
+  });
+}
+
+function renderSpeakers(data) {
+  const container = document.getElementById('utterancesList');
+  const statsContainer = document.getElementById('speakerStats');
+  container.innerHTML = '';
+  statsContainer.innerHTML = '';
+
+  if (!data.utterances || data.utterances.length === 0) {
+    container.innerHTML = '<div style="text-align:center;color:var(--text-muted)">Нет данных о спикерах</div>';
+    return;
+  }
+
+  const speakerStats = {};
+  data.utterances.forEach(u => {
+    const spk = u.speaker;
+    if (!speakerStats[spk]) speakerStats[spk] = { count: 0, duration: 0 };
+    speakerStats[spk].count++;
+    speakerStats[spk].duration += (u.end - u.start);
+  });
+
+  Object.keys(speakerStats).forEach(key => {
+    const s = speakerStats[key];
+    const name = state.speakerNames[key] || `Спикер ${parseInt(key)+1}`;
+    const card = document.createElement('div');
+    card.className = 'stat-card';
+    card.innerHTML = `
+      <div class="stat-val" style="color:var(--accent)">${name}</div>
+      <div class="stat-label">${s.count} реплик</div>
+      <div class="stat-label">${formatDuration(s.duration)}</div>
+    `;
+    statsContainer.appendChild(card);
+  });
+
+  data.utterances.forEach((u, idx) => {
+    const spkId = u.speaker;
+    const defaultName = `Спикер ${spkId+1}`;
+    const displayName = state.speakerNames[spkId] || defaultName;
+    
+    const div = document.createElement('div');
+    div.className = 'utterance-item';
+    div.innerHTML = `
+      <div class="speaker-badge spk-${spkId % 6}" contenteditable="true" 
+           onblur="updateSpeakerName(${spkId}, this.textContent)" 
+           title="Нажмите чтобы переименовать">
+        ${displayName}
+      </div>
+      <div class="utterance-body">
+        <div class="utterance-time">${formatTime(u.start)} - ${formatTime(u.end)}</div>
+        <div class="utterance-text">${escapeHtml(u.text)}</div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function updateSpeakerName(spkId, newName) {
+  state.speakerNames[spkId] = newName.trim();
+  if (state.result) renderSpeakers(state.result);
+}
+
+// НОВАЯ ФУНКЦИЯ: Рендеринг списка таймкодов (как на вкладке спикеров, но без имен)
+function renderTimestampsList(data) {
+  const container = document.getElementById('timestampsList');
+  container.innerHTML = '';
+
+  if (!data.utterances || data.utterances.length === 0) {
+    container.innerHTML = '<div style="text-align:center;color:var(--text-muted)">Нет данных</div>';
+    return;
+  }
+
+  data.utterances.forEach((u, idx) => {
+    const div = document.createElement('div');
+    div.className = 'timestamp-item';
+    div.onclick = () => seekMedia(u.start); // Клик перемотает медиа
+    
+    div.innerHTML = `
+      <div class="ts-time-badge">${formatTime(u.start)}</div>
+      <div class="ts-text-preview">${escapeHtml(u.text)}</div>
+    `;
+    container.appendChild(div);
   });
 }
 
@@ -866,18 +1035,27 @@ function renderKeywords(text) {
     const tag = document.createElement('span');
     tag.className = 'keyword-tag';
     tag.textContent = `${word} (${count})`;
-    tag.onclick = () => {
-        switchTab('text');
-        const textarea = document.getElementById('resultTextarea');
-        const index = textarea.value.toLowerCase().indexOf(word);
-        if (index !== -1) {
-            textarea.focus();
-            textarea.setSelectionRange(index, index + word.length);
-            textarea.scrollTop = textarea.scrollHeight; // Scroll to bottom roughly
-        }
-    };
+    tag.onclick = () => highlightWord(word);
     container.appendChild(tag);
   });
+}
+
+function highlightWord(word) {
+  switchTab('text');
+  const textarea = document.getElementById('resultTextarea');
+  const text = textarea.value;
+  const index = text.toLowerCase().indexOf(word.toLowerCase());
+  if (index !== -1) {
+    textarea.focus();
+    textarea.setSelectionRange(index, index + word.length);
+    showToast(`Найдено: "${word}"`, 'info');
+  }
+}
+
+function seekMedia(time) {
+  // В будущем здесь будет интеграция с плеером в виджете
+  // Пока просто показываем время
+  showToast(`Перемотка на ${formatTime(time)} (см. виджет)`, 'info');
 }
 
 function switchTab(tabName) {
@@ -885,12 +1063,12 @@ function switchTab(tabName) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
   
-  const btn = document.getElementById(`tab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
-  const content = document.getElementById(`tabContent${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
+  const tabBtn = document.getElementById(`tab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
+  const tabContent = document.getElementById(`tabContent${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
   
-  if(btn && content) {
-      btn.classList.add('active');
-      content.classList.add('active');
+  if (tabBtn && tabContent) {
+    tabBtn.classList.add('active');
+    tabContent.classList.add('active');
   }
 }
 
@@ -921,90 +1099,6 @@ function downloadSrt() {
   URL.revokeObjectURL(url);
 }
 
-// --- WIDGET EXPORT ---
-function exportWidget() {
-    if (!state.result) { showToast('Сначала выполните транскрибацию', 'error'); return; }
-    
-    const isVideo = state.file ? state.file.type.startsWith('video') : (state.fileUrl && /\.(mp4|webm|mov)$/i.test(state.fileUrl));
-    const mediaSrc = state.fileUrl || ''; // Note: Local files cannot be embedded directly in a static HTML widget without hosting.
-    
-    let mediaTag = '';
-    if (isVideo) {
-        mediaTag = `<video controls width="100%" style="border-radius:8px; margin-bottom:15px; background:#000;"><source src="${mediaSrc}" type="video/mp4">Ваш браузер не поддерживает видео.</video>`;
-    } else {
-        mediaTag = `<audio controls width="100%" style="width:100%; margin-bottom:15px;"><source src="${mediaSrc}" type="audio/mpeg">Ваш браузер не поддерживает аудио.</audio>`;
-    }
-    
-    if (!mediaSrc) {
-        mediaTag = `<div style="padding:20px; background:rgba(255,255,255,0.05); border-radius:8px; text-align:center; margin-bottom:15px; color:#aaa;">⚠️ Медиафайл загружен локально. Для работы виджета загрузите файл на хостинг и вставьте ссылку в код ниже вместо "ВАША_ССЫЛКА_НА_ФАЙЛ".</div>`;
-    }
-
-    let utterancesHtml = '';
-    if(state.result.utterances) {
-        state.result.utterances.forEach(u => {
-            const spkName = state.speakerNames[u.speaker] || `Спикер ${u.speaker+1}`;
-            utterancesHtml += `
-                <div style="margin-bottom:12px; display:flex; gap:10px;">
-                    <span style="font-size:0.75rem; font-weight:bold; color:var(--vc-primary); min-width:60px;">${spkName}</span>
-                    <div>
-                        <span style="font-size:0.7rem; color:var(--vc-primary); opacity:0.8; cursor:pointer;" onclick="seekMedia(${u.start})">[${formatTime(u.start)}]</span>
-                        <div style="font-size:0.9rem; line-height:1.5;">${escapeHtml(u.text)}</div>
-                    </div>
-                </div>
-            `;
-        });
-    }
-
-    const widgetCode = `
-<!-- VoxCraft Widget Start -->
-<div id="voxcraft-widget" style="--vc-primary: #a855f7; --vc-bg: #1e1b2e; --vc-text: #e2d9f3; --vc-border: rgba(168,85,247,0.3); font-family: 'Inter', sans-serif; max-width: 800px; margin: 20px auto; background: var(--vc-bg); border: 1px solid var(--vc-border); border-radius: 12px; overflow: hidden; color: var(--vc-text); box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-  <div style="padding: 20px; border-bottom: 1px solid var(--vc-border); background: rgba(0,0,0,0.2);">
-    <h3 style="margin:0; font-size: 1.2rem; color: #fff;">Таймоды</h3>
-    <p style="margin: 5px 0 0; font-size: 0.85rem; opacity: 0.7;">Длительность: ${formatDuration(state.result.metadata.duration)}</p>
-  </div>
-  <div style="padding: 20px;">
-    ${mediaTag}
-    <div style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
-        ${utterancesHtml}
-    </div>
-  </div>
-  <style>
-    #voxcraft-widget::-webkit-scrollbar { width: 8px; }
-    #voxcraft-widget::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
-    #voxcraft-widget::-webkit-scrollbar-thumb { background: var(--vc-border); border-radius: 4px; }
-    #voxcraft-widget span[onclick] { transition: color 0.2s; }
-    #voxcraft-widget span[onclick]:hover { color: #fff; text-decoration: underline; }
-  </style>
-  <script>
-    function seekMedia(t) {
-        const widget = document.getElementById('voxcraft-widget');
-        const media = widget.querySelector('video, audio');
-        if(media) {
-            media.currentTime = t;
-            media.play();
-        } else {
-            alert('Пожалуйста, добавьте прямую ссылку на файл в код виджета.');
-        }
-    }
-  <\/script>
-</div>
-<!-- VoxCraft Widget End -->
-    `;
-
-    navigator.clipboard.writeText(widgetCode).then(() => {
-        showToast('HTML код виджета скопирован!', 'success');
-    }).catch(() => {
-        // Fallback for older browsers
-        const blob = new Blob([widgetCode], {type: 'text/html'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'widget.html';
-        a.click();
-        showToast('Файл виджета скачан (clipboard blocked)', 'info');
-    });
-}
-
-// --- UTILS ---
 function formatDuration(sec) {
   const m = Math.floor(sec / 60);
   const s = Math.floor(sec % 60);
@@ -1088,7 +1182,7 @@ function renderHistory() {
     div.onclick = () => {
       document.querySelectorAll('.history-item').forEach(i => i.classList.remove('expanded'));
       div.classList.toggle('expanded');
-      if (div.classList.contains('expanded')) {
+      if (div.classList.contains('expanded') && !state.result) {
          state.result = item.full;
          finishTranscription(item.full);
       }
@@ -1111,6 +1205,65 @@ function clearHistory() {
     localStorage.removeItem('voxcraft_history');
     renderHistory();
   }
+}
+
+function exportWidget() {
+  if (!state.result) { showToast('Сначала выполните транскрибацию', 'error'); return; }
+  
+  const mediaSrc = state.fileUrl || (state.file ? URL.createObjectURL(state.file) : '');
+  const isVideo = state.mediaType === 'video' || (state.file && state.file.type.startsWith('video'));
+  
+  const widgetHTML = `
+<!-- VoxCraft Widget Start -->
+<div id="voxcraft-widget" style="--vc-primary: #a855f7; --vc-bg: #1e1b2e; --vc-text: #e2d9f3; --vc-border: rgba(168,85,247,0.3); font-family: 'Inter', sans-serif; max-width: 800px; margin: 20px auto; background: var(--vc-bg); border: 1px solid var(--vc-border); border-radius: 12px; overflow: hidden; color: var(--vc-text); box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+  <div style="padding: 20px; border-bottom: 1px solid var(--vc-border); background: rgba(0,0,0,0.2); display:flex; justify-content:space-between; align-items:center;">
+    <div>
+      <h3 style="margin:0; font-size: 1.2rem; color: #fff;">Транскрибация</h3>
+      <p style="margin: 5px 0 0; font-size: 0.85rem; opacity: 0.7;">Длительность: ${formatDuration(state.result.metadata.duration)}</p>
+    </div>
+    <div style="font-size:0.8rem; opacity:0.6; text-transform:uppercase;">${state.result.provider}</div>
+  </div>
+  
+  <div style="padding: 20px; background: #000;">
+    ${isVideo 
+      ? `<video controls style="width:100%; border-radius:8px;" src="${mediaSrc}"></video>` 
+      : `<audio controls style="width:100%;" src="${mediaSrc}"></audio>`
+    }
+  </div>
+
+  <div style="padding: 20px; max-height: 400px; overflow-y: auto;">
+    ${state.result.utterances.map(u => `
+      <div class="vc-line" style="display:flex; gap:12px; margin-bottom:12px; cursor:pointer; padding:8px; border-radius:6px; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'" onclick="seekTo(${u.start})">
+        <span class="vc-time" style="color: var(--vc-primary); font-family:monospace; font-size:0.8em; min-width:45px;">${formatTime(u.start)}</span>
+        <span style="line-height:1.5; font-size:0.95rem;">${escapeHtml(u.text)}</span>
+      </div>
+    `).join('')}
+  </div>
+
+  <style>
+    #voxcraft-widget::-webkit-scrollbar { width: 8px; }
+    #voxcraft-widget::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+    #voxcraft-widget::-webkit-scrollbar-thumb { background: var(--vc-border); border-radius: 4px; }
+  </style>
+  <script>
+    function seekTo(time) {
+      const widget = document.getElementById('voxcraft-widget');
+      const media = widget.querySelector('video, audio');
+      if (media) {
+        media.currentTime = time;
+        media.play();
+      }
+    }
+  <\/script>
+</div>
+<!-- VoxCraft Widget End -->
+  `;
+
+  navigator.clipboard.writeText(widgetHTML).then(() => {
+    showToast('Код виджета скопирован! Вставьте его на свой сайт.', 'success');
+  }).catch(() => {
+    showToast('Не удалось скопировать. Проверьте разрешения браузера.', 'error');
+  });
 }
 </script>
 </body>
