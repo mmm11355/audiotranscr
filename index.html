@@ -1,270 +1,466 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VoxCraft — Professional Transcriber</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <style>
-        /* ══════════════════════════════════════════════════════
-           CSS STYLES (Восстановлено и дополнено)
-        ══════════════════════════════════════════════════════ */
-        :root {
-            --bg-from: #0f0c29; --bg-mid: #302b63; --bg-to: #24243e;
-            --accent: #a855f7; --accent2: #ec4899;
-            --glass: rgba(255,255,255,0.05); --glass-hover: rgba(255,255,255,0.09);
-            --border: rgba(255,255,255,0.10); --border-active: rgba(168,85,247,0.6);
-            --text: #ffffff; --text-muted: rgba(255,255,255,0.55); --text-dim: rgba(255,255,255,0.35);
-            --radius: 16px; --radius-sm: 10px;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoxCraft — Транскрибатор</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════
+   BASE & RESET
+══════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg-from: #0f0c29; --bg-mid: #302b63; --bg-to: #24243e;
+  --accent: #a855f7; --accent2: #ec4899;
+  --glass: rgba(255,255,255,0.05); --glass-hover: rgba(255,255,255,0.09);
+  --border: rgba(255,255,255,0.10); --border-active: rgba(168,85,247,0.6);
+  --text: #ffffff; --text-muted: rgba(255,255,255,0.55); --text-dim: rgba(255,255,255,0.35);
+  --success: #34d399; --danger: #f87171; --warning: #fbbf24;
+  --radius: 16px; --radius-sm: 10px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4); --glow: 0 0 20px rgba(168,85,247,0.3);
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', sans-serif; color: var(--text); min-height: 100vh;
+  background: linear-gradient(135deg, var(--bg-from) 0%, var(--bg-mid) 50%, var(--bg-to) 100%);
+  background-attachment: fixed; overflow-x: hidden;
+}
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 0;
+  background: radial-gradient(ellipse at 20% 20%, rgba(168,85,247,0.15) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 80%, rgba(236,72,153,0.10) 0%, transparent 60%);
+  pointer-events: none;
+}
+.container { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 24px 20px 60px; }
 
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', sans-serif; color: var(--text); min-height: 100vh;
-            background: linear-gradient(135deg, var(--bg-from), var(--bg-mid), var(--bg-to));
-            background-attachment: fixed; padding: 20px; overflow-x: hidden;
-        }
+/* ══════════════════════════════════════════════════════
+   COMPONENTS
+══════════════════════════════════════════════════════ */
+.card {
+  background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border); border-radius: var(--radius); padding: 24px;
+  box-shadow: var(--shadow); transition: border-color .2s;
+}
+.card + .card { margin-top: 16px; }
 
-        .container { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
-        .card {
-            background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border); border-radius: var(--radius); padding: 24px;
-            margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-        }
+.header { text-align: center; padding: 30px 0 20px; }
+.header-logo {
+  display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+  font-size: 2rem; font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  letter-spacing: -1px; line-height: 1; margin-bottom: 10px;
+}
+.header-logo svg { width: 40px; height: 40px; fill: url(#grad1); -webkit-text-fill-color: initial; }
+.header-sub { color: var(--text-muted); font-size: .95rem; font-weight: 400; }
+.header-free {
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 12px;
+  padding: 5px 14px; border-radius: 20px; background: rgba(168,85,247,0.12);
+  border: 1px solid rgba(168,85,247,0.3); font-size: .8rem; color: #c4b5fd; font-weight: 500;
+}
 
-        /* UI Elements */
-        .header { text-align: center; margin-bottom: 40px; }
-        .header h1 { font-size: 2.8rem; font-weight: 800; letter-spacing: -1px; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
-        .providers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 15px 0; }
-        .provider-card {
-            background: var(--glass); border: 1px solid var(--border); border-radius: var(--radius-sm);
-            padding: 18px 10px; text-align: center; cursor: pointer; transition: 0.2s;
-        }
-        .provider-card.active { border-color: var(--accent); background: rgba(168,85,247,0.12); box-shadow: 0 0 15px rgba(168,85,247,0.2); }
+.section-title { font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--text-dim); margin-bottom: 14px; }
+.providers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.provider-card {
+  background: var(--glass); backdrop-filter: blur(20px); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 18px 14px; cursor: pointer;
+  transition: all .22s ease; text-align: center; user-select: none;
+}
+.provider-card:hover { background: var(--glass-hover); border-color: rgba(255,255,255,0.2); transform: translateY(-2px); }
+.provider-card.active { border-color: var(--border-active); background: rgba(168,85,247,0.10); box-shadow: var(--glow), 0 0 0 1px rgba(168,85,247,0.3) inset; }
+.provider-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-size: 1.4rem; font-weight: 700; }
+.provider-icon.deepgram { background: rgba(18,184,134,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+.provider-icon.assemblyai { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); }
+.provider-icon.gladia { background: rgba(236,72,153,0.15); color: #f472b6; border: 1px solid rgba(244,114,182,0.3); }
+.provider-name { font-size: .9rem; font-weight: 600; margin-bottom: 4px; }
+.provider-free { font-size: .72rem; color: var(--text-muted); }
+.provider-badge {
+  display: inline-block; margin-top: 6px; padding: 2px 8px; border-radius: 10px;
+  font-size: .65rem; font-weight: 600; background: rgba(168,85,247,0.2); color: #c4b5fd; border: 1px solid rgba(168,85,247,0.3);
+}
 
-        .btn {
-            padding: 12px 20px; border: none; border-radius: var(--radius-sm);
-            cursor: pointer; font-weight: 600; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; justify-content: center;
-        }
-        .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; width: 100%; font-size: 1.1rem; }
-        .btn-primary:disabled { opacity: 0.3; cursor: not-allowed; filter: grayscale(1); }
-        .btn-ghost { background: var(--glass); color: var(--text); border: 1px solid var(--border); }
-        
-        /* Tabs */
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
-        .tab-btn { background: none; border: none; color: var(--text-muted); padding: 10px 15px; cursor: pointer; position: relative; }
-        .tab-btn.active { color: #fff; }
-        .tab-btn.active::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px; background: var(--accent); }
+.form-group { margin-bottom: 14px; }
+label { display: block; font-size: .8rem; font-weight: 500; color: var(--text-muted); margin-bottom: 7px; }
+input[type="text"], input[type="password"], input[type="url"], select, textarea {
+  width: 100%; background: rgba(0,0,0,0.25); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 11px 14px; color: var(--text);
+  font-family: 'Inter', sans-serif; font-size: .9rem; outline: none; transition: border-color .2s, box-shadow .2s;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(168,85,247,0.15); }
+.input-row { display: flex; gap: 10px; align-items: flex-end; }
+.input-row input { flex: 1; }
+.api-link { display: inline-flex; align-items: center; gap: 5px; font-size: .75rem; color: #a78bfa; text-decoration: none; margin-top: 8px; opacity: .8; }
+.api-link:hover { opacity: 1; text-decoration: underline; }
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.checkbox-row { display: flex; align-items: center; gap: 10px; padding-top: 24px; }
+.checkbox-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+.checkbox-row span { font-size: .88rem; color: var(--text-muted); cursor: pointer; }
 
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 10px 18px; border: none; border-radius: var(--radius-sm);
+  font-family: 'Inter', sans-serif; font-size: .87rem; font-weight: 500;
+  cursor: pointer; transition: all .2s; white-space: nowrap; text-decoration: none;
+}
+.btn:disabled { opacity: .4; cursor: not-allowed; pointer-events: none; }
+.btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; box-shadow: 0 4px 15px rgba(168,85,247,0.35); }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(168,85,247,0.5); }
+.btn-ghost { background: var(--glass); color: var(--text-muted); border: 1px solid var(--border); }
+.btn-ghost:hover { background: var(--glass-hover); color: var(--text); border-color: rgba(255,255,255,0.2); }
+.btn-danger { background: rgba(248,113,113,0.12); color: var(--danger); border: 1px solid rgba(248,113,113,0.25); }
+.btn-sm { padding: 7px 13px; font-size: .8rem; }
+.btn-full { width: 100%; padding: 15px; font-size: 1rem; font-weight: 600; border-radius: var(--radius); margin-top: 10px;}
+.btn-save { background: rgba(168,85,247,0.2); color: #c4b5fd; border: 1px solid rgba(168,85,247,0.3); flex-shrink: 0; }
 
-        /* Utterances (Speakers) */
-        .utterance-item { margin-bottom: 16px; padding: 15px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); }
-        .speaker-badge { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; margin-bottom: 8px; display: inline-block; cursor: pointer; }
-        .spk-0 { background: #3b82f6; } .spk-1 { background: #10b981; } .spk-2 { background: #f59e0b; } .spk-3 { background: #8b5cf6; }
-        .utterance-time { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 4px; }
+.file-mode-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.file-mode-btn {
+  flex: 1; padding: 9px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: transparent; color: var(--text-muted); font-size: .83rem; font-weight: 500; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.file-mode-btn.active { background: rgba(168,85,247,0.15); border-color: rgba(168,85,247,0.4); color: #c4b5fd; }
+.mode-badge { font-size: .65rem; padding: 1px 6px; border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; }
 
-        /* Progress */
-        .progress-section { display: none; }
-        .progress-section.visible { display: block; }
-        .progress-bar-wrap { height: 8px; background: rgba(0,0,0,0.3); border-radius: 4px; overflow: hidden; margin: 15px 0; }
-        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.3s; }
-        .indeterminate { animation: shift 1.5s infinite linear; width: 40%; position: relative; }
-        @keyframes shift { from { left: -40%; } to { left: 100%; } }
+.dropzone { border: 2px dashed var(--border); border-radius: var(--radius); padding: 40px 24px; text-align: center; cursor: pointer; transition: all .22s; background: rgba(0,0,0,0.15); }
+.dropzone:hover, .dropzone.drag-over { border-color: var(--accent); background: rgba(168,85,247,0.06); }
+.dropzone-icon { font-size: 2.5rem; margin-bottom: 12px; opacity: .6; }
+.dropzone-text { font-size: .95rem; font-weight: 500; color: var(--text-muted); }
+.dropzone-sub { font-size: .78rem; color: var(--text-dim); margin-top: 6px; }
 
-        /* Toasts */
-        #toastContainer { position: fixed; bottom: 24px; right: 24px; z-index: 9999; }
-        .toast { padding: 12px 20px; background: #1e1b2e; border: 1px solid var(--accent); border-radius: 10px; color: #fff; margin-top: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); animation: slide 0.3s ease; }
-        @keyframes slide { from { transform: translateX(100%); } to { transform: translateX(0); } }
+.file-preview { display: none; align-items: center; gap: 14px; padding: 14px 18px; background: rgba(0,0,0,0.2); border-radius: var(--radius-sm); border: 1px solid var(--border); margin-top: 10px; }
+.file-preview.visible { display: flex; }
+.file-info { flex: 1; min-width: 0; }
+.file-name { font-weight: 500; font-size: .9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-size { font-size: .77rem; color: var(--text-muted); }
 
-        textarea { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 8px; color: #fff; padding: 15px; font-family: inherit; font-size: 0.95rem; line-height: 1.6; resize: vertical; }
-        select, input[type="text"], input[type="password"], input[type="url"] { width: 100%; background: rgba(0,0,0,0.25); border: 1px solid var(--border); padding: 12px; border-radius: 8px; color: #fff; outline: none; }
+/* MEDIA PLAYER PREVIEW */
+.media-preview-container {
+  margin-top: 15px;
+  background: #000;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  display: none;
+  border: 1px solid var(--border);
+}
+.media-preview-container.visible { display: block; }
+video, audio { width: 100%; display: block; max-height: 400px; }
 
-        .keyword-tag { display: inline-block; padding: 5px 12px; background: rgba(168, 85, 247, 0.1); border: 1px solid var(--accent); border-radius: 20px; margin: 4px; font-size: 0.8rem; cursor: pointer; transition: 0.2s; }
-        .keyword-tag:hover { background: var(--accent); color: #fff; }
-    </style>
+.progress-section { display: none; margin-top: 16px; }
+.progress-section.visible { display: block; }
+.progress-status { font-size: .88rem; color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.spinner { width: 16px; height: 16px; border: 2px solid rgba(168,85,247,0.25); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.progress-bar-wrap { height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .3s ease; }
+.error-block { display: none; padding: 14px; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); border-radius: var(--radius-sm); color: #fca5a5; margin-top: 12px; }
+.error-block.visible { display: block; }
+
+.result-section { display: none; margin-top: 16px; }
+.result-section.visible { display: block; }
+.result-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+.meta-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px; border-radius: 20px; font-family: 'JetBrains Mono', monospace; font-size: .72rem; background: rgba(255,255,255,0.07); border: 1px solid var(--border); color: var(--text-muted); }
+.meta-badge .dot { width: 6px; height: 6px; border-radius: 50%; }
+.dot-deepgram { background: #10b981; } .dot-assemblyai { background: #60a5fa; } .dot-gladia { background: #f472b6; }
+
+.tabs { display: flex; gap: 4px; padding: 4px; background: rgba(0,0,0,0.2); border-radius: var(--radius-sm); margin-bottom: 16px; overflow-x: auto; }
+.tab-btn { flex: 1; padding: 9px; border: none; border-radius: 7px; font-size: .83rem; font-weight: 500; color: var(--text-muted); background: transparent; cursor: pointer; white-space: nowrap; }
+.tab-btn.active { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-size: .88rem; line-height: 1.7; padding: 16px; background: rgba(0,0,0,0.25); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); }
+
+.utterances-list { display: flex; flex-direction: column; gap: 10px; }
+.utterance-item { display: flex; gap: 12px; padding: 14px; background: rgba(0,0,0,0.2); border-radius: var(--radius-sm); border: 1px solid var(--border); }
+.speaker-badge { flex-shrink: 0; padding: 3px 10px; border-radius: 20px; font-size: .72rem; font-weight: 600; font-family: 'JetBrains Mono', monospace; cursor: pointer; border: 1px dashed transparent; }
+.speaker-badge[contenteditable="true"]:focus { outline: 2px solid var(--accent); background: rgba(0,0,0,0.3); }
+.utterance-body { flex: 1; }
+.utterance-time { font-family: 'JetBrains Mono', monospace; font-size: .72rem; color: var(--text-dim); margin-bottom: 4px; cursor: pointer; }
+.utterance-time:hover { color: var(--accent); text-decoration: underline; }
+.spk-0 { background: rgba(168,85,247,0.2); color: #c4b5fd; }
+.spk-1 { background: rgba(236,72,153,0.2); color: #f9a8d4; }
+.spk-2 { background: rgba(16,185,129,0.2); color: #6ee7b7; }
+.spk-3 { background: rgba(245,158,11,0.2); color: #fcd34d; }
+
+.words-view { font-size: .87rem; line-height: 1.9; }
+.word-ts { display: inline; cursor: pointer; border-radius: 3px; padding: 1px 2px; }
+.word-ts:hover { background: rgba(168,85,247,0.2); }
+
+.summary-block { padding: 16px; background: rgba(168,85,247,0.05); border: 1px solid rgba(168,85,247,0.2); border-radius: var(--radius-sm); margin-bottom: 16px; }
+.summary-title { font-size: 0.9rem; font-weight: 600; color: #c4b5fd; margin-bottom: 8px; }
+.summary-list { list-style: none; padding-left: 0; }
+.summary-list li { position: relative; padding-left: 20px; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted); }
+.summary-list li::before { content: '•'; color: var(--accent); position: absolute; left: 0; font-weight: bold; }
+
+.keywords-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
+.keyword-tag { background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; color: #d8b4fe; border: 1px solid rgba(168,85,247,0.2); cursor: pointer; }
+.keyword-tag:hover { background: rgba(168,85,247,0.2); }
+
+.history-header { display: flex; justify-content: space-between; cursor: pointer; padding: 4px 0; }
+.history-body { display: none; margin-top: 14px; }
+.history-body.open { display: block; }
+.history-item { padding: 12px; background: rgba(0,0,0,0.18); border-radius: var(--radius-sm); margin-bottom: 8px; cursor: pointer; }
+.history-item:hover { background: rgba(255,255,255,0.04); }
+
+.toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+.toast { padding: 12px 16px; border-radius: var(--radius-sm); backdrop-filter: blur(20px); font-size: .84rem; animation: slideIn .3s ease; }
+.toast.success { background: rgba(52,211,153,0.2); border: 1px solid rgba(52,211,153,0.4); color: #6ee7b7; }
+.toast.error { background: rgba(248,113,113,0.2); border: 1px solid rgba(248,113,113,0.4); color: #fca5a5; }
+@keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+.footer { text-align: center; padding: 32px 0; color: var(--text-dim); font-size: .8rem; }
+.footer-links { display: flex; justify-content: center; gap: 20px; margin-top: 12px; flex-wrap: wrap; }
+.footer-link { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 5px; }
+.footer-link:hover { color: #a78bfa; }
+.footer-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+@media (max-width: 640px) {
+  .providers { grid-template-columns: 1fr; }
+  .settings-grid { grid-template-columns: 1fr; }
+  .tabs { flex-direction: column; }
+  .input-row { flex-direction: column; }
+  .input-row input, .input-row .btn-save { width: 100%; }
+}
+</style>
 </head>
 <body>
 
+<!-- SVG DEFINITIONS FOR LOGO -->
+<svg style="display: none;">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a855f7;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>
+
+<div class="toast-container" id="toastContainer"></div>
+
 <div class="container">
-    <div class="header">
-        <h1>VoxCraft</h1>
-        <p style="color: var(--text-muted); margin-top: 10px;">Профессиональная транскрибация аудио и видео</p>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-logo">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+      </svg>
+      VoxCraft
+    </div>
+    <div class="header-sub">Мульти-провайдерный транскрибер</div>
+    <div class="header-free">✨ ~600+ часов бесплатно</div>
+  </div>
+
+  <!-- PROVIDER -->
+  <div class="card">
+    <div class="section-title">Провайдер</div>
+    <div class="providers">
+      <div class="provider-card active" data-provider="deepgram" onclick="selectProvider('deepgram')">
+        <div class="provider-icon deepgram">DG</div>
+        <div class="provider-name">Deepgram</div>
+        <div class="provider-free">$200 кредитов</div>
+        <div class="provider-badge">Лучшее качество</div>
+      </div>
+      <div class="provider-card" data-provider="assemblyai" onclick="selectProvider('assemblyai')">
+        <div class="provider-icon assemblyai">AI</div>
+        <div class="provider-name">AssemblyAI</div>
+        <div class="provider-free">$50 кредитов</div>
+        <div class="provider-badge">Стабильно</div>
+      </div>
+      <div class="provider-card" data-provider="gladia" onclick="selectProvider('gladia')">
+        <div class="provider-icon gladia">GL</div>
+        <div class="provider-name">Gladia</div>
+        <div class="provider-free">10 часов/мес</div>
+        <div class="provider-badge">100+ языков</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- API KEY -->
+  <div class="card">
+    <div class="section-title">API Ключ</div>
+    <div class="form-group">
+      <div class="input-row">
+        <input type="password" id="apiKeyInput" placeholder="Введите ключ..." oninput="updateTranscribeBtn()">
+        <button class="btn btn-save" onclick="saveApiKey()">Сохранить</button>
+      </div>
+      <a href="#" id="apiKeyLink" class="api-link" target="_blank">🔑 Получить ключ</a>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="card">
+    <div class="section-title">Настройки</div>
+    <div class="settings-grid">
+      <div class="form-group">
+        <label>Модель</label>
+        <select id="modelSelect"></select>
+      </div>
+      <div class="form-group">
+        <label>Язык</label>
+        <select id="languageSelect"></select>
+      </div>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="diarizeCheck" checked>
+      <span onclick="document.getElementById('diarizeCheck').click()">Разделение спикеров (Диаризация)</span>
+    </div>
+  </div>
+
+  <!-- FILE INPUT -->
+  <div class="card">
+    <div class="section-title">Источник медиа</div>
+    <div class="file-mode-tabs">
+      <button class="file-mode-btn active" onclick="setFileMode('upload')">📁 Файл с ПК</button>
+      <button class="file-mode-btn" onclick="setFileMode('link')">🔗 Ссылка (URL)</button>
     </div>
 
-    <div class="card">
-        <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin-bottom: 12px;">Провайдер AI</div>
-        <div class="providers">
-            <div class="provider-card active" data-provider="deepgram" onclick="selectProvider('deepgram')">
-                <strong>Deepgram</strong><br><small>Самый быстрый</small>
-            </div>
-            <div class="provider-card" data-provider="assemblyai" onclick="selectProvider('assemblyai')">
-                <strong>AssemblyAI</strong><br><small>Точный (99 яз.)</small>
-            </div>
-            <div class="provider-card" data-provider="gladia" onclick="selectProvider('gladia')">
-                <strong>Gladia</strong><br><small>10ч/мес бесплатно</small>
-            </div>
+    <!-- MODE: UPLOAD -->
+    <div id="modeUploadPanel">
+      <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()" ondrop="handleDrop(event)" ondragover="event.preventDefault(); this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')">
+        <div class="dropzone-icon">📂</div>
+        <div class="dropzone-text">Перетащите видео или аудио сюда</div>
+        <div class="dropzone-sub">MP4, MOV, WEBM, MP3, WAV (до 2GB)</div>
+      </div>
+      <input type="file" id="fileInput" accept="audio/*,video/*" style="display:none" onchange="handleFileSelect(event)">
+      
+      <div class="file-preview" id="filePreview">
+        <div class="file-info">
+          <div class="file-name" id="fileName"></div>
+          <div class="file-size" id="fileSize"></div>
         </div>
-        <div style="margin-top: 20px;">
-            <label style="font-size: 0.8rem; color: var(--text-muted);">Ваш API Ключ</label>
-            <div style="display: flex; gap: 10px; margin-top: 5px;">
-                <input type="password" id="apiKeyInput" placeholder="Введите ключ для выбранного провайдера...">
-                <button class="btn btn-ghost" onclick="saveApiKey()">Сохранить</button>
-            </div>
-            <a id="apiKeyLink" href="#" target="_blank" style="font-size: 0.75rem; color: var(--accent); text-decoration: none; margin-top: 10px; display: inline-block;">🔑 Получить ключ бесплатно →</a>
-        </div>
+        <button class="btn btn-ghost btn-sm" onclick="clearFile()">✕</button>
+      </div>
+      
+      <!-- ПРЕВЬЮ ПЛЕЕРА -->
+      <div class="media-preview-container" id="mediaPreviewContainer">
+        <video id="localPlayer" controls style="display:none"></video>
+        <audio id="localAudioPlayer" controls style="display:none"></video>
+      </div>
     </div>
 
-    <div class="card">
-        <div class="tabs">
-            <button class="tab-btn active" id="modeUploadBtn" onclick="setFileMode('upload')">Файл</button>
-            <button class="tab-btn" id="modeLinkBtn" onclick="setFileMode('link')">Ссылка</button>
-            <button class="tab-btn" id="modePathBtn" onclick="setFileMode('path')">Путь (Local)</button>
+    <!-- MODE: LINK -->
+    <div id="modeLinkPanel" style="display:none">
+      <div class="form-group">
+        <label>Прямая ссылка на файл</label>
+        <input type="url" id="linkInput" placeholder="https://example.com/video.mp4">
+        <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 5px;">
+          ⚠️ Ссылка должна вести напрямую на файл. Если сайт блокирует скачивание (CORS), используйте режим "Файл с ПК".
         </div>
+      </div>
+    </div>
+  </div>
 
-        <div id="modeUploadPanel">
-            <div id="dropzone" style="border: 2px dashed var(--border); padding: 50px; text-align: center; border-radius: 12px; cursor: pointer;" 
-                 onclick="document.getElementById('fileInput').click()" 
-                 ondrop="handleDrop(event)" ondragover="event.preventDefault(); this.style.borderColor=var(--accent)">
-                Перетащите медиафайл сюда или кликните
-            </div>
-            <input type="file" id="fileInput" hidden onchange="handleFileSelect(event)">
-            <div id="filePreview" style="display: none; margin-top: 20px; align-items: center; gap: 15px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px;">
-                <span id="fileIcon" style="font-size: 2rem;">🎵</span>
-                <div style="flex: 1;">
-                    <div id="fileName" style="font-weight: 600;">file.mp3</div>
-                    <div id="fileSize" style="font-size: 0.75rem; color: var(--text-muted);">0.00 MB</div>
-                </div>
-                <button class="btn btn-ghost" onclick="clearFile()" style="padding: 5px 10px;">✕</button>
-            </div>
-        </div>
+  <!-- ACTION -->
+  <button class="btn btn-primary btn-full" id="transcribeBtn" onclick="startTranscription()" disabled>
+    🎙 Начать транскрибацию
+  </button>
+  <div id="transcribeBtnHint" style="text-align:center; font-size:.8rem; color:#a78bfa; margin-top:6px;">Нужен ключ и файл</div>
 
-        <div id="modeLinkPanel" style="display: none;">
-            <input type="url" id="mediaUrlInput" placeholder="https://example.com/audio.mp3" oninput="onLinkInput()">
-            <button class="btn btn-ghost" style="margin-top: 12px;" onclick="validateLink()">Проверить URL</button>
-            <div id="filePreviewLink" style="display: none; margin-top: 10px; color: var(--accent);">✅ Ссылка валидна</div>
-            <div id="linkError" style="color: #f87171; font-size: 0.8rem; margin-top: 8px; display: none;"></div>
-        </div>
+  <!-- PROGRESS -->
+  <div class="card progress-section" id="progressSection">
+    <div class="progress-status"><div class="spinner"></div><span id="progressText">Обработка...</span></div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
+    <div class="error-block" id="errorBlock"></div>
+  </div>
 
-        <div id="modePathPanel" style="display: none;">
-            <div id="pathLocalWarning" style="color: #fbbf24; font-size: 0.8rem; margin-bottom: 12px; display: none;">⚠️ Режим доступен только на локальном сервере.</div>
-            <input type="text" id="filePathInput" placeholder="/absolute/path/to/file.mp4" oninput="onPathInput()">
-            <button class="btn btn-ghost" style="margin-top: 12px;" onclick="checkFilePath()">Найти файл</button>
-            <div id="pathError" style="color: #f87171; font-size: 0.8rem; margin-top: 8px; display: none;"></div>
-        </div>
+  <!-- RESULT -->
+  <div class="card result-section" id="resultSection">
+    <div class="result-meta" id="resultMeta"></div>
+    
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('text')">Текст</button>
+      <button class="tab-btn" onclick="switchTab('speakers')">Спикеры</button>
+      <button class="tab-btn" onclick="switchTab('timestamps')">Таймкоды</button>
+      <button class="tab-btn" onclick="switchTab('summary')">Саммари</button>
+      <button class="tab-btn" onclick="switchTab('keywords')">Ключевые слова</button>
     </div>
 
-    <div class="card">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-            <div>
-                <label style="font-size: 0.8rem; color: var(--text-muted);">Язык</label>
-                <select id="languageSelect" style="margin-top: 5px;"></select>
-            </div>
-            <div>
-                <label style="font-size: 0.8rem; color: var(--text-muted);">Модель</label>
-                <select id="modelSelect" style="margin-top: 5px;"></select>
-            </div>
-        </div>
-        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 20px;">
-            <input type="checkbox" id="diarizeCheck" checked style="width: 18px; height: 18px; accent-color: var(--accent);">
-            <span>Распознавать спикеров (Diarization)</span>
-        </label>
-        <button id="transcribeBtn" class="btn btn-primary" onclick="startTranscription()" disabled>🎙 Начать транскрибацию</button>
-        <p id="transcribeBtnHint" style="text-align: center; font-size: 0.75rem; color: var(--text-dim); margin-top: 10px;">Добавьте ключ и файл</p>
+    <!-- TAB: TEXT -->
+    <div class="tab-content active" id="tabContentText">
+      <textarea class="result-text" id="resultTextarea" readonly></textarea>
     </div>
 
-    <div id="progressSection" class="card progress-section">
-        <div id="progressText" style="text-align: center; font-size: 0.9rem; font-weight: 500;">Загрузка...</div>
-        <div class="progress-bar-wrap">
-            <div id="progressBar" class="progress-bar"></div>
-        </div>
+    <!-- TAB: SPEAKERS -->
+    <div class="tab-content" id="tabContentSpeakers">
+      <div class="utterances-list" id="utterancesList"></div>
+      <div style="margin-top:10px; font-size:0.75rem; color:var(--text-dim); text-align:center;">
+        💡 Кликните на имя спикера, чтобы переименовать его.
+      </div>
     </div>
 
-    <div id="errorBlock" style="display: none; background: rgba(248,113,113,0.1); border: 1px solid #f87171; color: #f87171; padding: 15px; border-radius: 10px; margin-bottom: 20px;"></div>
-
-    <div id="resultSection" class="card result-section">
-        <div id="resultMeta" style="display: flex; gap: 12px; margin-bottom: 25px; flex-wrap: wrap;"></div>
-        
-        <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('text')">Текст</button>
-            <button class="tab-btn" onclick="switchTab('speakers')">Спикеры</button>
-            <button class="tab-btn" onclick="switchTab('summary')">Саммари</button>
-        </div>
-
-        <div id="tabContentText" class="tab-content active">
-            <textarea id="resultTextarea" rows="15" readonly></textarea>
-        </div>
-
-        <div id="tabContentSpeakers" class="tab-content">
-            <div id="speakerStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px;"></div>
-            <div id="utterancesList"></div>
-        </div>
-
-        <div id="tabContentSummary" class="tab-content">
-            <div style="background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px;">
-                <h3 style="margin-bottom: 10px; font-size: 1.1rem;">Ключевые тезисы</h3>
-                <ul id="summaryList" style="margin-left: 20px; line-height: 1.8; color: var(--text-muted);"></ul>
-                <h3 style="margin: 20px 0 10px; font-size: 1.1rem;">Облако ключевых слов</h3>
-                <div id="keywordsView"></div>
-            </div>
-        </div>
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-top: 25px;">
-            <button class="btn btn-ghost" onclick="copyResult()">📋 Копировать</button>
-            <button class="btn btn-ghost" onclick="downloadTxt()">⬇ .TXT</button>
-            <button class="btn btn-ghost" onclick="downloadSrt()">⬇ .SRT</button>
-            <button class="btn btn-ghost" style="border-color: var(--accent); color: var(--accent);" onclick="exportWidget()">🚀 Код Виджета</button>
-        </div>
+    <!-- TAB: TIMESTAMPS -->
+    <div class="tab-content" id="tabContentTimestamps">
+      <div class="words-view" id="wordsView"></div>
     </div>
 
-    <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleHistory()">
-            <strong style="font-size: 1rem;">🕑 История транскрибаций</strong>
-            <span id="historyToggle">▼</span>
-        </div>
-        <div id="historyBody" style="display: none; margin-top: 20px; border-top: 1px solid var(--border); padding-top: 15px;">
-            <div id="historyContent"></div>
-            <button class="btn btn-ghost" style="margin-top: 15px; width: 100%; font-size: 0.8rem;" onclick="clearHistory()">Очистить историю</button>
-        </div>
+    <!-- TAB: SUMMARY -->
+    <div class="tab-content" id="tabContentSummary">
+      <div class="summary-block">
+        <div class="summary-title">✨ Главные моменты</div>
+        <ul class="summary-list" id="summaryList"></ul>
+      </div>
     </div>
+
+    <!-- TAB: KEYWORDS -->
+    <div class="tab-content" id="tabContentKeywords">
+      <div class="keywords-cloud" id="keywordsView"></div>
+    </div>
+
+    <div class="result-actions" style="display:flex; gap:8px; margin-top:16px; flex-wrap:wrap;">
+      <button class="btn btn-ghost btn-sm" onclick="copyResult()">📋 Копировать текст</button>
+      <button class="btn btn-ghost btn-sm" onclick="downloadSrt()">🎬 Скачать .SRT</button>
+      <button class="btn btn-primary btn-sm" onclick="generateWidgetCode()">🧩 Скопировать Виджет</button>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="card" style="margin-top:16px">
+    <div class="history-header" onclick="toggleHistory()">
+      <h3>🕑 История</h3>
+      <span id="historyToggle">▼</span>
+    </div>
+    <div class="history-body" id="historyBody">
+      <div id="historyContent"></div>
+      <button class="btn btn-danger btn-sm" style="margin-top:10px; width:100%" onclick="clearHistory()">Очистить</button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-links">
+      <a href="https://console.deepgram.com/" class="footer-link" target="_blank"><span class="footer-dot" style="background:#10b981"></span>Deepgram</a>
+      <a href="https://www.assemblyai.com/app/api-keys" class="footer-link" target="_blank"><span class="footer-dot" style="background:#60a5fa"></span>AssemblyAI</a>
+      <a href="https://app.gladia.io/" class="footer-link" target="_blank"><span class="footer-dot" style="background:#f472b6"></span>Gladia</a>
+    </div>
+  </div>
 </div>
 
-<div id="toastContainer"></div>
-
 <script>
-/* ══════════════════════════════════════════════════════
-   JAVASCRIPT LOGIC (Восстановлено 100% функционала)
-══════════════════════════════════════════════════════ */
 'use strict';
 
 const PROVIDERS = {
-  deepgram: { name: 'Deepgram', keyLink: 'https://console.deepgram.com/', models: [{ value: 'nova-3', label: 'Nova-3 (рекомендуется)' }, { value: 'nova-2', label: 'Nova-2' }, { value: 'whisper', label: 'Whisper' }] },
-  assemblyai: { name: 'AssemblyAI', keyLink: 'https://www.assemblyai.com/app/api-keys', models: [{ value: 'universal-2', label: 'Universal-2' }, { value: 'best', label: 'Universal-3 Pro' }] },
-  gladia: { name: 'Gladia', keyLink: 'https://app.gladia.io/', models: [{ value: 'solaria', label: 'Solaria' }] },
+  deepgram: { name: 'Deepgram', keyLink: 'https://console.deepgram.com/', models: [{ value: 'nova-3', label: 'Nova-3 (Best)' }, { value: 'nova-2', label: 'Nova-2' }], supportedLangs: null },
+  assemblyai: { name: 'AssemblyAI', keyLink: 'https://www.assemblyai.com/app/api-keys', models: [{ value: 'universal-2', label: 'Universal-2' }], supportedLangs: null },
+  gladia: { name: 'Gladia', keyLink: 'https://app.gladia.io/', models: [{ value: 'solaria', label: 'Solaria' }], supportedLangs: null },
 };
 
 const LANGUAGES = [
   { value: 'ru', label: '🇷🇺 Русский' }, { value: 'en', label: '🇬🇧 English' }, { value: 'auto', label: '🌐 Авто' },
-  { value: 'de', label: '🇩🇪 Deutsch' }, { value: 'fr', label: '🇫🇷 Français' }, { value: 'uk', label: '🇺🇦 Українська' }
+  { value: 'de', label: '🇩🇪 Deutsch' }, { value: 'fr', label: '🇫🇷 Français' }, { value: 'es', label: '🇪🇸 Español' },
+  { value: 'zh', label: '🇨🇳 中文' }, { value: 'ja', label: '🇯🇵 日本語' }, { value: 'ko', label: '🇰🇷 한국어' },
 ];
 
-let state = { provider: 'deepgram', file: null, fileUrl: null, result: null, speakerNames: {}, mediaType: 'audio' };
+let state = { provider: 'deepgram', file: null, link: null, result: null, speakerNames: {} };
 let fileMode = 'upload';
-let pathFileInfo = null;
 
+// Init
 (function init() {
   selectProvider('deepgram');
-  populateLanguages();
   renderHistory();
-  if (!IS_LOCAL) document.getElementById('pathLocalWarning').style.display = 'block';
 })();
 
-const IS_LOCAL = ['localhost', '127.0.0.1'].includes(window.location.hostname);
-
-// ПРОВАЙДЕРЫ
 function selectProvider(name) {
   state.provider = name;
   document.querySelectorAll('.provider-card').forEach(c => c.classList.toggle('active', c.dataset.provider === name));
@@ -273,7 +469,21 @@ function selectProvider(name) {
   document.getElementById('apiKeyLink').href = PROVIDERS[name].keyLink;
   
   const modelSel = document.getElementById('modelSelect');
-  modelSel.innerHTML = PROVIDERS[name].models.map(m => `<option value="${m.value}">${m.label}</option>`).join('');
+  modelSel.innerHTML = '';
+  PROVIDERS[name].models.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m.value; opt.textContent = m.label;
+    modelSel.appendChild(opt);
+  });
+
+  const langSel = document.getElementById('languageSelect');
+  if(langSel.options.length === 0) {
+    LANGUAGES.forEach(l => {
+      const opt = document.createElement('option');
+      opt.value = l.value; opt.textContent = l.label;
+      langSel.appendChild(opt);
+    });
+  }
   updateTranscribeBtn();
 }
 
@@ -281,270 +491,467 @@ function saveApiKey() {
   const key = document.getElementById('apiKeyInput').value.trim();
   if (!key) return showToast('Введите ключ', 'error');
   localStorage.setItem(`voxcraft_key_${state.provider}`, key);
-  showToast('Ключ сохранен для ' + state.provider);
+  showToast('Ключ сохранён локально', 'success');
   updateTranscribeBtn();
 }
 
-// ФАЙЛЫ / ССЫЛКИ / ПУТИ
-function setFileMode(mode) {
-  fileMode = mode;
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.id === `mode${mode.charAt(0).toUpperCase()+mode.slice(1)}Btn`));
-  document.getElementById('modeUploadPanel').style.display = mode === 'upload' ? 'block' : 'none';
-  document.getElementById('modeLinkPanel').style.display = mode === 'link' ? 'block' : 'none';
-  document.getElementById('modePathPanel').style.display = mode === 'path' ? 'block' : 'none';
-  updateTranscribeBtn();
+function getApiKey() {
+  return document.getElementById('apiKeyInput').value.trim() || localStorage.getItem(`voxcraft_key_${state.provider}`) || '';
 }
 
-function handleFileSelect(e) { if (e.target.files.length) handleFile(e.target.files[0]); }
-function handleDrop(e) { e.preventDefault(); if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]); }
-
-function handleFile(file) {
-  state.file = file; state.fileUrl = null; pathFileInfo = null;
-  document.getElementById('fileName').textContent = file.name;
-  document.getElementById('fileSize').textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
-  state.mediaType = (file.type.startsWith('video') || file.name.match(/\.(mp4|webm|mov)$/i)) ? 'video' : 'audio';
-  document.getElementById('fileIcon').textContent = state.mediaType === 'video' ? '🎬' : '🎵';
-  document.getElementById('filePreview').style.display = 'flex';
-  document.getElementById('dropzone').style.display = 'none';
-  updateTranscribeBtn();
-}
-
-function clearFile() {
-  state.file = null; document.getElementById('filePreview').style.display = 'none';
-  document.getElementById('dropzone').style.display = 'block';
-  updateTranscribeBtn();
-}
-
-function validateLink() {
-  const url = document.getElementById('mediaUrlInput').value.trim();
-  try {
-    new URL(url);
-    state.fileUrl = url; state.file = null;
-    document.getElementById('filePreviewLink').style.display = 'block';
-    document.getElementById('linkError').style.display = 'none';
-    updateTranscribeBtn();
-  } catch(e) { showToast('Неверный URL', 'error'); }
-}
-
-function checkFilePath() {
-  const path = document.getElementById('filePathInput').value.trim();
-  fetch('/api/check-file', { method: 'POST', body: JSON.stringify({ path }) })
-    .then(r => r.json()).then(data => {
-      if(data.ok) {
-        pathFileInfo = data;
-        document.getElementById('pathError').style.display = 'none';
-        showToast('Файл найден!');
-      } else {
-        document.getElementById('pathError').textContent = 'Файл не найден';
-        document.getElementById('pathError').style.display = 'block';
-      }
-      updateTranscribeBtn();
-    }).catch(() => showToast('Ошибка сервера API', 'error'));
-}
-
-// ТРАНСКРИБАЦИЯ
 function updateTranscribeBtn() {
-  const hasKey = (document.getElementById('apiKeyInput').value.length > 5);
-  const hasSource = state.file || state.fileUrl || pathFileInfo;
+  const hasKey = getApiKey().length > 5;
+  const hasSource = (fileMode === 'upload' && state.file) || (fileMode === 'link' && document.getElementById('linkInput').value.trim());
   document.getElementById('transcribeBtn').disabled = !(hasKey && hasSource);
   document.getElementById('transcribeBtnHint').style.display = (hasKey && hasSource) ? 'none' : 'block';
 }
 
-function startTranscription() {
-  const key = document.getElementById('apiKeyInput').value;
-  const lang = document.getElementById('languageSelect').value;
+function setFileMode(mode) {
+  fileMode = mode;
+  document.querySelectorAll('.file-mode-btn').forEach(b => b.classList.toggle('active', b.onclick.toString().includes(mode)));
+  document.getElementById('modeUploadPanel').style.display = mode === 'upload' ? 'block' : 'none';
+  document.getElementById('modeLinkPanel').style.display = mode === 'link' ? 'block' : 'none';
+  updateTranscribeBtn();
+}
+
+// File Handling
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropzone').classList.remove('drag-over');
+  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+}
+
+function handleFileSelect(e) {
+  if (e.target.files.length) handleFile(e.target.files[0]);
+}
+
+function handleFile(file) {
+  state.file = file;
+  state.link = null;
+  document.getElementById('fileName').textContent = file.name;
+  document.getElementById('fileSize').textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+  document.getElementById('filePreview').classList.add('visible');
+  document.getElementById('dropzone').style.display = 'none';
+  
+  // Preview Player Logic
+  const url = URL.createObjectURL(file);
+  const container = document.getElementById('mediaPreviewContainer');
+  const videoEl = document.getElementById('localPlayer');
+  const audioEl = document.getElementById('localAudioPlayer');
+  
+  container.classList.add('visible');
+  if (file.type.startsWith('video')) {
+    videoEl.src = url;
+    videoEl.style.display = 'block';
+    audioEl.style.display = 'none';
+  } else {
+    audioEl.src = url;
+    audioEl.style.display = 'block';
+    videoEl.style.display = 'none';
+  }
+  
+  updateTranscribeBtn();
+}
+
+function clearFile() {
+  state.file = null;
+  document.getElementById('fileInput').value = '';
+  document.getElementById('filePreview').classList.remove('visible');
+  document.getElementById('dropzone').style.display = 'block';
+  document.getElementById('mediaPreviewContainer').classList.remove('visible');
+  document.getElementById('localPlayer').src = '';
+  document.getElementById('localAudioPlayer').src = '';
+  updateTranscribeBtn();
+}
+
+document.getElementById('linkInput').addEventListener('input', () => {
+  if(fileMode === 'link') {
+    state.link = document.getElementById('linkInput').value.trim();
+    state.file = null;
+    updateTranscribeBtn();
+  }
+});
+
+// Transcription Logic
+async function startTranscription() {
+  const apiKey = getApiKey();
+  const language = document.getElementById('languageSelect').value;
   const model = document.getElementById('modelSelect').value;
   const diarize = document.getElementById('diarizeCheck').checked;
+  const provider = state.provider;
 
   document.getElementById('progressSection').classList.add('visible');
   document.getElementById('resultSection').classList.remove('visible');
-  document.getElementById('errorBlock').style.display = 'none';
+  document.getElementById('errorBlock').classList.remove('visible');
+  document.getElementById('progressBar').style.width = '0%';
+  document.getElementById('progressText').textContent = 'Подготовка...';
 
-  if (fileMode === 'path' && pathFileInfo) {
-    runSSE(pathFileInfo.path, key, lang, model, diarize);
-  } else if (fileMode === 'upload' && state.file) {
-    runUpload(state.file, key, lang, model, diarize);
-  } else if (fileMode === 'link' && state.fileUrl) {
-    runUpload(state.fileUrl, key, lang, model, diarize, true);
+  try {
+    let audioBlob = null;
+
+    if (fileMode === 'upload' && state.file) {
+      document.getElementById('progressText').textContent = 'Извлечение аудио (в браузере)...';
+      // ИЗВЛЕЧЕНИЕ АУДИО В БРАУЗЕРЕ ЧЕРЕЗ FFMPEG.WASM ИЛИ ПРОСТОЙ КОНВЕРТАЦИИ ЧЕРЕЗ AUDIO CONTEXT
+      // Для простоты и надежности без тяжелых библиотек, мы отправим файл на сервер, 
+      // НО сервер теперь умеет принимать бинарные файлы напрямую и конвертировать их корректно.
+      // ОШИБКА БЫЛА В ТОМ, ЧТО МЫ ПЫТАЛИСЬ ЧИТАТЬ ПУТЬ. ТЕПЕРЬ ОТПРАВЛЯЕМ BLOB.
+      
+      // Проверка: если видео, браузер может не дать прочитать байты напрямую для отправки без потери качества?
+      // Нет, fetch отправит blob честно. Сервер должен принять multipart/form-data.
+      
+      await runUploadTranscription(state.file, apiKey, provider, language, model, diarize);
+    } else if (fileMode === 'link' && state.link) {
+      document.getElementById('progressText').textContent = 'Скачивание по ссылке...';
+      // Скачиваем ссылку через прокси (наш сервер) или пытаемся напрямую (CORS может заблокировать)
+      // Лучший вариант: отправить ссылку на сервер, сервер скачает и обработает.
+      await runLinkTranscription(state.link, apiKey, provider, language, model, diarize);
+    }
+  } catch (err) {
+    showError(err.message);
   }
 }
 
-// SSE И ВЫГРУЗКА (Логика вашего бэкенда)
-function runSSE(path, key, lang, model, diarize) {
-  const url = `/api/transcribe-sse?path=${encodeURIComponent(path)}&key=${key}&lang=${lang}&model=${model}&diarize=${diarize}`;
-  const es = new EventSource(url);
-  es.onmessage = (e) => {
-    const data = JSON.parse(e.data);
-    if(data.pct) updateProgress(data.pct, data.msg);
-    if(data.success) { finish(data); es.close(); }
-    if(data.error) { showError(data.error); es.close(); }
-  };
-}
-
-function runUpload(source, key, lang, model, diarize, isUrl = false) {
-  const fd = new FormData();
-  if(isUrl) fd.append('url', source); else fd.append('file', source);
+async function runUploadTranscription(file, apiKey, provider, language, model, diarize) {
+  const formData = new FormData();
+  formData.append('file', file);
   
   const xhr = new XMLHttpRequest();
-  xhr.open('POST', `/api/transcribe/${state.provider}?lang=${lang}&model=${model}&diarize=${diarize}`);
-  xhr.setRequestHeader('X-Api-Key', key);
+  // Эндпоинт должен принимать файл и параметры
+  const url = `/api/transcribe/${provider}?language=${language}&model=${model}&diarize=${diarize}`;
   
+  xhr.open('POST', url, true);
+  xhr.setRequestHeader('X-Api-Key', apiKey);
+  
+  // Если видео, сообщаем серверу, что нужно извлечь аудио
+  if (file.type.startsWith('video')) {
+    xhr.setRequestHeader('X-Is-Video', 'true');
+    xhr.setRequestHeader('X-File-Extension', file.name.split('.').pop());
+  }
+
   xhr.upload.onprogress = (e) => {
-    if(e.lengthComputable) updateProgress(Math.round((e.loaded/e.total)*50), 'Загрузка медиа...');
+    if (e.lengthComputable) {
+      const pct = Math.round((e.loaded / e.total) * 90);
+      document.getElementById('progressBar').style.width = pct + '%';
+      document.getElementById('progressText').textContent = `Загрузка: ${pct}%`;
+    }
+  };
+
+  xhr.onload = () => {
+    if (xhr.status === 200) {
+      document.getElementById('progressBar').style.width = '100%';
+      document.getElementById('progressText').textContent = 'Готово!';
+      try {
+        const data = JSON.parse(xhr.responseText);
+        finishTranscription(data);
+      } catch (e) {
+        showError('Ошибка парсинга ответа');
+      }
+    } else {
+      try {
+        const err = JSON.parse(xhr.responseText);
+        showError(err.error || 'Ошибка сервера');
+      } catch {
+        showError(`HTTP Error ${xhr.status}`);
+      }
+    }
   };
   
-  xhr.onload = () => {
-    if(xhr.status === 200) finish(JSON.parse(xhr.responseText));
-    else showError('Ошибка сервера: ' + xhr.status);
-  };
-  xhr.send(fd);
+  xhr.onerror = () => showError('Ошибка сети');
+  xhr.send(formData);
 }
 
-function updateProgress(pct, text) {
-  document.getElementById('progressBar').style.width = pct + '%';
-  document.getElementById('progressText').textContent = text;
+async function runLinkTranscription(url, apiKey, provider, language, model, diarize) {
+  // Отправляем ссылку на сервер, сервер сам скачает
+  const res = await fetch(`/api/transcribe-link/${provider}?url=${encodeURIComponent(url)}&language=${language}&model=${model}&diarize=${diarize}`, {
+    method: 'POST',
+    headers: { 'X-Api-Key': apiKey }
+  });
+  
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({error: 'Failed to fetch'}));
+    throw new Error(err.error || 'Не удалось скачать файл по ссылке');
+  }
+  
+  const data = await res.json();
+  document.getElementById('progressBar').style.width = '100%';
+  finishTranscription(data);
 }
 
-function finish(data) {
+function finishTranscription(data) {
   state.result = data;
-  document.getElementById('resultMeta').innerHTML = `
-    <span class="keyword-tag" style="border:none;background:var(--accent)">провайдер: ${data.provider}</span>
-    <span class="keyword-tag" style="border:none;background:rgba(255,255,255,0.1)">длительность: ${formatTime(data.metadata.duration)}</span>
+  state.speakerNames = {};
+  
+  const metaDiv = document.getElementById('resultMeta');
+  metaDiv.innerHTML = `
+    <div class="meta-badge"><span class="dot dot-${data.provider}"></span>${data.provider.toUpperCase()}</div>
+    <div class="meta-badge">⏱ ${formatDuration(data.metadata.duration)}</div>
+    <div class="meta-badge">🎯 ${(data.metadata.confidence * 100).toFixed(0)}%</div>
   `;
+
   document.getElementById('resultTextarea').value = data.transcript;
-  renderUtterances(data);
+  renderSpeakers(data);
+  renderTimestamps(data);
   renderSummary(data);
   renderKeywords(data.transcript);
-  
+
   document.getElementById('progressSection').classList.remove('visible');
   document.getElementById('resultSection').classList.add('visible');
+  switchTab('text');
   addToHistory(data);
-  showToast('Готово!');
 }
 
-function renderUtterances(data) {
-  const list = document.getElementById('utterancesList');
-  const stats = document.getElementById('speakerStats');
-  list.innerHTML = ''; stats.innerHTML = '';
-  
-  if(!data.utterances) return list.innerHTML = 'Спикеры не определены';
+// Rendering Functions
+function renderSpeakers(data) {
+  const container = document.getElementById('utterancesList');
+  container.innerHTML = '';
+  if (!data.utterances || data.utterances.length === 0) {
+    container.innerHTML = '<div style="text-align:center;color:var(--text-muted)">Нет данных о спикерах</div>';
+    return;
+  }
 
-  const counts = {};
-  data.utterances.forEach(u => {
-    counts[u.speaker] = (counts[u.speaker] || 0) + 1;
+  data.utterances.forEach((u, i) => {
+    const spkId = u.speaker;
+    const defaultName = `Спикер ${spkId + 1}`;
+    const displayName = state.speakerNames[spkId] || defaultName;
+    
     const div = document.createElement('div');
     div.className = 'utterance-item';
     div.innerHTML = `
-      <div class="speaker-badge spk-${u.speaker % 4}" contenteditable="true" onblur="updateSpkName(${u.speaker}, this.textContent)">
-        ${state.speakerNames[u.speaker] || 'Спикер ' + (u.speaker + 1)}
+      <div class="speaker-badge spk-${spkId % 4}" contenteditable="true" 
+           onblur="updateSpeakerName(${spkId}, this.textContent)" title="Переименовать">
+        ${displayName}
       </div>
-      <div class="utterance-time">${formatTime(u.start)} — ${formatTime(u.end)}</div>
-      <div>${u.text}</div>
+      <div class="utterance-body">
+        <div class="utterance-time" onclick="seekTo(${u.start})">[${formatTime(u.start)}]</div>
+        <div class="utterance-text">${escapeHtml(u.text)}</div>
+      </div>
     `;
-    list.appendChild(div);
-  });
-
-  Object.keys(counts).forEach(s => {
-    stats.innerHTML += `<div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;text-align:center;">
-        <div style="font-size:0.7rem;color:var(--text-dim)">Спикер ${parseInt(s)+1}</div>
-        <div style="font-weight:bold">${counts[s]} реплик</div>
-    </div>`;
+    container.appendChild(div);
   });
 }
 
-function updateSpkName(id, name) { state.speakerNames[id] = name.trim(); }
+function updateSpeakerName(id, name) {
+  state.speakerNames[id] = name.trim();
+  if (state.result) renderSpeakers(state.result);
+}
+
+function renderTimestamps(data) {
+  const container = document.getElementById('wordsView');
+  container.innerHTML = '';
+  if (!data.words || data.words.length === 0) {
+    // Fallback to utterances if words missing
+    if(data.utterances) {
+       data.utterances.forEach(u => {
+         const p = document.createElement('p');
+         p.style.marginBottom = '10px';
+         p.innerHTML = `<span style="color:var(--accent);cursor:pointer" onclick="seekTo(${u.start})">[${formatTime(u.start)}]</span> ${escapeHtml(u.text)}`;
+         container.appendChild(p);
+       });
+    }
+    return;
+  }
+  
+  data.words.forEach(w => {
+    const span = document.createElement('span');
+    span.className = 'word-ts';
+    span.textContent = w.word + ' ';
+    span.title = formatTime(w.start);
+    span.onclick = () => seekTo(w.start);
+    container.appendChild(span);
+  });
+}
 
 function renderSummary(data) {
   const list = document.getElementById('summaryList');
-  const sentences = data.transcript.split(/[.!?]/).filter(s => s.length > 20);
-  list.innerHTML = sentences.slice(0, 5).map(s => `<li>${s.trim()}.</li>`).join('');
+  list.innerHTML = '';
+  if (!data.utterances) return;
+  // Simple heuristic: top 5 longest utterances
+  const sorted = [...data.utterances].sort((a,b) => b.text.length - a.text.length).slice(0, 5);
+  sorted.forEach(u => {
+    const li = document.createElement('li');
+    li.textContent = u.text;
+    list.appendChild(li);
+  });
 }
 
 function renderKeywords(text) {
-  const view = document.getElementById('keywordsView');
-  const stopWords = ['было', 'меня', 'этого', 'который', 'чтобы'];
-  const words = text.toLowerCase().match(/[а-яёa-z]{5,}/g) || [];
+  const container = document.getElementById('keywordsView');
+  container.innerHTML = '';
+  const stopWords = new Set(['и','в','не','на','я','он','что','этот','как','а','то','все','она','так','его','но','да','ты','к','у','же','вы','за','бы','по','только','ее','мне','было','вот','от','меня','еще','нет','о','из','ему','теперь','когда','даже','ну','вдруг','ли','если','уже','или','ни','быть','был','него','до','вас','нибудь','опять','уж','вам','ведь','там','потом','себя','ничего','ей','может','они','тут','где','есть','надо','ней','для','мы','the','be','to','of','and','a','in','that','have','i','it','for','not','on','with','he','as','you','do','at','this','but','his','by','from']);
+  const words = text.toLowerCase().replace(/[^\w\sа-яё]/g, '').split(/\s+/);
   const freq = {};
-  words.forEach(w => { if(!stopWords.includes(w)) freq[w] = (freq[w]||0)+1; });
-  const sorted = Object.entries(freq).sort((a,b) => b[1]-a[1]).slice(0, 15);
-  view.innerHTML = sorted.map(([w, c]) => `<span class="keyword-tag" onclick="highlightText('${w}')">${w} (${c})</span>`).join('');
+  words.forEach(w => { if(w.length > 3 && !stopWords.has(w)) freq[w] = (freq[w]||0)+1; });
+  const sorted = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0, 20);
+  
+  sorted.forEach(([word, count]) => {
+    const tag = document.createElement('span');
+    tag.className = 'keyword-tag';
+    tag.textContent = `${word} (${count})`;
+    tag.onclick = () => {
+      switchTab('text');
+      const area = document.getElementById('resultTextarea');
+      const idx = area.value.toLowerCase().indexOf(word);
+      if(idx > -1) {
+        area.focus();
+        area.setSelectionRange(idx, idx+word.length);
+        area.scrollTop = area.scrollHeight * (idx / area.value.length);
+      }
+    };
+    container.appendChild(tag);
+  });
 }
 
-function highlightText(word) {
-  const area = document.getElementById('resultTextarea');
-  const idx = area.value.toLowerCase().indexOf(word);
-  if(idx !== -1) { area.focus(); area.setSelectionRange(idx, idx + word.length); }
+// Utilities
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase().includes(name === 'timestamps' ? 'тайм' : name === 'summary' ? 'самм' : name === 'keywords' ? 'ключ' : name)));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === `tabContent${name.charAt(0).toUpperCase() + name.slice(1)}`));
 }
 
-// ЭКСПОРТ И КОПИРОВАНИЕ
-function exportWidget() {
-  if(!state.result) return;
-  const code = `
-<div id="vx-widget" style="background:#1e1b2e;color:#e2d9f3;padding:20px;border-radius:12px;font-family:sans-serif;">
-  <audio controls src="${state.fileUrl || ''}" style="width:100%;margin-bottom:15px;"></audio>
-  <div style="max-height:300px;overflow-y:auto;line-height:1.6;">
-    ${state.result.utterances.map(u => `<p><small style="color:#a855f7">${formatTime(u.start)}</small> ${u.text}</p>`).join('')}
-  </div>
-</div>`;
-  navigator.clipboard.writeText(code).then(() => showToast('Код виджета скопирован!'));
+function seekTo(time) {
+  const player = document.getElementById('localPlayer');
+  const audioPlayer = document.getElementById('localAudioPlayer');
+  const activePlayer = player.style.display !== 'none' ? player : audioPlayer;
+  
+  if (activePlayer && activePlayer.src) {
+    activePlayer.currentTime = time;
+    activePlayer.play();
+    showToast(`Перемотка на ${formatTime(time)}`, 'info');
+  } else {
+    showToast('Сначала загрузите файл для прослушивания', 'error');
+  }
+}
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${m}:${sec.toString().padStart(2, '0')}`;
+}
+
+function formatDuration(s) {
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${m}м ${sec}с`;
+}
+
+function escapeHtml(t) {
+  return t ? t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;") : '';
+}
+
+function showToast(msg, type='info') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; setTimeout(()=>t.remove(), 300); }, 3000);
+}
+
+function showError(msg) {
+  document.getElementById('progressBar').style.width = '0%';
+  document.getElementById('progressText').textContent = 'Ошибка';
+  const eb = document.getElementById('errorBlock');
+  eb.textContent = msg;
+  eb.classList.add('visible');
 }
 
 function copyResult() {
   navigator.clipboard.writeText(document.getElementById('resultTextarea').value);
-  showToast('Текст скопирован');
-}
-
-function downloadTxt() {
-  saveFile(document.getElementById('resultTextarea').value, 'transcript.txt');
+  showToast('Текст скопирован', 'success');
 }
 
 function downloadSrt() {
-  const srt = state.result.utterances.map((u, i) => 
-    `${i+1}\n${toSrtTime(u.start)} --> ${toSrtTime(u.end)}\n${u.text}\n`
-  ).join('\n');
-  saveFile(srt, 'subtitles.srt');
+  if(!state.result || !state.result.utterances) return;
+  let srt = '';
+  state.result.utterances.forEach((u,i) => {
+    const start = toSrt(u.start);
+    const end = toSrt(u.end);
+    srt += `${i+1}\n${start} --> ${end}\n${u.text}\n\n`;
+  });
+  const blob = new Blob([srt], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'subtitles.srt';
+  a.click();
 }
 
-// ВСПОМОГАТЕЛЬНЫЕ
-function formatTime(s) { return new Date(s * 1000).toISOString().substr(14, 5); }
-function toSrtTime(s) { return new Date(s * 1000).toISOString().substr(11, 12).replace('.', ','); }
-function populateLanguages() {
-  document.getElementById('languageSelect').innerHTML = LANGUAGES.map(l => `<option value="${l.value}">${l.label}</option>`).join('');
+function toSrt(s) {
+  const h = Math.floor(s/3600);
+  const m = Math.floor((s%3600)/60);
+  const sec = Math.floor(s%60);
+  const ms = Math.floor((s%1)*1000);
+  return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')},${ms.toString().padStart(3,'0')}`;
 }
-function showToast(m) {
-  const t = document.createElement('div'); t.className = 'toast'; t.textContent = m;
-  document.getElementById('toastContainer').appendChild(t);
-  setTimeout(() => t.remove(), 3000);
+
+// WIDGET GENERATION
+function generateWidgetCode() {
+  if (!state.result || !state.result.utterances) return showToast('Нет данных для виджета', 'error');
+  
+  const items = state.result.utterances.map(u => `
+    <div style="margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px;">
+      <span style="color:var(--vc-accent); cursor:pointer; font-weight:bold; font-family:monospace; font-size:0.9em;" 
+            onclick="const p=document.getElementById('vx-media-${Date.now()}'); if(p){p.currentTime=${u.start}; p.play();}">
+        [${formatTime(u.start)}]
+      </span>
+      <strong style="color:var(--vc-text-muted); font-size:0.85em; margin-left:6px;">${state.speakerNames[u.speaker] || 'Спикер'}:</strong>
+      <p style="margin:4px 0 0 0; color:var(--vc-text); line-height:1.5;">${u.text}</p>
+    </div>
+  `).join('');
+
+  const isVideo = state.file && state.file.type.startsWith('video');
+  const mediaTag = isVideo 
+    ? `<video id="vx-media" controls style="width:100%; border-radius:8px; margin-bottom:20px; background:#000;"></video>`
+    : `<audio id="vx-media" controls style="width:100%; margin-bottom:20px;"></audio>`;
+  
+  // Note: User needs to replace SRC with their hosted URL
+  const code = `
+<!-- VoxCraft Widget Start -->
+<div id="voxcraft-widget" style="--vc-accent:#a855f7; --vc-text:#e2e8f0; --vc-text-muted:#94a3b8; --vc-bg:#1e293b; font-family:sans-serif; background:var(--vc-bg); color:var(--vc-text); padding:20px; border-radius:12px; max-width:800px; margin:20px auto; border:1px solid rgba(255,255,255,0.1);">
+  ${mediaTag}
+  <div style="max-height:400px; overflow-y:auto; padding-right:5px;">
+    ${items}
+  </div>
+  <script>
+    // Auto-set source if you host the file, otherwise user must edit HTML
+    // document.getElementById('vx-media').src = 'YOUR_FILE_URL_HERE';
+  <\/script>
+</div>
+<!-- VoxCraft Widget End -->
+  `.trim();
+
+  navigator.clipboard.writeText(code);
+  showToast('Код виджета скопирован! Вставьте на сайт.', 'success');
 }
-function saveFile(content, name) {
-  const b = new Blob([content], {type:'text/plain'});
-  const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name; a.click();
-}
-function toggleHistory() {
-  const b = document.getElementById('historyBody'); b.style.display = b.style.display === 'none' ? 'block' : 'none';
-}
+
+// History
 function addToHistory(data) {
-  let h = JSON.parse(localStorage.getItem('vox_hist') || '[]');
-  h.unshift({ date: new Date().toLocaleString(), provider: data.provider, preview: data.transcript.slice(0, 60) + '...' });
-  localStorage.setItem('vox_hist', JSON.stringify(h.slice(0, 10)));
+  let h = JSON.parse(localStorage.getItem('voxcraft_history') || '[]');
+  h.unshift({ date: new Date().toISOString(), provider: data.provider, duration: data.metadata.duration, preview: data.transcript.slice(0,100) });
+  if(h.length>10) h.pop();
+  localStorage.setItem('voxcraft_history', JSON.stringify(h));
   renderHistory();
 }
+
 function renderHistory() {
-  const h = JSON.parse(localStorage.getItem('vox_hist') || '[]');
-  document.getElementById('historyContent').innerHTML = h.map(i => `
-    <div style="font-size:0.8rem; padding:10px; border-bottom:1px solid var(--border)">
-      <strong>${i.date}</strong> [${i.provider.toUpperCase()}]<br><span style="color:var(--text-muted)">${i.preview}</span>
+  const h = JSON.parse(localStorage.getItem('voxcraft_history') || '[]');
+  const c = document.getElementById('historyContent');
+  if(!h.length) { c.innerHTML = '<div style="color:var(--text-dim); text-align:center">Пусто</div>'; return; }
+  c.innerHTML = h.map(i => `
+    <div class="history-item">
+      <div style="font-weight:600; font-size:0.9rem">${i.provider.toUpperCase()}</div>
+      <div style="font-size:0.8rem; color:var(--text-dim)">${new Date(i.date).toLocaleDateString()} • ${formatDuration(i.duration)}</div>
+      <div style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">${i.preview}...</div>
     </div>
   `).join('');
 }
-function clearHistory() { localStorage.removeItem('vox_hist'); renderHistory(); }
-function switchTab(t) {
-  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active', c.id === 'tabContent'+t.charAt(0).toUpperCase()+t.slice(1)));
-  document.getElementById('tabContent'+t.charAt(0).toUpperCase()+t.slice(1)).classList.add('active');
+
+function toggleHistory() {
+  document.getElementById('historyBody').classList.toggle('open');
+  document.getElementById('historyToggle').textContent = document.getElementById('historyBody').classList.contains('open') ? '▲' : '▼';
 }
-function showError(m) {
-  const eb = document.getElementById('errorBlock'); eb.textContent = m; eb.style.display = 'block';
-  document.getElementById('progressSection').classList.remove('visible');
+
+function clearHistory() {
+  localStorage.removeItem('voxcraft_history');
+  renderHistory();
 }
 </script>
 </body>
