@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* --- CSS STYLES (Без изменений, кроме лого) --- */
+/* --- CSS STYLES --- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --bg-from: #0f0c29; --bg-mid: #302b63; --bg-to: #24243e;
@@ -240,7 +240,6 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
   <!-- HEADER -->
   <div class="header">
     <div class="header-logo-container">
-      <!-- SVG Логотип -->
       <svg class="header-logo-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
         <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
@@ -342,7 +341,7 @@ textarea.result-text { width: 100%; min-height: 260px; resize: vertical; font-si
       <div class="form-group" style="margin-top:12px">
         <label>Полный путь к файлу</label>
         <div class="input-row">
-          <input type="text" id="filePathInput" placeholder="C:\Videos\recording.mp4" oninput="onPathInput()" onkeydown="if(event.key==='Enter') checkFilePath()">
+          <input type="text" id="filePathInput" placeholder="C:\Videos\recording.mp4" oninput="onPathInput()">
           <button class="btn btn-save" onclick="checkFilePath()">Проверить</button>
         </div>
       </div>
@@ -477,7 +476,7 @@ const LANGUAGES = [
 let state = { provider: 'deepgram', file: null, result: null, activeTab: 'text', speakerNames: {}, mediaUrl: null, mediaType: 'audio' };
 let fileMode = 'upload';
 let pathFileInfo = null;
-const IS_LOCAL = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
+let currentXhr = null;
 
 (function init() {
   selectProvider('deepgram', true);
@@ -554,6 +553,8 @@ function setFileMode(mode) {
   updateTranscribeBtn();
 }
 
+const IS_LOCAL = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
+
 function handleDrop(e) {
   e.preventDefault();
   document.getElementById('dropzone').classList.remove('drag-over');
@@ -566,6 +567,7 @@ function handleFileSelect(e) {
 
 function handleFile(file) {
   state.file = file;
+  if (state.mediaUrl) URL.revokeObjectURL(state.mediaUrl);
   state.mediaUrl = URL.createObjectURL(file);
   state.mediaType = file.type.startsWith('video') ? 'video' : 'audio';
   
@@ -578,6 +580,7 @@ function handleFile(file) {
 }
 
 function clearFile() {
+  if (state.mediaUrl) URL.revokeObjectURL(state.mediaUrl);
   state.file = null;
   state.mediaUrl = null;
   document.getElementById('fileInput').value = '';
@@ -591,7 +594,12 @@ function onPathInput() { document.getElementById('pathError').style.display = 'n
 function checkFilePath() {
   const path = document.getElementById('filePathInput').value.trim();
   if (!path) return;
-  fetch('/api/check-file', { method: 'POST', body: JSON.stringify({ path }) })
+  
+  fetch('/api/check-file', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ path: path })
+  })
     .then(r => r.json())
     .then(data => {
       if (data.ok) {
@@ -599,14 +607,14 @@ function checkFilePath() {
         document.getElementById('fileNamePath').textContent = data.name;
         document.getElementById('fileSizePath').textContent = (data.size / (1024 * 1024)).toFixed(2) + ' MB';
         document.getElementById('fileIconPath').textContent = pathFileInfo.isVideo ? '🎬' : '🎵';
-        document.getElementById('filePreviewPath').classList.add('visible');
+        document.getElementById('filePreviewPath').style.display = 'flex';
         document.getElementById('pathError').style.display = 'none';
         updateTranscribeBtn();
       } else {
         pathFileInfo = null;
         document.getElementById('pathError').textContent = data.error || 'Файл не найден';
         document.getElementById('pathError').style.display = 'block';
-        document.getElementById('filePreviewPath').classList.remove('visible');
+        document.getElementById('filePreviewPath').style.display = 'none';
         updateTranscribeBtn();
       }
     })
@@ -621,11 +629,15 @@ function checkFilePath() {
 function clearPathFile() {
   pathFileInfo = null;
   document.getElementById('filePathInput').value = '';
-  document.getElementById('filePreviewPath').classList.remove('visible');
+  document.getElementById('filePreviewPath').style.display = 'none';
   updateTranscribeBtn();
 }
 
 function startTranscription() {
+  if (currentXhr) {
+    currentXhr.abort();
+  }
+  
   const apiKey = getApiKey();
   const language = document.getElementById('languageSelect').value;
   const model = document.getElementById('modelSelect').value;
@@ -639,97 +651,154 @@ function startTranscription() {
   document.getElementById('progressText').textContent = 'Инициализация...';
 
   if (fileMode === 'path' && pathFileInfo) {
-    runSSETranscription(pathFileInfo.path, apiKey, provider, language, model, diarize);
+    runPathTranscription(pathFileInfo.path, apiKey, provider, language, model, diarize);
   } else if (fileMode === 'upload' && state.file) {
     runUploadTranscription(state.file, apiKey, provider, language, model, diarize);
   }
 }
 
-function runSSETranscription(filePath, apiKey, provider, language, model, diarize) {
-  const url = `/api/transcribe-by-path-sse?path=${encodeURIComponent(filePath)}&provider=${provider}&api_key=${encodeURIComponent(apiKey)}&language=${language}&model=${model}&diarize=${diarize}`;
-  const evtSource = new EventSource(url);
-  
-  evtSource.addEventListener('progress', (e) => {
-    const data = JSON.parse(e.data);
-    document.getElementById('progressBar').style.width = data.pct + '%';
-    document.getElementById('progressText').textContent = data.text;
-  });
-
-  evtSource.addEventListener('result', (e) => {
-    const data = JSON.parse(e.data);
-    finishTranscription(data);
-    evtSource.close();
-  });
-
-  evtSource.addEventListener('error', (e) => {
-    const data = JSON.parse(e.data);
-    showError(data.error || 'Ошибка транскрибации');
-    evtSource.close();
-  });
-}
-
-function runUploadTranscription(file, apiKey, provider, language, model, diarize) {
+function runPathTranscription(filePath, apiKey, provider, language, model, diarize) {
   const formData = new FormData();
-  formData.append('file', file);
-  
-  const xhr = new XMLHttpRequest();
-  // Deepgram принимает видео напрямую, поэтому не нужно указывать X-Is-Video для него специально, он сам разберется.
-  // Но для других провайдеров может потребоваться извлечение аудио на сервере.
-  // В этом коде мы отправляем файл как есть.
-  const url = `/api/transcribe/${provider}?language=${language}&model=${model}&diarize=${diarize}`;
-  
-  xhr.open('POST', url, true);
-  xhr.setRequestHeader('X-Api-Key', apiKey);
-  
-  // Если это видео и провайдер не Deepgram, сервер должен сам извлечь аудио. 
-  // Но Deepgram лучше всего работает с видео напрямую.
-  if (file.type.startsWith('video')) {
-    xhr.setRequestHeader('X-Is-Video', 'true');
-    xhr.setRequestHeader('X-File-Extension', file.name.split('.').pop());
-  }
+  formData.append('path', filePath);
+  formData.append('provider', provider);
+  formData.append('api_key', apiKey);
+  formData.append('language', language);
+  formData.append('model', model);
+  formData.append('diarize', diarize ? 'true' : 'false');
 
-  xhr.upload.onprogress = (e) => {
-    if (e.lengthComputable) {
-      const pct = Math.round((e.loaded / e.total) * 40);
-      document.getElementById('progressBar').style.width = pct + '%';
-      document.getElementById('progressText').textContent = `Загрузка файла: ${pct}%`;
+  currentXhr = new XMLHttpRequest();
+  currentXhr.open('POST', '/api/transcribe-by-path-sse', true);
+  currentXhr.setRequestHeader('Content-Type', 'application/json');
+  
+  let progressInterval = setInterval(() => {
+    const currentWidth = parseInt(document.getElementById('progressBar').style.width);
+    if (currentWidth < 85) {
+      document.getElementById('progressBar').style.width = Math.min(currentWidth + 5, 85) + '%';
     }
-  };
+  }, 1500);
 
-  xhr.onload = () => {
-    if (xhr.status === 200) {
-      document.getElementById('progressBar').style.width = '100%';
-      document.getElementById('progressText').textContent = 'Обработка...';
+  currentXhr.onload = () => {
+    clearInterval(progressInterval);
+    if (currentXhr.status === 200) {
       try {
-        const data = JSON.parse(xhr.responseText);
+        const data = JSON.parse(currentXhr.responseText);
+        document.getElementById('progressBar').style.width = '100%';
         finishTranscription(data);
       } catch (err) {
         showError('Ошибка парсинга ответа: ' + err.message);
       }
     } else {
       try {
-        const errData = JSON.parse(xhr.responseText);
+        const errData = JSON.parse(currentXhr.responseText);
         showError(errData.error || 'Ошибка сервера');
       } catch {
-        showError(`HTTP Error ${xhr.status}`);
+        showError(`HTTP Error ${currentXhr.status}`);
       }
+    }
+    currentXhr = null;
+  };
+
+  currentXhr.onerror = () => {
+    clearInterval(progressInterval);
+    showError('Ошибка сети');
+    currentXhr = null;
+  };
+
+  currentXhr.send(JSON.stringify({
+    path: filePath,
+    provider: provider,
+    api_key: apiKey,
+    language: language,
+    model: model,
+    diarize: diarize
+  }));
+}
+
+function runUploadTranscription(file, apiKey, provider, language, model, diarize) {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  currentXhr = new XMLHttpRequest();
+  const url = `/api/transcribe/${provider}?language=${encodeURIComponent(language)}&model=${encodeURIComponent(model)}&diarize=${diarize}`;
+  
+  currentXhr.open('POST', url, true);
+  currentXhr.setRequestHeader('X-Api-Key', apiKey);
+  
+  if (file.type.startsWith('video')) {
+    currentXhr.setRequestHeader('X-Is-Video', 'true');
+    const ext = file.name.split('.').pop();
+    currentXhr.setRequestHeader('X-File-Extension', ext);
+  }
+
+  currentXhr.upload.onprogress = (e) => {
+    if (e.lengthComputable) {
+      const pct = Math.min(40, Math.round((e.loaded / e.total) * 40));
+      document.getElementById('progressBar').style.width = pct + '%';
+      document.getElementById('progressText').textContent = `Загрузка файла: ${pct}%`;
     }
   };
 
-  xhr.onerror = () => showError('Ошибка сети');
-  xhr.send(formData);
+  let progressInterval = setInterval(() => {
+    const currentWidth = parseInt(document.getElementById('progressBar').style.width);
+    if (currentWidth > 40 && currentWidth < 90) {
+      document.getElementById('progressBar').style.width = Math.min(currentWidth + 3, 90) + '%';
+      document.getElementById('progressText').textContent = 'Транскрибация...';
+    }
+  }, 1000);
+
+  currentXhr.onload = () => {
+    clearInterval(progressInterval);
+    if (currentXhr.status === 200) {
+      document.getElementById('progressBar').style.width = '100%';
+      document.getElementById('progressText').textContent = 'Завершено!';
+      try {
+        const data = JSON.parse(currentXhr.responseText);
+        finishTranscription(data);
+      } catch (err) {
+        showError('Ошибка парсинга ответа: ' + err.message);
+      }
+    } else {
+      try {
+        const errData = JSON.parse(currentXhr.responseText);
+        showError(errData.error || 'Ошибка сервера');
+      } catch {
+        showError(`HTTP Error ${currentXhr.status}`);
+      }
+    }
+    currentXhr = null;
+  };
+
+  currentXhr.onerror = () => {
+    clearInterval(progressInterval);
+    showError('Ошибка сети');
+    currentXhr = null;
+  };
+  
+  currentXhr.send(formData);
 }
 
 function finishTranscription(data) {
+  if (!data.success && data.error) {
+    showError(data.error);
+    return;
+  }
+  
   state.result = data;
-  state.speakerNames = {}; 
+  state.speakerNames = {};
+  
+  const transcript = data.transcript || '';
+  const utterances = data.utterances || [];
+  const duration = data.metadata?.duration || 0;
+  const confidence = data.metadata?.confidence || 0;
+  const lang = data.metadata?.language || 'ru';
+  const provider = data.provider || state.provider;
   
   const metaDiv = document.getElementById('resultMeta');
   metaDiv.innerHTML = `
-    <div class="meta-badge"><span class="dot dot-${data.provider}"></span>${data.provider.toUpperCase()}</div>
-    <div class="meta-badge">⏱ ${formatDuration(data.metadata.duration)}</div>
-    <div class="meta-badge">🎯 ${(data.metadata.confidence * 100).toFixed(1)}%</div>
-    <div class="meta-badge">🌐 ${data.metadata.language}</div>
+    <div class="meta-badge"><span class="dot dot-${provider}"></span>${provider.toUpperCase()}</div>
+    <div class="meta-badge">⏱ ${formatDuration(duration)}</div>
+    <div class="meta-badge">🎯 ${(confidence * 100).toFixed(1)}%</div>
+    <div class="meta-badge">🌐 ${lang}</div>
   `;
 
   // Настройка плеера
@@ -737,32 +806,45 @@ function finishTranscription(data) {
   const videoPlayer = document.getElementById('resultVideoPlayer');
   const audioPlayer = document.getElementById('resultAudioPlayer');
   
-  playerContainer.style.display = 'block';
   if (state.mediaUrl) {
+    playerContainer.style.display = 'block';
     if (state.mediaType === 'video') {
       videoPlayer.src = state.mediaUrl;
       videoPlayer.style.display = 'block';
       audioPlayer.style.display = 'none';
+      audioPlayer.pause();
     } else {
       audioPlayer.src = state.mediaUrl;
       audioPlayer.style.display = 'block';
       videoPlayer.style.display = 'none';
+      videoPlayer.pause();
     }
   } else {
-    // Если путь к файлу или ссылка (здесь можно добавить логику для пути)
-    playerContainer.style.display = 'none'; // Пока скрываем, если нет blob URL
+    playerContainer.style.display = 'none';
   }
 
-  document.getElementById('resultTextarea').value = data.transcript;
-  renderSummary(data);
-  renderSpeakers(data);
-  renderKeywords(data.transcript);
-  renderTimestamps(data);
+  document.getElementById('resultTextarea').value = transcript;
+  
+  if (utterances && utterances.length > 0) {
+    state.result.utterances = utterances;
+  } else if (transcript) {
+    state.result.utterances = [{
+      speaker: 0,
+      text: transcript,
+      start: 0,
+      end: duration
+    }];
+  }
+  
+  renderSummary(state.result);
+  renderSpeakers(state.result);
+  renderKeywords(transcript);
+  renderTimestamps(state.result);
 
   document.getElementById('progressSection').classList.remove('visible');
   document.getElementById('resultSection').classList.add('visible');
   switchTab('text');
-  addToHistory(data);
+  addToHistory(state.result);
 }
 
 function seekTo(seconds) {
@@ -827,7 +909,7 @@ function renderSpeakers(data) {
     const card = document.createElement('div');
     card.className = 'stat-card';
     card.innerHTML = `
-      <div class="stat-val" style="color:var(--accent)">${name}</div>
+      <div class="stat-val" style="color:var(--accent)">${escapeHtml(name)}</div>
       <div class="stat-label">${s.count} реплик</div>
       <div class="stat-label">${formatDuration(s.duration)}</div>
     `;
@@ -845,7 +927,7 @@ function renderSpeakers(data) {
       <div class="speaker-badge spk-${spkId % 4}" contenteditable="true" 
            onblur="updateSpeakerName(${spkId}, this.textContent)" 
            title="Нажмите чтобы переименовать">
-        ${displayName}
+        ${escapeHtml(displayName)}
       </div>
       <div class="utterance-body">
         <div class="utterance-time" onclick="seekTo(${u.start})">${formatTime(u.start)}</div>
@@ -918,7 +1000,7 @@ function renderTimestamps(data) {
     div.style.cursor = 'pointer';
     div.onclick = () => seekTo(u.start);
     div.innerHTML = `
-      <div style="font-family:'JetBrains Mono'; color:var(--accent); font-weight:bold; min-width:60px;">${formatTime(u.start)}</div>
+      <div style="font-family:"JetBrains Mono", monospace; color:var(--accent); font-weight:bold; min-width:60px;">${formatTime(u.start)}</div>
       <div style="flex:1; color:var(--text-muted); font-size:0.9rem;">${escapeHtml(u.text)}</div>
     `;
     container.appendChild(div);
@@ -1053,8 +1135,8 @@ function addToHistory(data) {
   const item = {
     date: new Date().toISOString(),
     provider: data.provider,
-    duration: data.metadata.duration,
-    preview: data.transcript.substring(0, 100) + '...',
+    duration: data.metadata?.duration || 0,
+    preview: (data.transcript || '').substring(0, 100) + '...',
     full: data
   };
   history.unshift(item);
@@ -1080,17 +1162,15 @@ function renderHistory() {
         <span class="history-item-name">${item.provider.toUpperCase()} • ${formatDuration(item.duration)}</span>
         <span class="history-item-meta">${new Date(item.date).toLocaleDateString()}</span>
       </div>
-      <div class="history-item-preview">${escapeHtml(item.preview)}</div>
+      <div class="history-item-preview" style="font-size:0.8rem; color:var(--text-muted); margin-top:5px;">${escapeHtml(item.preview)}</div>
     `;
     div.onclick = () => {
       document.querySelectorAll('.history-item').forEach(i => i.classList.remove('expanded'));
       div.classList.toggle('expanded');
       if (div.classList.contains('expanded')) {
-         state.result = item.full;
-         // Восстанавливаем медиа, если возможно (только если файл все еще в памяти браузера, что маловероятно после перезагрузки)
-         // Поэтому просто показываем текст
-         finishTranscription(item.full);
-         showToast('Данные загружены из истории (медиафайл недоступен)', 'info');
+        state.result = item.full;
+        finishTranscription(item.full);
+        showToast('Данные загружены из истории', 'info');
       }
     };
     list.appendChild(div);
