@@ -37,7 +37,7 @@ body {
 }
 
 .container {
-    max-width: 900px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
 }
@@ -175,6 +175,11 @@ input, select, textarea {
 
 input:focus, select:focus {
     border-color: #a855f7;
+}
+
+input[type="color"] {
+    height: 45px;
+    cursor: pointer;
 }
 
 .input-row {
@@ -383,6 +388,7 @@ input:focus, select:focus {
     background: rgba(0,0,0,0.2);
     padding: 4px;
     border-radius: 10px;
+    flex-wrap: wrap;
 }
 
 .tab-btn {
@@ -394,6 +400,7 @@ input:focus, select:focus {
     color: rgba(255,255,255,0.55);
     cursor: pointer;
     transition: all 0.2s;
+    font-size: 0.8rem;
 }
 
 .tab-btn.active {
@@ -597,14 +604,14 @@ input:focus, select:focus {
 
 .media-player-container {
     margin-bottom: 20px;
-    max-height: 250px;
+    max-height: 300px;
     overflow: hidden;
 }
 
 .media-player-container video,
 .media-player-container audio {
     width: 100%;
-    max-height: 250px;
+    max-height: 300px;
     border-radius: 8px;
 }
 
@@ -629,32 +636,74 @@ input:focus, select:focus {
     gap: 12px;
 }
 
-.widget-code {
-    background: rgba(0,0,0,0.4);
-    border-radius: 10px;
-    padding: 16px;
-    font-family: monospace;
-    font-size: 0.75rem;
-    white-space: pre-wrap;
-    word-break: break-all;
-    max-height: 400px;
-    overflow-y: auto;
-    margin-bottom: 16px;
-    border: 1px solid rgba(255,255,255,0.1);
+/* Стили для конструктора виджета */
+.widget-designer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
 }
 
-@media (max-width: 640px) {
-    .providers {
+.color-controls {
+    background: rgba(0,0,0,0.2);
+    padding: 16px;
+    border-radius: 12px;
+}
+
+.color-group {
+    margin-bottom: 15px;
+}
+
+.color-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.8rem;
+}
+
+.color-input {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.color-input input[type="color"] {
+    width: 50px;
+    height: 40px;
+    padding: 0;
+}
+
+.color-input input[type="text"] {
+    flex: 1;
+}
+
+.widget-preview {
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 16px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.preview-title {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.widget-code-area {
+    margin-top: 20px;
+}
+
+.widget-code-area textarea {
+    font-family: monospace;
+    font-size: 0.7rem;
+    height: 150px;
+    background: rgba(0,0,0,0.4);
+}
+
+@media (max-width: 768px) {
+    .widget-designer {
         grid-template-columns: 1fr;
-    }
-    .settings-grid {
-        grid-template-columns: 1fr;
-    }
-    .result-actions {
-        flex-direction: column;
-    }
-    .result-actions .btn {
-        width: 100%;
     }
     .tabs {
         flex-direction: column;
@@ -675,7 +724,7 @@ input:focus, select:focus {
             </svg>
             <div class="header-logo-text">VoxCraft</div>
         </div>
-        <div class="header-sub">Транскрибация аудио и видео с таймкодами</div>
+        <div class="header-sub">Транскрибация аудио и видео с конструктором виджета</div>
     </div>
 
     <div class="card">
@@ -736,7 +785,6 @@ input:focus, select:focus {
             <button class="file-mode-btn" id="modePathBtn" onclick="setFileMode('path')">⚡ Путь на диске</button>
         </div>
 
-        <!-- Режим: загрузка файла -->
         <div id="modeUploadPanel">
             <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()" 
                  ondrop="handleDrop(event)" ondragover="event.preventDefault()">
@@ -755,7 +803,6 @@ input:focus, select:focus {
             </div>
         </div>
 
-        <!-- Режим: ссылка -->
         <div id="modeUrlPanel" style="display:none">
             <div class="form-group">
                 <label>Ссылка на аудио/видео</label>
@@ -775,7 +822,6 @@ input:focus, select:focus {
             <div class="path-error" id="urlError" style="display:none"></div>
         </div>
 
-        <!-- Режим: путь на диске -->
         <div id="modePathPanel" style="display:none">
             <div class="path-hint" style="padding:12px; background:rgba(168,85,247,0.08); border-radius:10px; font-size:0.8rem;">💡 Введите полный путь к файлу на вашем компьютере</div>
             <div class="path-warning" id="pathLocalWarning" style="display:none; margin-top:10px; padding:12px; background:rgba(251,191,36,0.08); border-radius:10px; color:#fde68a;">⚠️ Режим работает только при локальном запуске</div>
@@ -819,7 +865,7 @@ input:focus, select:focus {
             <button class="tab-btn active" onclick="switchTab('text')">📄 Текст</button>
             <button class="tab-btn" onclick="switchTab('speakers')">👥 Спикеры</button>
             <button class="tab-btn" onclick="switchTab('timestamps')">⏱ Таймкоды</button>
-            <button class="tab-btn" onclick="switchTab('widget')">🧩 Виджет</button>
+            <button class="tab-btn" onclick="switchTab('widget')">🎨 Конструктор виджета</button>
         </div>
 
         <div class="tab-content active" id="tabContentText">
@@ -836,14 +882,65 @@ input:focus, select:focus {
         </div>
 
         <div class="tab-content" id="tabContentWidget">
-            <div style="margin-bottom: 16px;">
-                <button class="btn btn-primary" onclick="generateAndCopyWidget()" style="width:100%">📋 Скопировать код виджета</button>
+            <div class="widget-designer">
+                <div class="color-controls">
+                    <h3 style="margin-bottom: 15px; font-size: 1rem;">🎨 Настройка виджета</h3>
+                    
+                    <div class="color-group">
+                        <label>🎨 Основной цвет (акцент)</label>
+                        <div class="color-input">
+                            <input type="color" id="widgetAccentColor" value="#a855f7">
+                            <input type="text" id="widgetAccentText" value="#a855f7">
+                        </div>
+                    </div>
+                    
+                    <div class="color-group">
+                        <label>📄 Цвет фона</label>
+                        <div class="color-input">
+                            <input type="color" id="widgetBgColor" value="#1e1b2e">
+                            <input type="text" id="widgetBgText" value="#1e1b2e">
+                        </div>
+                    </div>
+                    
+                    <div class="color-group">
+                        <label>📝 Цвет текста</label>
+                        <div class="color-input">
+                            <input type="color" id="widgetTextColor" value="#e2d9f3">
+                            <input type="text" id="widgetTextText" value="#e2d9f3">
+                        </div>
+                    </div>
+                    
+                    <div class="color-group">
+                        <label>💬 Цвет реплик</label>
+                        <div class="color-input">
+                            <input type="color" id="widgetUtteranceBg" value="rgba(168,85,247,0.08)">
+                            <input type="text" id="widgetUtteranceBgText" value="rgba(168,85,247,0.08)">
+                        </div>
+                    </div>
+                    
+                    <div class="color-group">
+                        <label>🎬 Высота плеера (px)</label>
+                        <input type="number" id="widgetPlayerHeight" value="250" min="150" max="500" step="10">
+                    </div>
+                    
+                    <div class="color-group">
+                        <label>🎨 Стеклянный эффект (blur)</label>
+                        <input type="range" id="widgetBlur" min="0" max="20" value="12" step="1">
+                        <span id="blurValue">12px</span>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="updateWidgetPreview()" style="width:100%; margin-top:15px;">🔄 Обновить предпросмотр</button>
+                    <button class="btn btn-ghost" onclick="copyWidgetCode()" style="width:100%; margin-top:10px;">📋 Скопировать код виджета</button>
+                </div>
+                
+                <div class="widget-preview">
+                    <div class="preview-title">✨ Предпросмотр виджета</div>
+                    <div id="widgetPreviewContainer"></div>
+                </div>
             </div>
-            <div class="widget-code" id="widgetCodePreview">
-                Нажмите кнопку выше, чтобы сгенерировать код виджета
-            </div>
-            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:12px;">
-                💡 Виджет можно вставить на любой сайт. Таймкоды кликабельны - при нажатии видео перемотается.
+            <div class="widget-code-area" style="margin-top: 20px;">
+                <label>📋 Код виджета для вставки на сайт</label>
+                <textarea id="widgetCodeOutput" readonly rows="6" style="width:100%; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:12px; color:white; font-family:monospace; font-size:0.7rem;"></textarea>
             </div>
         </div>
 
@@ -879,7 +976,7 @@ input:focus, select:focus {
 
 <script>
 // ============================================
-// ПОЛНЫЙ КЛИЕНТСКИЙ КОД
+// ПОЛНЫЙ КЛИЕНТСКИЙ КОД С КОНСТРУКТОРОМ ВИДЖЕТА
 // ============================================
 
 const PROVIDERS = {
@@ -916,6 +1013,47 @@ function init() {
     populateLanguages();
     loadHistory();
     updateTranscribeBtn();
+    
+    // Инициализация цветов виджета
+    document.getElementById('widgetAccentColor').addEventListener('input', function(e) {
+        document.getElementById('widgetAccentText').value = e.target.value;
+        updateWidgetPreview();
+    });
+    document.getElementById('widgetAccentText').addEventListener('input', function(e) {
+        document.getElementById('widgetAccentColor').value = e.target.value;
+        updateWidgetPreview();
+    });
+    document.getElementById('widgetBgColor').addEventListener('input', function(e) {
+        document.getElementById('widgetBgText').value = e.target.value;
+        updateWidgetPreview();
+    });
+    document.getElementById('widgetBgText').addEventListener('input', function(e) {
+        document.getElementById('widgetBgColor').value = e.target.value;
+        updateWidgetPreview();
+    });
+    document.getElementById('widgetTextColor').addEventListener('input', function(e) {
+        document.getElementById('widgetTextText').value = e.target.value;
+        updateWidgetPreview();
+    });
+    document.getElementById('widgetTextText').addEventListener('input', function(e) {
+        document.getElementById('widgetTextColor').value = e.target.value;
+        updateWidgetPreview();
+    });
+    document.getElementById('widgetUtteranceBg').addEventListener('input', function(e) {
+        document.getElementById('widgetUtteranceBgText').value = e.target.value;
+        updateWidgetPreview();
+    });
+    document.getElementById('widgetUtteranceBgText').addEventListener('input', function(e) {
+        document.getElementById('widgetUtteranceBg').value = e.target.value;
+        updateWidgetPreview();
+    });
+    document.getElementById('widgetPlayerHeight').addEventListener('input', function() {
+        updateWidgetPreview();
+    });
+    document.getElementById('widgetBlur').addEventListener('input', function(e) {
+        document.getElementById('blurValue').textContent = e.target.value + 'px';
+        updateWidgetPreview();
+    });
 }
 
 function selectProvider(name) {
@@ -1031,6 +1169,8 @@ function validateUrl() {
         document.getElementById('fileIconUrl').textContent = '🔗';
         document.getElementById('filePreviewUrl').style.display = 'flex';
         document.getElementById('urlError').style.display = 'none';
+        state.mediaUrl = url;
+        state.mediaType = url.match(/\.(mp4|mov|webm|mkv)$/i) ? 'video' : 'audio';
         showToast('Ссылка загружена', 'success');
         updateTranscribeBtn();
     } catch(e) {
@@ -1043,6 +1183,7 @@ function validateUrl() {
 
 function clearUrl() {
     urlFileInfo = null;
+    state.mediaUrl = null;
     document.getElementById('mediaUrlInput').value = '';
     document.getElementById('filePreviewUrl').style.display = 'none';
     updateTranscribeBtn();
@@ -1113,13 +1254,8 @@ async function startTranscription() {
         
         if (fileMode === 'upload' && state.file) {
             formData.append('file', state.file);
-            if (state.mediaUrl) {
-                state.mediaUrl = URL.createObjectURL(state.file);
-            }
         } else if (fileMode === 'url' && urlFileInfo) {
             formData.append('url', urlFileInfo.url);
-            state.mediaUrl = urlFileInfo.url;
-            state.mediaType = 'video';
         } else if (fileMode === 'path' && pathFileInfo) {
             formData.append('path', pathFileInfo.path);
         }
@@ -1192,6 +1328,9 @@ function finishTranscription(data) {
     
     renderSpeakers(data.utterances);
     renderTimestamps(data.utterances);
+    
+    // Обновляем предпросмотр виджета
+    updateWidgetPreview();
     
     document.getElementById('progressSection').classList.remove('visible');
     document.getElementById('resultSection').classList.add('visible');
@@ -1292,41 +1431,74 @@ function renderTimestamps(utterances) {
     });
 }
 
-function generateAndCopyWidget() {
+function updateWidgetPreview() {
     if (!state.result || !state.result.utterances) {
-        showToast('Сначала выполните транскрибацию', 'error');
+        document.getElementById('widgetPreviewContainer').innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">Сначала выполните транскрибацию</div>';
         return;
     }
+    
+    const accent = document.getElementById('widgetAccentColor').value;
+    const bgColor = document.getElementById('widgetBgColor').value;
+    const textColor = document.getElementById('widgetTextColor').value;
+    const utteranceBg = document.getElementById('widgetUtteranceBg').value;
+    const playerHeight = document.getElementById('widgetPlayerHeight').value;
+    const blur = document.getElementById('widgetBlur').value;
     
     const mediaUrl = state.mediaUrl || '';
     const isVideo = state.mediaType === 'video' || (mediaUrl && (mediaUrl.includes('.mp4') || mediaUrl.includes('.mov')));
     
     const mediaTag = isVideo 
-        ? `<video controls src="${mediaUrl}" style="width:100%; max-height:250px; border-radius:8px; margin-bottom:15px;"></video>`
+        ? `<video controls src="${mediaUrl}" style="width:100%; max-height:${playerHeight}px; border-radius:12px; margin-bottom:15px;"></video>`
         : `<audio controls src="${mediaUrl}" style="width:100%; margin-bottom:15px;"></audio>`;
     
     const utterancesHtml = state.result.utterances.map(u => `
-        <div style="margin-bottom:12px; padding:10px; background:rgba(168,85,247,0.05); border-radius:8px; border-left:3px solid #a855f7; cursor:pointer;" 
-             onclick="const p=this.closest('.vox-widget').querySelector('video,audio'); if(p){p.currentTime=${u.start}; p.play();}">
-            <div style="font-size:0.7rem; color:#a855f7; font-family:monospace; margin-bottom:4px;">[${formatTime(u.start)}]</div>
-            <div style="font-size:0.85rem; color:#e2d9f3; line-height:1.5;">${escapeHtml(u.text)}</div>
+        <div style="margin-bottom:12px; padding:12px; background:${utteranceBg}; border-radius:10px; border-left:3px solid ${accent}; cursor:pointer; transition:all 0.2s;" 
+             onmouseover="this.style.transform='translateX(4px)'" 
+             onmouseout="this.style.transform='translateX(0)'"
+             onclick="const p=this.closest('.widget-preview-container').querySelector('video,audio'); if(p){p.currentTime=${u.start}; p.play();}">
+            <div style="font-size:0.7rem; color:${accent}; font-family:monospace; margin-bottom:6px;">⏱ [${formatTime(u.start)}]</div>
+            <div style="font-size:0.85rem; color:${textColor}; line-height:1.6;">${escapeHtml(u.text)}</div>
         </div>
     `).join('');
     
-    const widgetCode = `<div class="vox-widget" style="max-width:800px; margin:20px auto; background:#1e1b2e; border:1px solid rgba(168,85,247,0.3); border-radius:12px; padding:20px; font-family:sans-serif;">
-    ${mediaTag}
-    <div style="max-height:400px; overflow-y:auto;">
-        ${utterancesHtml}
+    const widgetHTML = `
+        <div class="widget-preview-container" style="background:${bgColor}; backdrop-filter:blur(${blur}px); border-radius:16px; padding:20px; font-family:'Inter', sans-serif; border:1px solid ${accent}40;">
+            ${mediaTag}
+            <div style="max-height:400px; overflow-y:auto; margin-top:10px;">
+                ${utterancesHtml}
+            </div>
+            <div style="margin-top:16px; text-align:center; font-size:0.65rem; color:${accent}80; border-top:1px solid ${accent}20; padding-top:12px;">
+                🎙 Транскрибация выполнена в VoxCraft
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('widgetPreviewContainer').innerHTML = widgetHTML;
+    
+    // Генерируем код для копирования
+    const widgetCode = `<div style="max-width:800px; margin:20px auto;">
+    <div style="background:${bgColor}; backdrop-filter:blur(${blur}px); border-radius:16px; padding:20px; font-family:'Inter', sans-serif; border:1px solid ${accent}40;">
+        ${mediaTag}
+        <div style="max-height:400px; overflow-y:auto; margin-top:10px;">
+            ${utterancesHtml}
+        </div>
+        <div style="margin-top:16px; text-align:center; font-size:0.65rem; color:${accent}80; border-top:1px solid ${accent}20; padding-top:12px;">
+            🎙 Транскрибация выполнена в VoxCraft
+        </div>
     </div>
-    <div style="margin-top:12px; text-align:center; font-size:0.7rem; color:#a855f7;">🎙 Создано в VoxCraft</div>
 </div>`;
     
-    navigator.clipboard.writeText(widgetCode).then(() => {
-        showToast('Код виджета скопирован!', 'success');
-        document.getElementById('widgetCodePreview').textContent = widgetCode;
-    }).catch(() => {
-        showToast('Ошибка копирования', 'error');
-    });
+    document.getElementById('widgetCodeOutput').value = widgetCode;
+}
+
+function copyWidgetCode() {
+    const code = document.getElementById('widgetCodeOutput').value;
+    if (!code) {
+        showToast('Сначала выполните транскрибацию', 'error');
+        return;
+    }
+    navigator.clipboard.writeText(code);
+    showToast('Код виджета скопирован!', 'success');
 }
 
 function switchTab(tabName) {
@@ -1351,6 +1523,10 @@ function switchTab(tabName) {
             }
         }
     });
+    
+    if (tabName === 'widget') {
+        setTimeout(() => updateWidgetPreview(), 100);
+    }
 }
 
 function copyResult() {
