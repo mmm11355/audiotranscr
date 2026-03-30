@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VoxCraft — Транскрибер с редактором виджета</title>
+<title>VoxCraft — Транскрибер</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -20,7 +20,6 @@
     --accent: #a855f7;
     --accent2: #ec4899;
     --glass: rgba(255,255,255,0.05);
-    --glass-hover: rgba(255,255,255,0.09);
     --border: rgba(255,255,255,0.10);
     --text: #ffffff;
     --text-muted: rgba(255,255,255,0.55);
@@ -78,11 +77,6 @@ body {
     -webkit-text-fill-color: transparent;
 }
 
-.header-sub {
-    color: rgba(255,255,255,0.55);
-    font-size: 0.9rem;
-}
-
 .section-title {
     font-size: 0.75rem;
     font-weight: 600;
@@ -126,41 +120,15 @@ body {
     font-weight: bold;
 }
 
-.provider-icon.deepgram {
-    background: rgba(16,185,129,0.15);
-    color: #10b981;
-}
+.provider-icon.deepgram { background: rgba(16,185,129,0.15); color: #10b981; }
+.provider-icon.assemblyai { background: rgba(96,165,250,0.15); color: #60a5fa; }
+.provider-icon.gladia { background: rgba(244,114,182,0.15); color: #f472b6; }
 
-.provider-icon.assemblyai {
-    background: rgba(96,165,250,0.15);
-    color: #60a5fa;
-}
+.provider-name { font-size: 0.9rem; font-weight: 600; }
+.provider-free { font-size: 0.7rem; color: rgba(255,255,255,0.55); }
 
-.provider-icon.gladia {
-    background: rgba(244,114,182,0.15);
-    color: #f472b6;
-}
-
-.provider-name {
-    font-size: 0.9rem;
-    font-weight: 600;
-}
-
-.provider-free {
-    font-size: 0.7rem;
-    color: rgba(255,255,255,0.55);
-}
-
-.form-group {
-    margin-bottom: 14px;
-}
-
-label {
-    display: block;
-    font-size: 0.8rem;
-    color: rgba(255,255,255,0.55);
-    margin-bottom: 6px;
-}
+.form-group { margin-bottom: 14px; }
+label { display: block; font-size: 0.8rem; color: rgba(255,255,255,0.55); margin-bottom: 6px; }
 
 input, select, textarea {
     width: 100%;
@@ -173,23 +141,11 @@ input, select, textarea {
     outline: none;
 }
 
-input:focus, select:focus {
-    border-color: #a855f7;
-}
+input:focus, select:focus { border-color: #a855f7; }
+input[type="color"] { width: 60px; height: 40px; padding: 0; cursor: pointer; }
 
-input[type="color"] {
-    height: 45px;
-    cursor: pointer;
-}
-
-.input-row {
-    display: flex;
-    gap: 10px;
-}
-
-.input-row input {
-    flex: 1;
-}
+.input-row { display: flex; gap: 10px; }
+.input-row input { flex: 1; }
 
 .btn {
     display: inline-flex;
@@ -215,10 +171,7 @@ input[type="color"] {
     box-shadow: 0 4px 15px rgba(168,85,247,0.4);
 }
 
-.btn-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .btn-ghost {
     background: rgba(255,255,255,0.05);
@@ -226,9 +179,7 @@ input[type="color"] {
     border: 1px solid rgba(255,255,255,0.1);
 }
 
-.btn-ghost:hover {
-    background: rgba(255,255,255,0.09);
-}
+.btn-ghost:hover { background: rgba(255,255,255,0.09); }
 
 .btn-danger {
     background: rgba(248,113,113,0.2);
@@ -236,9 +187,7 @@ input[type="color"] {
     border: 1px solid rgba(248,113,113,0.3);
 }
 
-.btn-danger:hover {
-    background: rgba(248,113,113,0.3);
-}
+.btn-danger:hover { background: rgba(248,113,113,0.3); }
 
 .btn-save {
     background: rgba(168,85,247,0.2);
@@ -246,17 +195,9 @@ input[type="color"] {
     border: 1px solid rgba(168,85,247,0.3);
 }
 
-.btn-full {
-    width: 100%;
-    padding: 14px;
-    font-size: 1rem;
-}
+.btn-full { width: 100%; padding: 14px; font-size: 1rem; }
 
-.file-mode-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-}
+.file-mode-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
 
 .file-mode-btn {
     flex: 1;
@@ -266,7 +207,6 @@ input[type="color"] {
     border-radius: 10px;
     color: rgba(255,255,255,0.55);
     cursor: pointer;
-    transition: all 0.2s;
 }
 
 .file-mode-btn.active {
@@ -281,7 +221,6 @@ input[type="color"] {
     padding: 40px;
     text-align: center;
     cursor: pointer;
-    transition: all 0.2s;
 }
 
 .dropzone:hover {
@@ -299,9 +238,7 @@ input[type="color"] {
     margin-top: 12px;
 }
 
-.file-preview.visible {
-    display: flex;
-}
+.file-preview.visible { display: flex; }
 
 .file-icon {
     width: 40px;
@@ -313,27 +250,12 @@ input[type="color"] {
     font-size: 1.5rem;
 }
 
-.file-info {
-    flex: 1;
-}
+.file-info { flex: 1; }
+.file-name { font-size: 0.9rem; font-weight: 500; }
+.file-size { font-size: 0.75rem; color: rgba(255,255,255,0.55); }
 
-.file-name {
-    font-size: 0.9rem;
-    font-weight: 500;
-}
-
-.file-size {
-    font-size: 0.75rem;
-    color: rgba(255,255,255,0.55);
-}
-
-.progress-section {
-    display: none;
-}
-
-.progress-section.visible {
-    display: block;
-}
+.progress-section { display: none; }
+.progress-section.visible { display: block; }
 
 .progress-status {
     display: flex;
@@ -351,9 +273,7 @@ input[type="color"] {
     animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .progress-bar-wrap {
     height: 6px;
@@ -369,13 +289,8 @@ input[type="color"] {
     transition: width 0.3s;
 }
 
-.result-section {
-    display: none;
-}
-
-.result-section.visible {
-    display: block;
-}
+.result-section { display: none; }
+.result-section.visible { display: block; }
 
 .result-meta {
     display: flex;
@@ -409,7 +324,6 @@ input[type="color"] {
     border-radius: 6px;
     color: rgba(255,255,255,0.55);
     cursor: pointer;
-    transition: all 0.2s;
     font-size: 0.8rem;
 }
 
@@ -418,13 +332,8 @@ input[type="color"] {
     color: white;
 }
 
-.tab-content {
-    display: none;
-}
-
-.tab-content.active {
-    display: block;
-}
+.tab-content { display: none; }
+.tab-content.active { display: block; }
 
 .result-text {
     width: 100%;
@@ -451,12 +360,9 @@ input[type="color"] {
     border-radius: 10px;
     margin-bottom: 8px;
     cursor: pointer;
-    transition: all 0.2s;
 }
 
-.utterance-item:hover {
-    background: rgba(168,85,247,0.1);
-}
+.utterance-item:hover { background: rgba(168,85,247,0.1); }
 
 .speaker-badge {
     padding: 4px 12px;
@@ -495,15 +401,8 @@ input[type="color"] {
     text-align: center;
 }
 
-.stat-val {
-    font-size: 1.2rem;
-    font-weight: bold;
-}
-
-.stat-label {
-    font-size: 0.7rem;
-    color: rgba(255,255,255,0.55);
-}
+.stat-val { font-size: 1.2rem; font-weight: bold; }
+.stat-label { font-size: 0.7rem; color: rgba(255,255,255,0.55); }
 
 .result-actions {
     display: flex;
@@ -519,14 +418,8 @@ input[type="color"] {
     padding: 8px 0;
 }
 
-.history-body {
-    display: none;
-    margin-top: 12px;
-}
-
-.history-body.open {
-    display: block;
-}
+.history-body { display: none; margin-top: 12px; }
+.history-body.open { display: block; }
 
 .history-list {
     display: flex;
@@ -543,9 +436,7 @@ input[type="color"] {
     cursor: pointer;
 }
 
-.history-item:hover {
-    background: rgba(168,85,247,0.1);
-}
+.history-item:hover { background: rgba(168,85,247,0.1); }
 
 .error-block {
     display: none;
@@ -557,9 +448,7 @@ input[type="color"] {
     margin-top: 12px;
 }
 
-.error-block.visible {
-    display: block;
-}
+.error-block.visible { display: block; }
 
 .toast-container {
     position: fixed;
@@ -590,14 +479,8 @@ input[type="color"] {
 }
 
 @keyframes slideIn {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
 }
 
 .footer {
@@ -614,14 +497,14 @@ input[type="color"] {
 
 .media-player-container {
     margin-bottom: 20px;
-    max-height: 300px;
+    max-height: 250px;
     overflow: hidden;
 }
 
 .media-player-container video,
 .media-player-container audio {
     width: 100%;
-    max-height: 300px;
+    max-height: 250px;
     border-radius: 8px;
 }
 
@@ -659,15 +542,8 @@ input[type="color"] {
     border-radius: 12px;
 }
 
-.color-group {
-    margin-bottom: 15px;
-}
-
-.color-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-size: 0.8rem;
-}
+.color-group { margin-bottom: 15px; }
+.color-group label { display: block; margin-bottom: 5px; font-size: 0.8rem; }
 
 .color-input {
     display: flex;
@@ -675,15 +551,8 @@ input[type="color"] {
     align-items: center;
 }
 
-.color-input input[type="color"] {
-    width: 50px;
-    height: 40px;
-    padding: 0;
-}
-
-.color-input input[type="text"] {
-    flex: 1;
-}
+.color-input input[type="color"] { width: 50px; height: 40px; }
+.color-input input[type="text"] { flex: 1; }
 
 .widget-preview {
     background: rgba(255,255,255,0.05);
@@ -713,12 +582,6 @@ input[type="color"] {
     border-radius: 3px;
 }
 
-.widget-preview::-webkit-scrollbar-thumb:hover,
-.utterances-list::-webkit-scrollbar-thumb:hover,
-.history-list::-webkit-scrollbar-thumb:hover {
-    background: rgba(168,85,247,0.5);
-}
-
 .preview-title {
     font-size: 0.8rem;
     color: var(--text-muted);
@@ -726,9 +589,7 @@ input[type="color"] {
     text-align: center;
 }
 
-.widget-code-area {
-    margin-top: 20px;
-}
+.widget-code-area { margin-top: 20px; }
 
 .widget-code-area textarea {
     font-family: monospace;
@@ -770,6 +631,7 @@ input[type="color"] {
     color: white;
     font-size: 0.8rem;
     resize: vertical;
+    font-family: inherit;
 }
 
 .utterance-editor-delete {
@@ -779,26 +641,15 @@ input[type="color"] {
     padding: 8px 12px;
     color: #f87171;
     cursor: pointer;
-    transition: all 0.2s;
 }
 
-.utterance-editor-delete:hover {
-    background: rgba(248,113,113,0.4);
-}
+.utterance-editor-delete:hover { background: rgba(248,113,113,0.4); }
 
 @media (max-width: 768px) {
-    .widget-designer {
-        grid-template-columns: 1fr;
-    }
-    .tabs {
-        flex-direction: column;
-    }
-    .utterance-editor-item {
-        flex-direction: column;
-    }
-    .utterance-editor-time {
-        min-width: auto;
-    }
+    .widget-designer { grid-template-columns: 1fr; }
+    .tabs { flex-direction: column; }
+    .utterance-editor-item { flex-direction: column; }
+    .utterance-editor-time { min-width: auto; }
 }
 </style>
 </head>
@@ -815,7 +666,7 @@ input[type="color"] {
             </svg>
             <div class="header-logo-text">VoxCraft</div>
         </div>
-        <div class="header-sub">Транскрибация с полным редактором виджета</div>
+        <div class="header-sub">Транскрибация аудио и видео с конструктором виджета</div>
     </div>
 
     <div class="card">
@@ -873,7 +724,6 @@ input[type="color"] {
         <div class="file-mode-tabs">
             <button class="file-mode-btn active" id="modeUploadBtn" onclick="setFileMode('upload')">📁 Загрузить файл</button>
             <button class="file-mode-btn" id="modeUrlBtn" onclick="setFileMode('url')">🔗 По ссылке</button>
-            <button class="file-mode-btn" id="modePathBtn" onclick="setFileMode('path')">⚡ Путь на диске</button>
         </div>
 
         <div id="modeUploadPanel">
@@ -898,7 +748,7 @@ input[type="color"] {
             <div class="form-group">
                 <label>Ссылка на аудио/видео</label>
                 <div class="input-row">
-                    <input type="text" id="mediaUrlInput" placeholder="https://example.com/video.mp4" oninput="onUrlInput()">
+                    <input type="text" id="mediaUrlInput" placeholder="https://example.com/video.mp4">
                     <button class="btn btn-save" onclick="validateUrl()">Загрузить</button>
                 </div>
             </div>
@@ -911,23 +761,6 @@ input[type="color"] {
                 <div><button class="btn btn-ghost" style="padding:5px 10px" onclick="clearUrl()">✕</button></div>
             </div>
             <div class="path-error" id="urlError" style="display:none"></div>
-        </div>
-
-        <div id="modePathPanel" style="display:none">
-            <div class="path-hint" style="padding:12px; background:rgba(168,85,247,0.08); border-radius:10px; font-size:0.8rem;">💡 Введите полный путь к файлу на вашем компьютере</div>
-            <div class="path-warning" id="pathLocalWarning" style="display:none; margin-top:10px; padding:12px; background:rgba(251,191,36,0.08); border-radius:10px; color:#fde68a;">⚠️ Режим работает только при локальном запуске</div>
-            <div class="input-row" style="margin-top:10px">
-                <input type="text" id="filePathInput" placeholder="C:\Videos\video.mp4">
-                <button class="btn btn-save" onclick="checkFilePath()">Проверить</button>
-            </div>
-            <div class="file-preview" id="filePreviewPath" style="display:none; margin-top:10px">
-                <div class="file-icon" id="fileIconPath">🎵</div>
-                <div class="file-info">
-                    <div class="file-name" id="fileNamePath"></div>
-                    <div class="file-size" id="fileSizePath"></div>
-                </div>
-            </div>
-            <div class="path-error" id="pathError"></div>
         </div>
     </div>
 
@@ -979,11 +812,11 @@ input[type="color"] {
                     
                     <div class="color-group">
                         <label>🔗 Ссылка на видео/аудио</label>
-                        <input type="text" id="widgetMediaUrl" placeholder="https://example.com/video.mp4" value="">
+                        <input type="text" id="widgetMediaUrl" placeholder="https://example.com/video.mp4">
                     </div>
                     
                     <div class="color-group">
-                        <label>🎨 Основной цвет (акцент)</label>
+                        <label>🎨 Основной цвет</label>
                         <div class="color-input">
                             <input type="color" id="widgetAccentColor" value="#a855f7">
                             <input type="text" id="widgetAccentText" value="#a855f7">
@@ -1009,8 +842,8 @@ input[type="color"] {
                     <div class="color-group">
                         <label>💬 Цвет реплик</label>
                         <div class="color-input">
-                            <input type="color" id="widgetUtteranceBg" value="rgba(168,85,247,0.08)">
-                            <input type="text" id="widgetUtteranceBgText" value="rgba(168,85,247,0.08)">
+                            <input type="color" id="widgetUtteranceBg" value="#2a1f3a">
+                            <input type="text" id="widgetUtteranceBgText" value="#2a1f3a">
                         </div>
                     </div>
                     
@@ -1038,9 +871,9 @@ input[type="color"] {
                     </div>
                 </div>
             </div>
-            <div class="widget-code-area" style="margin-top: 20px;">
+            <div class="widget-code-area">
                 <label>📋 Код виджета для вставки на сайт</label>
-                <textarea id="widgetCodeOutput" readonly rows="6" style="width:100%; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:12px; color:white; font-family:monospace; font-size:0.7rem;"></textarea>
+                <textarea id="widgetCodeOutput" readonly rows="6"></textarea>
             </div>
         </div>
 
@@ -1076,7 +909,7 @@ input[type="color"] {
 
 <script>
 // ============================================
-// ПОЛНЫЙ КЛИЕНТСКИЙ КОД С РЕДАКТОРОМ ВИДЖЕТА
+// ПОЛНЫЙ КЛИЕНТСКИЙ КОД
 // ============================================
 
 const PROVIDERS = {
@@ -1102,11 +935,7 @@ let state = {
 };
 
 let fileMode = 'upload';
-let pathFileInfo = null;
 let urlFileInfo = null;
-
-const IS_LOCAL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-const SERVER_URL = window.location.origin;
 
 function init() {
     selectProvider('deepgram');
@@ -1114,49 +943,31 @@ function init() {
     loadHistory();
     updateTranscribeBtn();
     
-    // Инициализация цветов виджета
-    document.getElementById('widgetAccentColor').addEventListener('input', function(e) {
-        document.getElementById('widgetAccentText').value = e.target.value;
-        updateWidgetPreview();
-    });
-    document.getElementById('widgetAccentText').addEventListener('input', function(e) {
-        document.getElementById('widgetAccentColor').value = e.target.value;
-        updateWidgetPreview();
-    });
-    document.getElementById('widgetBgColor').addEventListener('input', function(e) {
-        document.getElementById('widgetBgText').value = e.target.value;
-        updateWidgetPreview();
-    });
-    document.getElementById('widgetBgText').addEventListener('input', function(e) {
-        document.getElementById('widgetBgColor').value = e.target.value;
-        updateWidgetPreview();
-    });
-    document.getElementById('widgetTextColor').addEventListener('input', function(e) {
-        document.getElementById('widgetTextText').value = e.target.value;
-        updateWidgetPreview();
-    });
-    document.getElementById('widgetTextText').addEventListener('input', function(e) {
-        document.getElementById('widgetTextColor').value = e.target.value;
-        updateWidgetPreview();
-    });
-    document.getElementById('widgetUtteranceBg').addEventListener('input', function(e) {
-        document.getElementById('widgetUtteranceBgText').value = e.target.value;
-        updateWidgetPreview();
-    });
-    document.getElementById('widgetUtteranceBgText').addEventListener('input', function(e) {
-        document.getElementById('widgetUtteranceBg').value = e.target.value;
-        updateWidgetPreview();
-    });
-    document.getElementById('widgetPlayerHeight').addEventListener('input', function() {
-        updateWidgetPreview();
-    });
-    document.getElementById('widgetBlur').addEventListener('input', function(e) {
+    // Инициализация цветов
+    const accentInput = document.getElementById('widgetAccentColor');
+    const accentText = document.getElementById('widgetAccentText');
+    const bgInput = document.getElementById('widgetBgColor');
+    const bgText = document.getElementById('widgetBgText');
+    const textInput = document.getElementById('widgetTextColor');
+    const textText = document.getElementById('widgetTextText');
+    const utterBgInput = document.getElementById('widgetUtteranceBg');
+    const utterBgText = document.getElementById('widgetUtteranceBgText');
+    
+    accentInput.addEventListener('input', () => { accentText.value = accentInput.value; updateWidgetPreview(); });
+    accentText.addEventListener('input', () => { accentInput.value = accentText.value; updateWidgetPreview(); });
+    bgInput.addEventListener('input', () => { bgText.value = bgInput.value; updateWidgetPreview(); });
+    bgText.addEventListener('input', () => { bgInput.value = bgText.value; updateWidgetPreview(); });
+    textInput.addEventListener('input', () => { textText.value = textInput.value; updateWidgetPreview(); });
+    textText.addEventListener('input', () => { textInput.value = textText.value; updateWidgetPreview(); });
+    utterBgInput.addEventListener('input', () => { utterBgText.value = utterBgInput.value; updateWidgetPreview(); });
+    utterBgText.addEventListener('input', () => { utterBgInput.value = utterBgText.value; updateWidgetPreview(); });
+    
+    document.getElementById('widgetPlayerHeight').addEventListener('input', () => updateWidgetPreview());
+    document.getElementById('widgetBlur').addEventListener('input', (e) => {
         document.getElementById('blurValue').textContent = e.target.value + 'px';
         updateWidgetPreview();
     });
-    document.getElementById('widgetMediaUrl').addEventListener('input', function() {
-        updateWidgetPreview();
-    });
+    document.getElementById('widgetMediaUrl').addEventListener('input', () => updateWidgetPreview());
 }
 
 function selectProvider(name) {
@@ -1177,10 +988,7 @@ function selectProvider(name) {
 
 function saveApiKey() {
     const key = document.getElementById('apiKeyInput').value.trim();
-    if (!key) {
-        showToast('Введите API ключ', 'error');
-        return;
-    }
+    if (!key) { showToast('Введите API ключ', 'error'); return; }
     localStorage.setItem(`voxcraft_key_${state.provider}`, key);
     showToast('Ключ сохранен', 'success');
     updateTranscribeBtn();
@@ -1201,31 +1009,19 @@ function populateLanguages() {
 function setFileMode(mode) {
     fileMode = mode;
     document.querySelectorAll('.file-mode-btn').forEach(btn => btn.classList.remove('active'));
-    document.getElementById(`mode${mode === 'upload' ? 'Upload' : mode === 'url' ? 'Url' : 'Path'}Btn`).classList.add('active');
+    document.getElementById(`mode${mode === 'upload' ? 'Upload' : 'Url'}Btn`).classList.add('active');
     document.getElementById('modeUploadPanel').style.display = mode === 'upload' ? 'block' : 'none';
     document.getElementById('modeUrlPanel').style.display = mode === 'url' ? 'block' : 'none';
-    document.getElementById('modePathPanel').style.display = mode === 'path' ? 'block' : 'none';
-    
-    if (mode === 'path' && !IS_LOCAL) {
-        document.getElementById('pathLocalWarning').style.display = 'block';
-    } else {
-        document.getElementById('pathLocalWarning').style.display = 'none';
-    }
-    
     updateTranscribeBtn();
 }
 
 async function handleFileSelect(event) {
-    if (event.target.files.length) {
-        await handleFile(event.target.files[0]);
-    }
+    if (event.target.files.length) await handleFile(event.target.files[0]);
 }
 
 async function handleDrop(event) {
     event.preventDefault();
-    if (event.dataTransfer.files.length) {
-        await handleFile(event.dataTransfer.files[0]);
-    }
+    if (event.dataTransfer.files.length) await handleFile(event.dataTransfer.files[0]);
 }
 
 async function handleFile(file) {
@@ -1241,9 +1037,7 @@ async function handleFile(file) {
     document.getElementById('filePreview').classList.add('visible');
     document.getElementById('dropzone').style.display = 'none';
     
-    // Обновляем поле ссылки в виджете
     document.getElementById('widgetMediaUrl').value = state.mediaUrl;
-    
     updateTranscribeBtn();
 }
 
@@ -1257,16 +1051,9 @@ function clearFile() {
     updateTranscribeBtn();
 }
 
-function onUrlInput() {
-    document.getElementById('urlError').style.display = 'none';
-}
-
 function validateUrl() {
     const url = document.getElementById('mediaUrlInput').value.trim();
-    if (!url) {
-        showToast('Введите ссылку', 'error');
-        return;
-    }
+    if (!url) { showToast('Введите ссылку', 'error'); return; }
     
     try {
         new URL(url);
@@ -1277,10 +1064,7 @@ function validateUrl() {
         document.getElementById('urlError').style.display = 'none';
         state.mediaUrl = url;
         state.mediaType = url.match(/\.(mp4|mov|webm|mkv)$/i) ? 'video' : 'audio';
-        
-        // Обновляем поле ссылки в виджете
         document.getElementById('widgetMediaUrl').value = url;
-        
         showToast('Ссылка загружена', 'success');
         updateTranscribeBtn();
     } catch(e) {
@@ -1299,52 +1083,12 @@ function clearUrl() {
     updateTranscribeBtn();
 }
 
-function checkFilePath() {
-    const path = document.getElementById('filePathInput').value.trim();
-    if (!path) return;
-    
-    fetch(`${SERVER_URL}/api/check-file`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ path: path })
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.ok) {
-            pathFileInfo = data;
-            document.getElementById('fileNamePath').textContent = data.name;
-            document.getElementById('fileSizePath').textContent = (data.size / 1024 / 1024).toFixed(2) + ' MB';
-            document.getElementById('fileIconPath').textContent = /\.(mp4|mov|avi|mkv)$/i.test(data.name) ? '🎬' : '🎵';
-            document.getElementById('filePreviewPath').style.display = 'flex';
-            document.getElementById('pathError').style.display = 'none';
-            showToast('Файл найден', 'success');
-            updateTranscribeBtn();
-        } else {
-            pathFileInfo = null;
-            document.getElementById('pathError').textContent = data.error;
-            document.getElementById('pathError').style.display = 'block';
-            document.getElementById('filePreviewPath').style.display = 'none';
-            updateTranscribeBtn();
-        }
-    })
-    .catch(err => {
-        pathFileInfo = null;
-        document.getElementById('pathError').textContent = 'Ошибка соединения';
-        document.getElementById('pathError').style.display = 'block';
-        updateTranscribeBtn();
-    });
-}
-
 function updateTranscribeBtn() {
     const hasKey = getApiKey().length > 5;
     let hasSource = false;
-    
     if (fileMode === 'upload') hasSource = state.file !== null;
     else if (fileMode === 'url') hasSource = urlFileInfo !== null;
-    else if (fileMode === 'path') hasSource = pathFileInfo !== null;
-    
-    const btn = document.getElementById('transcribeBtn');
-    btn.disabled = !(hasKey && hasSource);
+    document.getElementById('transcribeBtn').disabled = !(hasKey && hasSource);
 }
 
 async function startTranscription() {
@@ -1366,8 +1110,6 @@ async function startTranscription() {
             formData.append('file', state.file);
         } else if (fileMode === 'url' && urlFileInfo) {
             formData.append('url', urlFileInfo.url);
-        } else if (fileMode === 'path' && pathFileInfo) {
-            formData.append('path', pathFileInfo.path);
         }
         
         formData.append('provider', state.provider);
@@ -1376,16 +1118,16 @@ async function startTranscription() {
         formData.append('model', model);
         formData.append('diarize', diarize);
         
-        document.getElementById('progressText').textContent = 'Отправка на сервер...';
-        document.getElementById('progressBar').style.width = '20%';
+        document.getElementById('progressText').textContent = 'Отправка...';
+        document.getElementById('progressBar').style.width = '30%';
         
-        const response = await fetch(`${SERVER_URL}/transcribe`, {
+        const response = await fetch('/transcribe', {
             method: 'POST',
             body: formData
         });
         
         document.getElementById('progressBar').style.width = '80%';
-        document.getElementById('progressText').textContent = 'Обработка результатов...';
+        document.getElementById('progressText').textContent = 'Обработка...';
         
         if (!response.ok) {
             const error = await response.text();
@@ -1410,8 +1152,7 @@ function finishTranscription(data) {
     state.speakerNames = {};
     state.editedUtterances = JSON.parse(JSON.stringify(data.utterances));
     
-    const meta = document.getElementById('resultMeta');
-    meta.innerHTML = `
+    document.getElementById('resultMeta').innerHTML = `
         <div class="meta-badge">${data.provider.toUpperCase()}</div>
         <div class="meta-badge">⏱ ${formatDuration(data.metadata.duration)}</div>
         <div class="meta-badge">🎯 ${(data.metadata.confidence * 100).toFixed(1)}%</div>
@@ -1426,7 +1167,7 @@ function finishTranscription(data) {
     
     if (state.mediaUrl) {
         playerContainer.style.display = 'block';
-        if (state.mediaType === 'video' || (state.mediaUrl && (state.mediaUrl.includes('.mp4') || state.mediaUrl.includes('.mov')))) {
+        if (state.mediaType === 'video') {
             videoPlayer.src = state.mediaUrl;
             videoPlayer.style.display = 'block';
             audioPlayer.style.display = 'none';
@@ -1452,14 +1193,8 @@ function finishTranscription(data) {
 function seekTo(seconds) {
     const video = document.getElementById('resultVideoPlayer');
     const audio = document.getElementById('resultAudioPlayer');
-    
-    if (video.style.display !== 'none' && video.src) {
-        video.currentTime = seconds;
-        video.play();
-    } else if (audio.style.display !== 'none' && audio.src) {
-        audio.currentTime = seconds;
-        audio.play();
-    }
+    if (video.style.display !== 'none' && video.src) { video.currentTime = seconds; video.play(); }
+    else if (audio.style.display !== 'none' && audio.src) { audio.currentTime = seconds; audio.play(); }
 }
 
 function renderSpeakers(utterances) {
@@ -1483,13 +1218,7 @@ function renderSpeakers(utterances) {
     statsContainer.innerHTML = '';
     Object.keys(speakerStats).forEach(spk => {
         const name = state.speakerNames[spk] || `Спикер ${parseInt(spk) + 1}`;
-        statsContainer.innerHTML += `
-            <div class="stat-card">
-                <div class="stat-val">${escapeHtml(name)}</div>
-                <div class="stat-label">${speakerStats[spk].count} реплик</div>
-                <div class="stat-label">${formatDuration(speakerStats[spk].duration)}</div>
-            </div>
-        `;
+        statsContainer.innerHTML += `<div class="stat-card"><div class="stat-val">${escapeHtml(name)}</div><div class="stat-label">${speakerStats[spk].count} реплик</div><div class="stat-label">${formatDuration(speakerStats[spk].duration)}</div></div>`;
     });
     
     container.innerHTML = '';
@@ -1499,50 +1228,31 @@ function renderSpeakers(utterances) {
         const div = document.createElement('div');
         div.className = 'utterance-item';
         div.onclick = () => seekTo(u.start);
-        div.innerHTML = `
-            <div class="speaker-badge" contenteditable="true" 
-                 onblur="updateSpeakerName(${spkId}, this.textContent)"
-                 onclick="event.stopPropagation()">${escapeHtml(name)}</div>
-            <div style="flex:1">
-                <div class="utterance-time">${formatTime(u.start)} — ${formatTime(u.end)}</div>
-                <div class="utterance-text">${escapeHtml(u.text)}</div>
-            </div>
-        `;
+        div.innerHTML = `<div class="speaker-badge" contenteditable="true" onblur="updateSpeakerName(${spkId}, this.textContent)" onclick="event.stopPropagation()">${escapeHtml(name)}</div><div style="flex:1"><div class="utterance-time">${formatTime(u.start)} — ${formatTime(u.end)}</div><div class="utterance-text">${escapeHtml(u.text)}</div></div>`;
         container.appendChild(div);
     });
 }
 
 function updateSpeakerName(spkId, newName) {
     state.speakerNames[spkId] = newName.trim();
-    if (state.result) {
-        renderSpeakers(state.result.utterances);
-    }
+    if (state.result) renderSpeakers(state.result.utterances);
 }
 
 function renderTimestamps(utterances) {
     const container = document.getElementById('timestampsList');
-    
-    if (!utterances || utterances.length === 0) {
-        container.innerHTML = '<div style="text-align:center;color:var(--text-muted)">Нет данных</div>';
-        return;
-    }
-    
+    if (!utterances || utterances.length === 0) { container.innerHTML = '<div style="text-align:center;color:var(--text-muted)">Нет данных</div>'; return; }
     container.innerHTML = '';
     utterances.forEach(u => {
         const div = document.createElement('div');
         div.className = 'utterance-item';
         div.onclick = () => seekTo(u.start);
-        div.innerHTML = `
-            <div style="font-family:monospace; color:#a855f7; min-width:70px;">${formatTime(u.start)}</div>
-            <div style="flex:1; color:rgba(255,255,255,0.55)">${escapeHtml(u.text)}</div>
-        `;
+        div.innerHTML = `<div style="font-family:monospace; color:#a855f7; min-width:70px;">${formatTime(u.start)}</div><div style="flex:1; color:rgba(255,255,255,0.55)">${escapeHtml(u.text)}</div>`;
         container.appendChild(div);
     });
 }
 
 function renderUtterancesEditor() {
     const container = document.getElementById('utterancesEditor');
-    
     if (!state.editedUtterances || state.editedUtterances.length === 0) {
         container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px">Нет данных для редактирования</div>';
         return;
@@ -1560,7 +1270,6 @@ function renderUtterancesEditor() {
         container.appendChild(div);
     });
     
-    // Добавляем кнопку сброса
     const resetBtn = document.createElement('div');
     resetBtn.style.marginTop = '10px';
     resetBtn.innerHTML = '<button class="btn btn-ghost" onclick="resetUtterances()" style="width:100%">⟳ Сбросить все изменения</button>';
@@ -1568,10 +1277,8 @@ function renderUtterancesEditor() {
 }
 
 function updateUtteranceText(idx, newText) {
-    if (state.editedUtterances[idx]) {
-        state.editedUtterances[idx].text = newText;
-        updateWidgetPreview();
-    }
+    if (state.editedUtterances[idx]) state.editedUtterances[idx].text = newText;
+    updateWidgetPreview();
 }
 
 function deleteUtterance(idx) {
@@ -1603,24 +1310,22 @@ function updateWidgetPreview() {
     const blur = document.getElementById('widgetBlur').value;
     const mediaUrl = document.getElementById('widgetMediaUrl').value || state.mediaUrl || '';
     
-    const isVideo = mediaUrl && (mediaUrl.includes('.mp4') || mediaUrl.includes('.mov') || mediaUrl.includes('.webm') || mediaUrl.includes('.mkv'));
+    const isVideo = mediaUrl && (mediaUrl.includes('.mp4') || mediaUrl.includes('.mov') || mediaUrl.includes('.webm'));
     
     const mediaTag = isVideo 
         ? `<video controls src="${mediaUrl}" style="width:100%; max-height:${playerHeight}px; border-radius:12px; margin-bottom:15px;"></video>`
         : `<audio controls src="${mediaUrl}" style="width:100%; margin-bottom:15px;"></audio>`;
     
     const utterancesHtml = state.editedUtterances.map(u => `
-        <div style="margin-bottom:12px; padding:12px; background:${utteranceBg}; border-radius:10px; border-left:3px solid ${accent}; cursor:pointer; transition:all 0.2s;" 
-             onmouseover="this.style.transform='translateX(4px)'" 
-             onmouseout="this.style.transform='translateX(0)'"
-             onclick="const p=this.closest('.widget-preview-container').querySelector('video,audio'); if(p && p.src){p.currentTime=${u.start}; p.play();}">
+        <div style="margin-bottom:12px; padding:12px; background:${utteranceBg}; border-radius:10px; border-left:3px solid ${accent}; cursor:pointer;" 
+             onclick="const p=document.querySelector('#widgetPreviewContainer video, #widgetPreviewContainer audio'); if(p && p.src){p.currentTime=${u.start}; p.play();}">
             <div style="font-size:0.7rem; color:${accent}; font-family:monospace; margin-bottom:6px;">⏱ [${formatTime(u.start)}]</div>
             <div style="font-size:0.85rem; color:${textColor}; line-height:1.6;">${escapeHtml(u.text)}</div>
         </div>
     `).join('');
     
     const widgetHTML = `
-        <div class="widget-preview-container" style="background:${bgColor}; backdrop-filter:blur(${blur}px); border-radius:16px; padding:20px; font-family:'Inter', sans-serif; border:1px solid ${accent}40;">
+        <div style="background:${bgColor}; backdrop-filter:blur(${blur}px); border-radius:16px; padding:20px; border:1px solid ${accent}40;">
             ${mediaTag}
             <div style="max-height:400px; overflow-y:auto; margin-top:10px;">
                 ${utterancesHtml}
@@ -1633,9 +1338,8 @@ function updateWidgetPreview() {
     
     document.getElementById('widgetPreviewContainer').innerHTML = widgetHTML;
     
-    // Генерируем код для копирования
     const widgetCode = `<div style="max-width:800px; margin:20px auto;">
-    <div style="background:${bgColor}; backdrop-filter:blur(${blur}px); border-radius:16px; padding:20px; font-family:'Inter', sans-serif; border:1px solid ${accent}40;">
+    <div style="background:${bgColor}; backdrop-filter:blur(${blur}px); border-radius:16px; padding:20px; border:1px solid ${accent}40;">
         ${mediaTag}
         <div style="max-height:400px; overflow-y:auto; margin-top:10px;">
             ${utterancesHtml}
@@ -1651,48 +1355,29 @@ function updateWidgetPreview() {
 
 function copyWidgetCode() {
     const code = document.getElementById('widgetCodeOutput').value;
-    if (!code) {
-        showToast('Сначала выполните транскрибацию', 'error');
-        return;
-    }
+    if (!code) { showToast('Сначала выполните транскрибацию', 'error'); return; }
     navigator.clipboard.writeText(code);
     showToast('Код виджета скопирован!', 'success');
 }
 
 function switchTab(tabName) {
     const tabs = ['text', 'speakers', 'timestamps', 'widget'];
-    const contentIds = {
-        text: 'tabContentText',
-        speakers: 'tabContentSpeakers',
-        timestamps: 'tabContentTimestamps',
-        widget: 'tabContentWidget'
-    };
+    const contentIds = { text: 'tabContentText', speakers: 'tabContentSpeakers', timestamps: 'tabContentTimestamps', widget: 'tabContentWidget' };
     
     tabs.forEach(tab => {
         const btn = document.querySelector(`.tab-btn[onclick*="${tab}"]`);
         const content = document.getElementById(contentIds[tab]);
         if (btn && content) {
-            if (tab === tabName) {
-                btn.classList.add('active');
-                content.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-                content.classList.remove('active');
-            }
+            if (tab === tabName) { btn.classList.add('active'); content.classList.add('active'); }
+            else { btn.classList.remove('active'); content.classList.remove('active'); }
         }
     });
     
-    if (tabName === 'widget') {
-        setTimeout(() => {
-            renderUtterancesEditor();
-            updateWidgetPreview();
-        }, 100);
-    }
+    if (tabName === 'widget') setTimeout(() => { renderUtterancesEditor(); updateWidgetPreview(); }, 100);
 }
 
 function copyResult() {
-    const text = document.getElementById('resultTextarea').value;
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(document.getElementById('resultTextarea').value);
     showToast('Текст скопирован', 'success');
 }
 
@@ -1700,42 +1385,23 @@ function downloadTxt() {
     const text = document.getElementById('resultTextarea').value;
     const blob = new Blob([text], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'transcript.txt';
-    a.click();
+    const a = document.createElement('a'); a.href = url; a.download = 'transcript.txt'; a.click();
     URL.revokeObjectURL(url);
 }
 
 function downloadSrt() {
-    if (!state.editedUtterances || state.editedUtterances.length === 0) {
-        showToast('Нет данных для SRT', 'error');
-        return;
-    }
-    
+    if (!state.editedUtterances || state.editedUtterances.length === 0) { showToast('Нет данных для SRT', 'error'); return; }
     let srt = '';
-    state.editedUtterances.forEach((u, i) => {
-        srt += `${i + 1}\n${toSrtTime(u.start)} --> ${toSrtTime(u.end)}\n${u.text}\n\n`;
-    });
-    
+    state.editedUtterances.forEach((u, i) => { srt += `${i+1}\n${toSrtTime(u.start)} --> ${toSrtTime(u.end)}\n${u.text}\n\n`; });
     const blob = new Blob([srt], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'subtitles.srt';
-    a.click();
+    const a = document.createElement('a'); a.href = url; a.download = 'subtitles.srt'; a.click();
     URL.revokeObjectURL(url);
 }
 
 function saveToHistory(data) {
     let history = JSON.parse(localStorage.getItem('voxcraft_history') || '[]');
-    history.unshift({
-        date: new Date().toISOString(),
-        provider: data.provider,
-        duration: data.metadata.duration,
-        preview: data.transcript.substring(0, 100) + '...',
-        full: data
-    });
+    history.unshift({ date: new Date().toISOString(), provider: data.provider, duration: data.metadata.duration, preview: data.transcript.substring(0, 100) + '...', full: data });
     if (history.length > 10) history.pop();
     localStorage.setItem('voxcraft_history', JSON.stringify(history));
     loadHistory();
@@ -1744,95 +1410,25 @@ function saveToHistory(data) {
 function loadHistory() {
     const history = JSON.parse(localStorage.getItem('voxcraft_history') || '[]');
     const container = document.getElementById('historyContent');
-    
-    if (history.length === 0) {
-        container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px">История пуста</div>';
-        return;
-    }
-    
+    if (history.length === 0) { container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px">История пуста</div>'; return; }
     container.innerHTML = '';
     history.forEach(item => {
         const div = document.createElement('div');
         div.className = 'history-item';
-        div.innerHTML = `
-            <div style="display:flex; justify-content:space-between">
-                <strong>${item.provider.toUpperCase()}</strong>
-                <span style="font-size:0.7rem">${new Date(item.date).toLocaleString()}</span>
-            </div>
-            <div style="font-size:0.8rem; color:var(--text-muted); margin-top:5px">${escapeHtml(item.preview)}</div>
-        `;
-        div.onclick = () => {
-            state.result = item.full;
-            state.editedUtterances = JSON.parse(JSON.stringify(item.full.utterances));
-            finishTranscription(item.full);
-            showToast('Загружено из истории', 'info');
-        };
+        div.innerHTML = `<div style="display:flex; justify-content:space-between"><strong>${item.provider.toUpperCase()}</strong><span style="font-size:0.7rem">${new Date(item.date).toLocaleString()}</span></div><div style="font-size:0.8rem; color:var(--text-muted); margin-top:5px">${escapeHtml(item.preview)}</div>`;
+        div.onclick = () => { state.result = item.full; state.editedUtterances = JSON.parse(JSON.stringify(item.full.utterances)); finishTranscription(item.full); showToast('Загружено из истории', 'info'); };
         container.appendChild(div);
     });
 }
 
-function clearHistory() {
-    if (confirm('Очистить всю историю?')) {
-        localStorage.removeItem('voxcraft_history');
-        loadHistory();
-        showToast('История очищена', 'success');
-    }
-}
-
-function toggleHistory() {
-    const body = document.getElementById('historyBody');
-    const toggle = document.querySelector('.history-toggle');
-    body.classList.toggle('open');
-    if (toggle) toggle.classList.toggle('open');
-}
-
-function formatDuration(sec) {
-    if (!sec) return '0:00';
-    const m = Math.floor(sec / 60);
-    const s = Math.floor(sec % 60);
-    return `${m}:${s.toString().padStart(2, '0')}`;
-}
-
-function formatTime(sec) {
-    const m = Math.floor(sec / 60);
-    const s = Math.floor(sec % 60);
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-}
-
-function toSrtTime(sec) {
-    const h = Math.floor(sec / 3600);
-    const m = Math.floor((sec % 3600) / 60);
-    const s = Math.floor(sec % 60);
-    const ms = Math.floor((sec % 1) * 1000);
-    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')},${ms.toString().padStart(3, '0')}`;
-}
-
-function escapeHtml(text) {
-    if (!text) return '';
-    return text.replace(/&/g, '&amp;')
-               .replace(/</g, '&lt;')
-               .replace(/>/g, '&gt;')
-               .replace(/"/g, '&quot;')
-               .replace(/'/g, '&#039;');
-}
-
-function showToast(msg, type = 'info') {
-    const container = document.getElementById('toastContainer');
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.textContent = msg;
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-}
-
-function showError(msg) {
-    document.getElementById('progressBar').style.width = '0%';
-    document.getElementById('progressText').textContent = 'Ошибка';
-    const errorBlock = document.getElementById('errorBlock');
-    errorBlock.textContent = msg;
-    errorBlock.classList.add('visible');
-    setTimeout(() => errorBlock.classList.remove('visible'), 5000);
-}
+function clearHistory() { if (confirm('Очистить всю историю?')) { localStorage.removeItem('voxcraft_history'); loadHistory(); showToast('История очищена', 'success'); } }
+function toggleHistory() { document.getElementById('historyBody').classList.toggle('open'); document.querySelector('.history-toggle').classList.toggle('open'); }
+function formatDuration(sec) { if (!sec) return '0:00'; const m = Math.floor(sec / 60); const s = Math.floor(sec % 60); return `${m}:${s.toString().padStart(2, '0')}`; }
+function formatTime(sec) { const m = Math.floor(sec / 60); const s = Math.floor(sec % 60); return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`; }
+function toSrtTime(sec) { const h = Math.floor(sec / 3600); const m = Math.floor((sec % 3600) / 60); const s = Math.floor(sec % 60); const ms = Math.floor((sec % 1) * 1000); return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')},${ms.toString().padStart(3,'0')}`; }
+function escapeHtml(text) { if (!text) return ''; return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;'); }
+function showToast(msg, type) { const toast = document.createElement('div'); toast.className = `toast ${type || 'info'}`; toast.textContent = msg; document.getElementById('toastContainer').appendChild(toast); setTimeout(() => toast.remove(), 3000); }
+function showError(msg) { document.getElementById('progressBar').style.width = '0%'; document.getElementById('progressText').textContent = 'Ошибка'; const eb = document.getElementById('errorBlock'); eb.textContent = msg; eb.classList.add('visible'); setTimeout(() => eb.classList.remove('visible'), 5000); }
 
 init();
 </script>
