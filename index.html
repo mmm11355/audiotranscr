@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VoxCraft — Транскрибер</title>
+<title>VoxCraft — Транскрибер с виджетом</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -27,7 +27,7 @@ body {
     background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
     background-attachment: fixed;
 }
-.container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+.container { max-width: 1200px; margin: 0 auto; padding: 20px; }
 .card {
     background: rgba(255,255,255,0.05);
     backdrop-filter: blur(20px);
@@ -155,12 +155,76 @@ input:focus, select:focus { border-color: #a855f7; }
 .api-link { display: inline-block; margin-top: 8px; color: #a78bfa; text-decoration: none; font-size: 0.75rem; }
 .checkbox-row { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
 .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* Стили для редактора виджета */
+.widget-designer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+.color-controls {
+    background: rgba(0,0,0,0.2);
+    padding: 16px;
+    border-radius: 12px;
+}
+.color-group { margin-bottom: 15px; }
+.color-group label { display: block; margin-bottom: 5px; font-size: 0.8rem; }
+.color-input { display: flex; gap: 10px; align-items: center; }
+.color-input input[type="color"] { width: 50px; height: 40px; }
+.color-input input[type="text"] { flex: 1; }
+.widget-preview {
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 16px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+.utterance-editor-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    align-items: flex-start;
+}
+.utterance-editor-time {
+    font-family: monospace;
+    font-size: 0.7rem;
+    color: #a855f7;
+    min-width: 100px;
+}
+.utterance-editor-text {
+    flex: 1;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 8px;
+    color: white;
+    font-size: 0.8rem;
+    resize: vertical;
+    font-family: inherit;
+}
+.utterance-editor-delete {
+    background: rgba(248,113,113,0.2);
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: #f87171;
+    cursor: pointer;
+}
+.widget-code-area { margin-top: 20px; }
+.widget-code-area textarea {
+    font-family: monospace;
+    font-size: 0.7rem;
+    height: 150px;
+    background: rgba(0,0,0,0.4);
+}
 @media (max-width: 768px) {
+    .widget-designer { grid-template-columns: 1fr; }
     .providers { grid-template-columns: 1fr; }
     .settings-grid { grid-template-columns: 1fr; }
     .tabs { flex-direction: column; }
-    .result-actions { flex-direction: column; }
-    .result-actions .btn { width: 100%; }
 }
 </style>
 </head>
@@ -177,7 +241,7 @@ input:focus, select:focus { border-color: #a855f7; }
             </svg>
             <div class="header-logo-text">VoxCraft</div>
         </div>
-        <div class="header-sub">Транскрибация аудио и видео</div>
+        <div class="header-sub">Транскрибация с конструктором виджета</div>
     </div>
 
     <div class="card">
@@ -274,6 +338,7 @@ input:focus, select:focus { border-color: #a855f7; }
             <button class="tab-btn active" onclick="switchTab('text')">📄 Текст</button>
             <button class="tab-btn" onclick="switchTab('speakers')">👥 Спикеры</button>
             <button class="tab-btn" onclick="switchTab('timestamps')">⏱ Таймкоды</button>
+            <button class="tab-btn" onclick="switchTab('widget')">🎨 Виджет</button>
         </div>
 
         <div class="tab-content active" id="tabContentText">
@@ -287,6 +352,80 @@ input:focus, select:focus { border-color: #a855f7; }
 
         <div class="tab-content" id="tabContentTimestamps">
             <div class="utterances-list" id="timestampsList"></div>
+        </div>
+
+        <div class="tab-content" id="tabContentWidget">
+            <div class="widget-designer">
+                <div class="color-controls">
+                    <h3 style="margin-bottom: 15px; font-size: 1rem;">🎨 Настройка виджета</h3>
+                    
+                    <div class="color-group">
+                        <label>🔗 Ссылка на видео/аудио</label>
+                        <input type="text" id="widgetMediaUrl" placeholder="https://example.com/video.mp4">
+                    </div>
+                    
+                    <div class="color-group">
+                        <label>🎨 Основной цвет</label>
+                        <div class="color-input">
+                            <input type="color" id="widgetAccentColor" value="#a855f7">
+                            <input type="text" id="widgetAccentText" value="#a855f7">
+                        </div>
+                    </div>
+                    
+                    <div class="color-group">
+                        <label>📄 Цвет фона</label>
+                        <div class="color-input">
+                            <input type="color" id="widgetBgColor" value="#1e1b2e">
+                            <input type="text" id="widgetBgText" value="#1e1b2e">
+                        </div>
+                    </div>
+                    
+                    <div class="color-group">
+                        <label>📝 Цвет текста</label>
+                        <div class="color-input">
+                            <input type="color" id="widgetTextColor" value="#e2d9f3">
+                            <input type="text" id="widgetTextText" value="#e2d9f3">
+                        </div>
+                    </div>
+                    
+                    <div class="color-group">
+                        <label>💬 Цвет реплик</label>
+                        <div class="color-input">
+                            <input type="color" id="widgetUtteranceBg" value="#2a1f3a">
+                            <input type="text" id="widgetUtteranceBgText" value="#2a1f3a">
+                        </div>
+                    </div>
+                    
+                    <div class="color-group">
+                        <label>🎬 Высота плеера (px)</label>
+                        <input type="number" id="widgetPlayerHeight" value="250" min="150" max="500" step="10">
+                    </div>
+                    
+                    <div class="color-group">
+                        <label>🎨 Стеклянный эффект (blur)</label>
+                        <input type="range" id="widgetBlur" min="0" max="20" value="12" step="1">
+                        <span id="blurValue">12px</span>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="updateWidgetPreview()" style="width:100%; margin-top:15px;">🔄 Обновить предпросмотр</button>
+                    <button class="btn btn-ghost" onclick="copyWidgetCode()" style="width:100%; margin-top:10px;">📋 Скопировать код виджета</button>
+                    <button class="btn btn-ghost" onclick="saveWidgetSettings()" style="width:100%; margin-top:10px;">💾 Сохранить настройки</button>
+                    <button class="btn btn-ghost" onclick="loadWidgetSettings()" style="width:100%; margin-top:5px;">📂 Загрузить сохраненные</button>
+                </div>
+                
+                <div class="widget-preview">
+                    <div class="preview-title">✏️ Редактор таймкодов (нажмите ✕ чтобы удалить)</div>
+                    <div id="utterancesEditor"></div>
+                    <div style="margin-top: 15px;">
+                        <div class="preview-title">✨ Предпросмотр виджета</div>
+                        <div id="widgetPreviewContainer"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="widget-code-area">
+                <label>📋 Код виджета для вставки на сайт</label>
+                <textarea id="widgetCodeOutput" readonly rows="6"></textarea>
+            </div>
         </div>
 
         <div class="result-actions">
@@ -321,7 +460,7 @@ input:focus, select:focus { border-color: #a855f7; }
 
 <script>
 // ============================================
-// ВСЁ РАБОТАЕТ ПРЯМО В БРАУЗЕРЕ - НЕ НУЖЕН СЕРВЕР!
+// ПОЛНАЯ ВЕРСИЯ С ВИДЖЕТОМ И СОХРАНЕНИЕМ
 // ============================================
 
 const PROVIDERS = {
@@ -342,14 +481,66 @@ let state = {
     mediaUrl: null,
     mediaType: 'audio',
     result: null,
-    speakerNames: {}
+    speakerNames: {},
+    editedUtterances: []
+};
+
+let widgetSettings = {
+    mediaUrl: '',
+    accentColor: '#a855f7',
+    bgColor: '#1e1b2e',
+    textColor: '#e2d9f3',
+    utteranceBg: '#2a1f3a',
+    playerHeight: 250,
+    blur: 12
 };
 
 function init() {
     selectProvider('deepgram');
     populateLanguages();
     loadHistory();
+    loadWidgetSettings();
     updateTranscribeBtn();
+    
+    // Инициализация цветов
+    document.getElementById('widgetAccentColor').addEventListener('input', function(e) {
+        document.getElementById('widgetAccentText').value = e.target.value;
+        updateWidgetPreview();
+    });
+    document.getElementById('widgetAccentText').addEventListener('input', function(e) {
+        document.getElementById('widgetAccentColor').value = e.target.value;
+        updateWidgetPreview();
+    });
+    document.getElementById('widgetBgColor').addEventListener('input', function(e) {
+        document.getElementById('widgetBgText').value = e.target.value;
+        updateWidgetPreview();
+    });
+    document.getElementById('widgetBgText').addEventListener('input', function(e) {
+        document.getElementById('widgetBgColor').value = e.target.value;
+        updateWidgetPreview();
+    });
+    document.getElementById('widgetTextColor').addEventListener('input', function(e) {
+        document.getElementById('widgetTextText').value = e.target.value;
+        updateWidgetPreview();
+    });
+    document.getElementById('widgetTextText').addEventListener('input', function(e) {
+        document.getElementById('widgetTextColor').value = e.target.value;
+        updateWidgetPreview();
+    });
+    document.getElementById('widgetUtteranceBg').addEventListener('input', function(e) {
+        document.getElementById('widgetUtteranceBgText').value = e.target.value;
+        updateWidgetPreview();
+    });
+    document.getElementById('widgetUtteranceBgText').addEventListener('input', function(e) {
+        document.getElementById('widgetUtteranceBg').value = e.target.value;
+        updateWidgetPreview();
+    });
+    document.getElementById('widgetPlayerHeight').addEventListener('input', function() { updateWidgetPreview(); });
+    document.getElementById('widgetBlur').addEventListener('input', function(e) {
+        document.getElementById('blurValue').textContent = e.target.value + 'px';
+        updateWidgetPreview();
+    });
+    document.getElementById('widgetMediaUrl').addEventListener('input', function() { updateWidgetPreview(); });
 }
 
 function selectProvider(name) {
@@ -410,6 +601,7 @@ async function handleFile(file) {
     document.getElementById('filePreview').classList.add('visible');
     document.getElementById('dropzone').style.display = 'none';
     
+    document.getElementById('widgetMediaUrl').value = state.mediaUrl;
     updateTranscribeBtn();
 }
 
@@ -617,7 +809,6 @@ function processDeepgramResult(data, language) {
 
 // ============ ASSEMBLYAI ============
 async function transcribeAssemblyAI(apiKey, audioData, language, model, diarize) {
-    // 1. Загружаем аудио
     const uploadResponse = await fetch('https://api.assemblyai.com/v2/upload', {
         method: 'POST',
         headers: { 'Authorization': apiKey },
@@ -630,7 +821,6 @@ async function transcribeAssemblyAI(apiKey, audioData, language, model, diarize)
     
     const { upload_url } = await uploadResponse.json();
     
-    // 2. Создаем транскрипцию
     const transcriptData = {
         audio_url: upload_url,
         speaker_labels: diarize,
@@ -653,7 +843,6 @@ async function transcribeAssemblyAI(apiKey, audioData, language, model, diarize)
     
     const { id } = await createResponse.json();
     
-    // 3. Ждем результат
     let result;
     while (true) {
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -791,6 +980,7 @@ async function transcribeGladia(apiKey, audioData, language, diarize) {
 function finishTranscription(data) {
     state.result = data;
     state.speakerNames = {};
+    state.editedUtterances = JSON.parse(JSON.stringify(data.utterances));
     
     document.getElementById('resultMeta').innerHTML = `
         <div class="meta-badge">${data.provider.toUpperCase()}</div>
@@ -820,6 +1010,7 @@ function finishTranscription(data) {
     
     renderSpeakers(data.utterances);
     renderTimestamps(data.utterances);
+    renderUtterancesEditor();
     
     document.getElementById('progressSection').classList.remove('visible');
     document.getElementById('resultSection').classList.add('visible');
@@ -889,9 +1080,160 @@ function renderTimestamps(utterances) {
     });
 }
 
+function renderUtterancesEditor() {
+    const container = document.getElementById('utterancesEditor');
+    if (!state.editedUtterances || state.editedUtterances.length === 0) {
+        container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px">Нет данных для редактирования</div>';
+        return;
+    }
+    
+    container.innerHTML = '';
+    state.editedUtterances.forEach((u, idx) => {
+        const div = document.createElement('div');
+        div.className = 'utterance-editor-item';
+        div.innerHTML = `
+            <div class="utterance-editor-time">[${formatTime(u.start)}]</div>
+            <textarea class="utterance-editor-text" onchange="updateUtteranceText(${idx}, this.value)">${escapeHtml(u.text)}</textarea>
+            <button class="utterance-editor-delete" onclick="deleteUtterance(${idx})">✕ Удалить</button>
+        `;
+        container.appendChild(div);
+    });
+    
+    const resetBtn = document.createElement('div');
+    resetBtn.style.marginTop = '10px';
+    resetBtn.innerHTML = '<button class="btn btn-ghost" onclick="resetUtterances()" style="width:100%">⟳ Сбросить все изменения</button>';
+    container.appendChild(resetBtn);
+}
+
+function updateUtteranceText(idx, newText) {
+    if (state.editedUtterances[idx]) state.editedUtterances[idx].text = newText;
+    updateWidgetPreview();
+}
+
+function deleteUtterance(idx) {
+    state.editedUtterances.splice(idx, 1);
+    renderUtterancesEditor();
+    updateWidgetPreview();
+}
+
+function resetUtterances() {
+    if (state.result && state.result.utterances) {
+        state.editedUtterances = JSON.parse(JSON.stringify(state.result.utterances));
+        renderUtterancesEditor();
+        updateWidgetPreview();
+        showToast('Таймкоды сброшены', 'success');
+    }
+}
+
+function updateWidgetPreview() {
+    if (!state.editedUtterances || state.editedUtterances.length === 0) {
+        document.getElementById('widgetPreviewContainer').innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">Сначала выполните транскрибацию</div>';
+        return;
+    }
+    
+    const accent = document.getElementById('widgetAccentColor').value;
+    const bgColor = document.getElementById('widgetBgColor').value;
+    const textColor = document.getElementById('widgetTextColor').value;
+    const utteranceBg = document.getElementById('widgetUtteranceBg').value;
+    const playerHeight = document.getElementById('widgetPlayerHeight').value;
+    const blur = document.getElementById('widgetBlur').value;
+    const mediaUrl = document.getElementById('widgetMediaUrl').value || state.mediaUrl || '';
+    
+    const isVideo = mediaUrl && (mediaUrl.includes('.mp4') || mediaUrl.includes('.mov') || mediaUrl.includes('.webm'));
+    
+    const mediaTag = isVideo 
+        ? `<video controls src="${mediaUrl}" style="width:100%; max-height:${playerHeight}px; border-radius:12px; margin-bottom:15px;"></video>`
+        : `<audio controls src="${mediaUrl}" style="width:100%; margin-bottom:15px;"></audio>`;
+    
+    const utterancesHtml = state.editedUtterances.map(u => `
+        <div style="margin-bottom:12px; padding:12px; background:${utteranceBg}; border-radius:10px; border-left:3px solid ${accent}; cursor:pointer;" 
+             onclick="const p=document.querySelector('#widgetPreviewContainer video, #widgetPreviewContainer audio'); if(p && p.src){p.currentTime=${u.start}; p.play();}">
+            <div style="font-size:0.7rem; color:${accent}; font-family:monospace; margin-bottom:6px;">⏱ [${formatTime(u.start)}]</div>
+            <div style="font-size:0.85rem; color:${textColor}; line-height:1.6;">${escapeHtml(u.text)}</div>
+        </div>
+    `).join('');
+    
+    const widgetHTML = `
+        <div style="background:${bgColor}; backdrop-filter:blur(${blur}px); border-radius:16px; padding:20px; border:1px solid ${accent}40;">
+            ${mediaTag}
+            <div style="max-height:400px; overflow-y:auto; margin-top:10px;">
+                ${utterancesHtml}
+            </div>
+            <div style="margin-top:16px; text-align:center; font-size:0.65rem; color:${accent}80; border-top:1px solid ${accent}20; padding-top:12px;">
+                🎙 Транскрибация выполнена в VoxCraft
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('widgetPreviewContainer').innerHTML = widgetHTML;
+    
+    const widgetCode = `<div style="max-width:800px; margin:20px auto;">
+    <div style="background:${bgColor}; backdrop-filter:blur(${blur}px); border-radius:16px; padding:20px; border:1px solid ${accent}40;">
+        ${mediaTag}
+        <div style="max-height:400px; overflow-y:auto; margin-top:10px;">
+            ${utterancesHtml}
+        </div>
+        <div style="margin-top:16px; text-align:center; font-size:0.65rem; color:${accent}80; border-top:1px solid ${accent}20; padding-top:12px;">
+            🎙 Транскрибация выполнена в VoxCraft
+        </div>
+    </div>
+</div>`;
+    
+    document.getElementById('widgetCodeOutput').value = widgetCode;
+}
+
+function copyWidgetCode() {
+    const code = document.getElementById('widgetCodeOutput').value;
+    if (!code) { showToast('Сначала выполните транскрибацию', 'error'); return; }
+    navigator.clipboard.writeText(code);
+    showToast('Код виджета скопирован!', 'success');
+}
+
+function saveWidgetSettings() {
+    const settings = {
+        mediaUrl: document.getElementById('widgetMediaUrl').value,
+        accentColor: document.getElementById('widgetAccentColor').value,
+        bgColor: document.getElementById('widgetBgColor').value,
+        textColor: document.getElementById('widgetTextColor').value,
+        utteranceBg: document.getElementById('widgetUtteranceBg').value,
+        playerHeight: parseInt(document.getElementById('widgetPlayerHeight').value),
+        blur: parseInt(document.getElementById('widgetBlur').value)
+    };
+    localStorage.setItem('voxcraft_widget_settings', JSON.stringify(settings));
+    showToast('Настройки виджета сохранены!', 'success');
+}
+
+function loadWidgetSettings() {
+    const saved = localStorage.getItem('voxcraft_widget_settings');
+    if (saved) {
+        const settings = JSON.parse(saved);
+        document.getElementById('widgetMediaUrl').value = settings.mediaUrl || '';
+        document.getElementById('widgetAccentColor').value = settings.accentColor || '#a855f7';
+        document.getElementById('widgetAccentText').value = settings.accentColor || '#a855f7';
+        document.getElementById('widgetBgColor').value = settings.bgColor || '#1e1b2e';
+        document.getElementById('widgetBgText').value = settings.bgColor || '#1e1b2e';
+        document.getElementById('widgetTextColor').value = settings.textColor || '#e2d9f3';
+        document.getElementById('widgetTextText').value = settings.textColor || '#e2d9f3';
+        document.getElementById('widgetUtteranceBg').value = settings.utteranceBg || '#2a1f3a';
+        document.getElementById('widgetUtteranceBgText').value = settings.utteranceBg || '#2a1f3a';
+        document.getElementById('widgetPlayerHeight').value = settings.playerHeight || 250;
+        document.getElementById('widgetBlur').value = settings.blur || 12;
+        document.getElementById('blurValue').textContent = (settings.blur || 12) + 'px';
+        updateWidgetPreview();
+        showToast('Настройки виджета загружены!', 'success');
+    } else {
+        showToast('Сохраненных настроек нет', 'info');
+    }
+}
+
 function switchTab(tabName) {
-    const tabs = ['text', 'speakers', 'timestamps'];
-    const contentIds = { text: 'tabContentText', speakers: 'tabContentSpeakers', timestamps: 'tabContentTimestamps' };
+    const tabs = ['text', 'speakers', 'timestamps', 'widget'];
+    const contentIds = {
+        text: 'tabContentText',
+        speakers: 'tabContentSpeakers',
+        timestamps: 'tabContentTimestamps',
+        widget: 'tabContentWidget'
+    };
     
     tabs.forEach(tab => {
         const btn = document.querySelector(`.tab-btn[onclick*="${tab}"]`);
@@ -901,6 +1243,13 @@ function switchTab(tabName) {
             else { btn.classList.remove('active'); content.classList.remove('active'); }
         }
     });
+    
+    if (tabName === 'widget') {
+        setTimeout(() => {
+            renderUtterancesEditor();
+            updateWidgetPreview();
+        }, 100);
+    }
 }
 
 function copyResult() {
@@ -943,7 +1292,7 @@ function loadHistory() {
         const div = document.createElement('div');
         div.className = 'history-item';
         div.innerHTML = `<div style="display:flex; justify-content:space-between"><strong>${item.provider.toUpperCase()}</strong><span style="font-size:0.7rem">${new Date(item.date).toLocaleString()}</span></div><div style="font-size:0.8rem; color:var(--text-muted); margin-top:5px">${escapeHtml(item.preview)}</div>`;
-        div.onclick = () => { state.result = item.full; finishTranscription(item.full); showToast('Загружено из истории', 'info'); };
+        div.onclick = () => { state.result = item.full; state.editedUtterances = JSON.parse(JSON.stringify(item.full.utterances)); finishTranscription(item.full); showToast('Загружено из истории', 'info'); };
         container.appendChild(div);
     });
 }
