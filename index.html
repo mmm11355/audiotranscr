@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VoxCraft — Транскрибер (Браузерная версия)</title>
+<title>VoxCraft — Транскрибер</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -22,20 +22,17 @@
     --glass: rgba(255,255,255,0.05);
     --glass-hover: rgba(255,255,255,0.09);
     --border: rgba(255,255,255,0.10);
-    --border-active: rgba(168,85,247,0.6);
     --text: #ffffff;
     --text-muted: rgba(255,255,255,0.55);
-    --text-dim: rgba(255,255,255,0.35);
     --radius: 16px;
     --radius-sm: 10px;
-    --shadow: 0 8px 32px rgba(0,0,0,0.4);
 }
 
 body {
     font-family: 'Inter', sans-serif;
     color: var(--text);
     min-height: 100vh;
-    background: linear-gradient(135deg, var(--bg-from) 0%, var(--bg-mid) 50%, var(--bg-to) 100%);
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
     background-attachment: fixed;
 }
 
@@ -46,10 +43,10 @@ body {
 }
 
 .card {
-    background: var(--glass);
+    background: rgba(255,255,255,0.05);
     backdrop-filter: blur(20px);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
     padding: 24px;
     margin-bottom: 16px;
 }
@@ -70,20 +67,15 @@ body {
 .header-logo-svg {
     width: 48px;
     height: 48px;
-    fill: var(--accent);
+    fill: #a855f7;
 }
 
 .header-logo-text {
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-}
-
-.header-sub {
-    color: var(--text-muted);
-    font-size: 0.9rem;
 }
 
 .section-title {
@@ -91,7 +83,7 @@ body {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--text-dim);
+    color: rgba(255,255,255,0.35);
     margin-bottom: 14px;
 }
 
@@ -102,9 +94,9 @@ body {
 }
 
 .provider-card {
-    background: var(--glass);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
     padding: 16px;
     cursor: pointer;
     text-align: center;
@@ -112,7 +104,7 @@ body {
 }
 
 .provider-card.active {
-    border-color: var(--accent);
+    border-color: #a855f7;
     background: rgba(168,85,247,0.1);
     box-shadow: 0 0 15px rgba(168,85,247,0.3);
 }
@@ -147,12 +139,11 @@ body {
 .provider-name {
     font-size: 0.9rem;
     font-weight: 600;
-    margin-bottom: 4px;
 }
 
 .provider-free {
     font-size: 0.7rem;
-    color: var(--text-muted);
+    color: rgba(255,255,255,0.55);
 }
 
 .form-group {
@@ -162,23 +153,23 @@ body {
 label {
     display: block;
     font-size: 0.8rem;
-    color: var(--text-muted);
+    color: rgba(255,255,255,0.55);
     margin-bottom: 6px;
 }
 
 input, select, textarea {
     width: 100%;
     background: rgba(0,0,0,0.25);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
     padding: 10px 14px;
-    color: var(--text);
+    color: white;
     font-size: 0.9rem;
     outline: none;
 }
 
 input:focus, select:focus {
-    border-color: var(--accent);
+    border-color: #a855f7;
 }
 
 .input-row {
@@ -197,7 +188,7 @@ input:focus, select:focus {
     gap: 8px;
     padding: 10px 18px;
     border: none;
-    border-radius: var(--radius-sm);
+    border-radius: 10px;
     font-size: 0.85rem;
     font-weight: 500;
     cursor: pointer;
@@ -205,7 +196,7 @@ input:focus, select:focus {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
 }
 
@@ -220,13 +211,13 @@ input:focus, select:focus {
 }
 
 .btn-ghost {
-    background: var(--glass);
-    color: var(--text-muted);
-    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.55);
+    border: 1px solid rgba(255,255,255,0.1);
 }
 
 .btn-ghost:hover {
-    background: var(--glass-hover);
+    background: rgba(255,255,255,0.09);
 }
 
 .btn-save {
@@ -242,8 +233,8 @@ input:focus, select:focus {
 }
 
 .dropzone {
-    border: 2px dashed var(--border);
-    border-radius: var(--radius);
+    border: 2px dashed rgba(255,255,255,0.1);
+    border-radius: 16px;
     padding: 40px;
     text-align: center;
     cursor: pointer;
@@ -251,7 +242,7 @@ input:focus, select:focus {
 }
 
 .dropzone:hover {
-    border-color: var(--accent);
+    border-color: #a855f7;
     background: rgba(168,85,247,0.05);
 }
 
@@ -261,7 +252,7 @@ input:focus, select:focus {
     gap: 12px;
     padding: 12px;
     background: rgba(0,0,0,0.2);
-    border-radius: var(--radius-sm);
+    border-radius: 10px;
     margin-top: 12px;
 }
 
@@ -290,7 +281,7 @@ input:focus, select:focus {
 
 .file-size {
     font-size: 0.75rem;
-    color: var(--text-muted);
+    color: rgba(255,255,255,0.55);
 }
 
 .progress-section {
@@ -312,7 +303,7 @@ input:focus, select:focus {
     width: 16px;
     height: 16px;
     border: 2px solid rgba(168,85,247,0.25);
-    border-top-color: var(--accent);
+    border-top-color: #a855f7;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
 }
@@ -330,7 +321,7 @@ input:focus, select:focus {
 
 .progress-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    background: linear-gradient(90deg, #a855f7, #ec4899);
     width: 0%;
     transition: width 0.3s;
 }
@@ -363,7 +354,7 @@ input:focus, select:focus {
     margin-bottom: 16px;
     background: rgba(0,0,0,0.2);
     padding: 4px;
-    border-radius: var(--radius-sm);
+    border-radius: 10px;
 }
 
 .tab-btn {
@@ -372,12 +363,12 @@ input:focus, select:focus {
     background: transparent;
     border: none;
     border-radius: 6px;
-    color: var(--text-muted);
+    color: rgba(255,255,255,0.55);
     cursor: pointer;
 }
 
 .tab-btn.active {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
 }
 
@@ -393,10 +384,10 @@ input:focus, select:focus {
     width: 100%;
     min-height: 300px;
     background: rgba(0,0,0,0.25);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
     padding: 16px;
-    color: var(--text);
+    color: white;
     font-family: monospace;
     resize: vertical;
 }
@@ -411,7 +402,7 @@ input:focus, select:focus {
     gap: 12px;
     padding: 12px;
     background: rgba(0,0,0,0.2);
-    border-radius: var(--radius-sm);
+    border-radius: 10px;
     margin-bottom: 8px;
     cursor: pointer;
     transition: all 0.2s;
@@ -427,21 +418,21 @@ input:focus, select:focus {
     font-size: 0.75rem;
     font-weight: bold;
     background: rgba(168,85,247,0.2);
-    color: var(--accent);
+    color: #a855f7;
     cursor: pointer;
 }
 
 .utterance-time {
     font-family: monospace;
     font-size: 0.7rem;
-    color: var(--accent);
+    color: #a855f7;
     margin-bottom: 4px;
 }
 
 .utterance-text {
     font-size: 0.85rem;
     line-height: 1.5;
-    color: var(--text-muted);
+    color: rgba(255,255,255,0.55);
 }
 
 .stats-grid {
@@ -454,7 +445,7 @@ input:focus, select:focus {
 .stat-card {
     background: rgba(0,0,0,0.2);
     padding: 12px;
-    border-radius: var(--radius-sm);
+    border-radius: 10px;
     text-align: center;
 }
 
@@ -465,7 +456,7 @@ input:focus, select:focus {
 
 .stat-label {
     font-size: 0.7rem;
-    color: var(--text-muted);
+    color: rgba(255,255,255,0.55);
 }
 
 .keywords-cloud {
@@ -522,7 +513,7 @@ input:focus, select:focus {
 .history-item {
     padding: 12px;
     background: rgba(0,0,0,0.2);
-    border-radius: var(--radius-sm);
+    border-radius: 10px;
     cursor: pointer;
 }
 
@@ -535,7 +526,7 @@ input:focus, select:focus {
     padding: 12px;
     background: rgba(248,113,113,0.1);
     border: 1px solid rgba(248,113,113,0.3);
-    border-radius: var(--radius-sm);
+    border-radius: 10px;
     color: #fca5a5;
     margin-top: 12px;
 }
@@ -555,7 +546,7 @@ input:focus, select:focus {
     padding: 12px 20px;
     background: rgba(0,0,0,0.8);
     backdrop-filter: blur(10px);
-    border-radius: var(--radius-sm);
+    border-radius: 10px;
     margin-top: 8px;
     animation: slideIn 0.3s;
 }
@@ -586,12 +577,12 @@ input:focus, select:focus {
 .footer {
     text-align: center;
     padding: 20px;
-    color: var(--text-dim);
+    color: rgba(255,255,255,0.35);
     font-size: 0.75rem;
 }
 
 .footer a {
-    color: var(--accent);
+    color: #a855f7;
     text-decoration: none;
 }
 
@@ -633,12 +624,6 @@ input:focus, select:focus {
     .settings-grid {
         grid-template-columns: 1fr;
     }
-    .result-actions {
-        flex-direction: column;
-    }
-    .result-actions .btn {
-        width: 100%;
-    }
 }
 </style>
 </head>
@@ -655,10 +640,9 @@ input:focus, select:focus {
             </svg>
             <div class="header-logo-text">VoxCraft</div>
         </div>
-        <div class="header-sub">Транскрибация аудио и видео прямо в браузере</div>
+        <div class="header-sub">Транскрибация аудио и видео через прокси-сервер</div>
     </div>
 
-    <!-- Выбор провайдера -->
     <div class="card">
         <div class="section-title">Выберите провайдера</div>
         <div class="providers">
@@ -680,7 +664,6 @@ input:focus, select:focus {
         </div>
     </div>
 
-    <!-- API ключ -->
     <div class="card">
         <div class="section-title">API ключ</div>
         <div class="form-group">
@@ -692,7 +675,6 @@ input:focus, select:focus {
         </div>
     </div>
 
-    <!-- Настройки -->
     <div class="card">
         <div class="section-title">Настройки</div>
         <div class="settings-grid">
@@ -711,7 +693,6 @@ input:focus, select:focus {
         </div>
     </div>
 
-    <!-- Загрузка файла -->
     <div class="card">
         <div class="section-title">Аудио / Видео файл</div>
         <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()" 
@@ -731,10 +712,8 @@ input:focus, select:focus {
         </div>
     </div>
 
-    <!-- Кнопка транскрибации -->
     <button class="btn btn-primary btn-full" id="transcribeBtn" onclick="startTranscription()" disabled>🎙 Транскрибировать</button>
 
-    <!-- Прогресс -->
     <div class="card progress-section" id="progressSection">
         <div class="progress-status">
             <div class="spinner"></div>
@@ -746,7 +725,6 @@ input:focus, select:focus {
         <div class="error-block" id="errorBlock"></div>
     </div>
 
-    <!-- Результат -->
     <div class="card result-section" id="resultSection">
         <div class="result-meta" id="resultMeta"></div>
         
@@ -786,7 +764,6 @@ input:focus, select:focus {
         </div>
     </div>
 
-    <!-- История -->
     <div class="card">
         <div class="history-header" onclick="toggleHistory()">
             <h3>🕑 История транскрипций</h3>
@@ -812,28 +789,13 @@ input:focus, select:focus {
 
 <script>
 // ============================================
-// ПОЛНЫЙ КЛИЕНТСКИЙ КОД - РАБОТАЕТ В БРАУЗЕРЕ
+// КЛИЕНТСКАЯ ЧАСТЬ - ОТПРАВЛЯЕТ ЗАПРОСЫ НА ПРОКСИ-СЕРВЕР
 // ============================================
 
 const PROVIDERS = {
-    deepgram: { 
-        name: 'Deepgram', 
-        keyLink: 'https://console.deepgram.com/', 
-        models: ['nova-3', 'nova-2', 'whisper'],
-        endpoint: 'https://api.deepgram.com/v1/listen'
-    },
-    assemblyai: { 
-        name: 'AssemblyAI', 
-        keyLink: 'https://www.assemblyai.com/app/api-keys', 
-        models: ['universal-2', 'best'],
-        endpoint: 'https://api.assemblyai.com/v2/transcript'
-    },
-    gladia: { 
-        name: 'Gladia', 
-        keyLink: 'https://app.gladia.io/', 
-        models: ['solaria'],
-        endpoint: 'https://api.gladia.io/v2/pre-recorded'
-    }
+    deepgram: { name: 'Deepgram', keyLink: 'https://console.deepgram.com/', models: ['nova-3', 'nova-2', 'whisper'] },
+    assemblyai: { name: 'AssemblyAI', keyLink: 'https://www.assemblyai.com/app/api-keys', models: ['universal-2', 'best'] },
+    gladia: { name: 'Gladia', keyLink: 'https://app.gladia.io/', models: ['solaria'] }
 };
 
 const LANGUAGES = [
@@ -845,16 +807,15 @@ const LANGUAGES = [
 let state = {
     provider: 'deepgram',
     file: null,
-    audioData: null,
     result: null,
     speakerNames: {},
     mediaUrl: null,
     mediaType: 'audio'
 };
 
-let currentRequest = null;
+// Определяем URL сервера (тот же хост, на котором запущена страница)
+const SERVER_URL = window.location.origin;
 
-// Инициализация
 function init() {
     selectProvider('deepgram');
     populateLanguages();
@@ -862,7 +823,6 @@ function init() {
     updateTranscribeBtn();
 }
 
-// Провайдеры
 function selectProvider(name) {
     state.provider = name;
     document.querySelectorAll('.provider-card').forEach(card => {
@@ -902,7 +862,6 @@ function populateLanguages() {
     select.value = 'ru';
 }
 
-// Файлы
 async function handleFileSelect(event) {
     if (event.target.files.length) {
         await handleFile(event.target.files[0]);
@@ -929,117 +888,12 @@ async function handleFile(file) {
     document.getElementById('filePreview').classList.add('visible');
     document.getElementById('dropzone').style.display = 'none';
     
-    // Для видео извлекаем аудио через Web Audio API
-    if (state.mediaType === 'video') {
-        document.getElementById('progressText').textContent = 'Извлечение аудио из видео...';
-        document.getElementById('progressSection').classList.add('visible');
-        
-        try {
-            state.audioData = await extractAudioFromVideo(file);
-            showToast('Аудио извлечено', 'success');
-        } catch (err) {
-            showToast('Ошибка извлечения аудио: ' + err.message, 'error');
-        } finally {
-            document.getElementById('progressSection').classList.remove('visible');
-        }
-    } else {
-        state.audioData = file;
-    }
-    
     updateTranscribeBtn();
-}
-
-async function extractAudioFromVideo(videoFile) {
-    return new Promise((resolve, reject) => {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const fileReader = new FileReader();
-        
-        fileReader.onload = async function(e) {
-            const arrayBuffer = e.target.result;
-            
-            try {
-                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-                
-                // Конвертируем в WAV
-                const wavBlob = audioBufferToWav(audioBuffer);
-                resolve(wavBlob);
-                
-                await audioContext.close();
-            } catch (err) {
-                reject(new Error('Не удалось извлечь аудио: ' + err.message));
-            }
-        };
-        
-        fileReader.onerror = () => reject(new Error('Ошибка чтения файла'));
-        fileReader.readAsArrayBuffer(videoFile);
-    });
-}
-
-function audioBufferToWav(buffer) {
-    const numChannels = buffer.numberOfChannels;
-    const sampleRate = buffer.sampleRate;
-    const format = 1; // PCM
-    const bitDepth = 16;
-    
-    const bytesPerSample = bitDepth / 8;
-    const blockAlign = numChannels * bytesPerSample;
-    
-    const samples = [];
-    for (let channel = 0; channel < numChannels; channel++) {
-        samples.push(buffer.getChannelData(channel));
-    }
-    
-    const length = samples[0].length;
-    const dataSize = length * numChannels * bytesPerSample;
-    const headerSize = 44;
-    const totalSize = headerSize + dataSize;
-    
-    const wavBuffer = new ArrayBuffer(totalSize);
-    const view = new DataView(wavBuffer);
-    
-    // RIFF chunk
-    writeString(view, 0, 'RIFF');
-    view.setUint32(4, totalSize - 8, true);
-    writeString(view, 8, 'WAVE');
-    
-    // fmt subchunk
-    writeString(view, 12, 'fmt ');
-    view.setUint32(16, 16, true);
-    view.setUint16(20, format, true);
-    view.setUint16(22, numChannels, true);
-    view.setUint32(24, sampleRate, true);
-    view.setUint32(28, sampleRate * blockAlign, true);
-    view.setUint16(32, blockAlign, true);
-    view.setUint16(34, bitDepth, true);
-    
-    // data subchunk
-    writeString(view, 36, 'data');
-    view.setUint32(40, dataSize, true);
-    
-    // Write samples
-    let offset = 44;
-    for (let i = 0; i < length; i++) {
-        for (let channel = 0; channel < numChannels; channel++) {
-            const sample = Math.max(-1, Math.min(1, samples[channel][i]));
-            const intSample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
-            view.setInt16(offset, intSample, true);
-            offset += 2;
-        }
-    }
-    
-    return new Blob([wavBuffer], { type: 'audio/wav' });
-}
-
-function writeString(view, offset, string) {
-    for (let i = 0; i < string.length; i++) {
-        view.setUint8(offset + i, string.charCodeAt(i));
-    }
 }
 
 function clearFile() {
     if (state.mediaUrl) URL.revokeObjectURL(state.mediaUrl);
     state.file = null;
-    state.audioData = null;
     state.mediaUrl = null;
     document.getElementById('fileInput').value = '';
     document.getElementById('filePreview').classList.remove('visible');
@@ -1049,12 +903,11 @@ function clearFile() {
 
 function updateTranscribeBtn() {
     const hasKey = getApiKey().length > 5;
-    const hasFile = state.audioData !== null;
+    const hasFile = state.file !== null;
     const btn = document.getElementById('transcribeBtn');
     btn.disabled = !(hasKey && hasFile);
 }
 
-// Транскрибация
 async function startTranscription() {
     const apiKey = getApiKey();
     const language = document.getElementById('languageSelect').value;
@@ -1068,309 +921,47 @@ async function startTranscription() {
     document.getElementById('progressText').textContent = 'Подготовка...';
     
     try {
-        await transcribeWithProvider(state.provider, apiKey, state.audioData, language, model, diarize);
+        const formData = new FormData();
+        formData.append('file', state.file);
+        formData.append('provider', state.provider);
+        formData.append('api_key', apiKey);
+        formData.append('language', language);
+        formData.append('model', model);
+        formData.append('diarize', diarize);
+        
+        document.getElementById('progressText').textContent = 'Отправка на сервер...';
+        document.getElementById('progressBar').style.width = '20%';
+        
+        const response = await fetch(`${SERVER_URL}/transcribe`, {
+            method: 'POST',
+            body: formData
+        });
+        
+        document.getElementById('progressBar').style.width = '80%';
+        document.getElementById('progressText').textContent = 'Обработка результатов...';
+        
+        if (!response.ok) {
+            const error = await response.text();
+            throw new Error(`Ошибка ${response.status}: ${error}`);
+        }
+        
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.error || 'Ошибка транскрибации');
+        }
+        
+        finishTranscription(result);
+        
     } catch (err) {
         showError(err.message);
     }
-}
-
-async function transcribeWithProvider(provider, apiKey, audioData, language, model, diarize) {
-    document.getElementById('progressText').textContent = 'Отправка на транскрибацию...';
-    document.getElementById('progressBar').style.width = '30%';
-    
-    if (provider === 'deepgram') {
-        await transcribeDeepgram(apiKey, audioData, language, model, diarize);
-    } else if (provider === 'assemblyai') {
-        await transcribeAssemblyAI(apiKey, audioData, language, model, diarize);
-    } else if (provider === 'gladia') {
-        await transcribeGladia(apiKey, audioData, language, diarize);
-    }
-}
-
-async function transcribeDeepgram(apiKey, audioData, language, model, diarize) {
-    const formData = new FormData();
-    formData.append('audio', audioData);
-    
-    const params = new URLSearchParams({
-        model: model,
-        language: language === 'auto' ? 'ru' : language,
-        smart_format: 'true',
-        punctuate: 'true',
-        utterances: diarize ? 'true' : 'false',
-        diarize: diarize ? 'true' : 'false'
-    });
-    
-    const response = await fetch(`https://api.deepgram.com/v1/listen?${params}`, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Token ${apiKey}`
-        },
-        body: audioData
-    });
-    
-    document.getElementById('progressBar').style.width = '80%';
-    document.getElementById('progressText').textContent = 'Обработка результатов...';
-    
-    if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`Deepgram ошибка ${response.status}: ${error}`);
-    }
-    
-    const data = await response.json();
-    processDeepgramResult(data, language);
-}
-
-function processDeepgramResult(data, language) {
-    const results = data.results || {};
-    const channels = results.channels || [];
-    const alternative = channels[0]?.alternatives?.[0] || {};
-    const transcript = alternative.transcript || '';
-    const confidence = alternative.confidence || 0;
-    
-    const utterances = [];
-    for (const u of results.utterances || []) {
-        utterances.push({
-            speaker: u.speaker || 0,
-            text: u.transcript || '',
-            start: u.start || 0,
-            end: u.end || 0,
-            confidence: u.confidence || 0
-        });
-    }
-    
-    if (utterances.length === 0 && transcript) {
-        utterances.push({
-            speaker: 0,
-            text: transcript,
-            start: 0,
-            end: data.metadata?.duration || 0,
-            confidence: confidence
-        });
-    }
-    
-    const result = {
-        success: true,
-        provider: 'deepgram',
-        transcript: transcript,
-        utterances: utterances,
-        metadata: {
-            duration: data.metadata?.duration || 0,
-            confidence: confidence,
-            language: language,
-            model: 'deepgram'
-        }
-    };
-    
-    finishTranscription(result);
-}
-
-async function transcribeAssemblyAI(apiKey, audioData, language, model, diarize) {
-    // Сначала загружаем аудио
-    const uploadResponse = await fetch('https://api.assemblyai.com/v2/upload', {
-        method: 'POST',
-        headers: {
-            'Authorization': apiKey
-        },
-        body: audioData
-    });
-    
-    if (!uploadResponse.ok) {
-        throw new Error(`AssemblyAI upload error: ${uploadResponse.status}`);
-    }
-    
-    const uploadData = await uploadResponse.json();
-    const audioUrl = uploadData.upload_url;
-    
-    // Создаем транскрипцию
-    const transcriptData = {
-        audio_url: audioUrl,
-        speaker_labels: diarize,
-        language_code: language === 'auto' ? undefined : language,
-        language_detection: language === 'auto'
-    };
-    
-    const createResponse = await fetch('https://api.assemblyai.com/v2/transcript', {
-        method: 'POST',
-        headers: {
-            'Authorization': apiKey,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(transcriptData)
-    });
-    
-    if (!createResponse.ok) {
-        throw new Error(`AssemblyAI create error: ${createResponse.status}`);
-    }
-    
-    const { id } = await createResponse.json();
-    
-    // Ожидаем результат
-    let result;
-    while (true) {
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        const pollResponse = await fetch(`https://api.assemblyai.com/v2/transcript/${id}`, {
-            headers: { 'Authorization': apiKey }
-        });
-        
-        result = await pollResponse.json();
-        
-        if (result.status === 'completed') {
-            break;
-        } else if (result.status === 'error') {
-            throw new Error(`AssemblyAI error: ${result.error}`);
-        }
-        
-        document.getElementById('progressText').textContent = 'Ожидание завершения...';
-    }
-    
-    processAssemblyAIResult(result, language);
-}
-
-function processAssemblyAIResult(data, language) {
-    const transcript = data.text || '';
-    const confidence = data.confidence || 0;
-    const duration = data.audio_duration || 0;
-    
-    const utterances = [];
-    for (const u of data.utterances || []) {
-        utterances.push({
-            speaker: u.speaker || 0,
-            text: u.text || '',
-            start: (u.start || 0) / 1000,
-            end: (u.end || 0) / 1000,
-            confidence: u.confidence || 0
-        });
-    }
-    
-    if (utterances.length === 0 && transcript) {
-        utterances.push({
-            speaker: 0,
-            text: transcript,
-            start: 0,
-            end: duration,
-            confidence: confidence
-        });
-    }
-    
-    const result = {
-        success: true,
-        provider: 'assemblyai',
-        transcript: transcript,
-        utterances: utterances,
-        metadata: {
-            duration: duration,
-            confidence: confidence,
-            language: data.language_code || language,
-            model: 'assemblyai'
-        }
-    };
-    
-    finishTranscription(result);
-}
-
-async function transcribeGladia(apiKey, audioData, language, diarize) {
-    // Конвертируем в base64
-    const reader = new FileReader();
-    const audioBase64 = await new Promise((resolve, reject) => {
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = reject;
-        reader.readAsDataURL(audioData);
-    });
-    
-    const requestData = {
-        audio: audioBase64,
-        diarization: diarize,
-        language: language === 'auto' ? undefined : language,
-        detect_language: language === 'auto'
-    };
-    
-    const response = await fetch('https://api.gladia.io/v2/pre-recorded', {
-        method: 'POST',
-        headers: {
-            'x-gladia-key': apiKey,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestData)
-    });
-    
-    if (!response.ok) {
-        throw new Error(`Gladia error: ${response.status}`);
-    }
-    
-    const { id } = await response.json();
-    
-    // Ожидаем результат
-    let result;
-    while (true) {
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        const pollResponse = await fetch(`https://api.gladia.io/v2/pre-recorded/${id}`, {
-            headers: { 'x-gladia-key': apiKey }
-        });
-        
-        result = await pollResponse.json();
-        
-        if (result.status === 'done') {
-            break;
-        } else if (result.status === 'error') {
-            throw new Error(`Gladia error: ${result.error}`);
-        }
-        
-        document.getElementById('progressText').textContent = 'Ожидание завершения...';
-    }
-    
-    processGladiaResult(result, language);
-}
-
-function processGladiaResult(data, language) {
-    const resultData = data.result || {};
-    const transcription = resultData.transcription || {};
-    const transcript = transcription.full_transcript || '';
-    const duration = resultData.metadata?.audio_duration || 0;
-    
-    const utterances = [];
-    for (const u of transcription.utterances || []) {
-        utterances.push({
-            speaker: u.speaker || 0,
-            text: u.text || '',
-            start: u.time_begin || u.start || 0,
-            end: u.time_end || u.end || 0,
-            confidence: u.confidence || 0
-        });
-    }
-    
-    if (utterances.length === 0 && transcript) {
-        utterances.push({
-            speaker: 0,
-            text: transcript,
-            start: 0,
-            end: duration,
-            confidence: 0
-        });
-    }
-    
-    const result = {
-        success: true,
-        provider: 'gladia',
-        transcript: transcript,
-        utterances: utterances,
-        metadata: {
-            duration: duration,
-            confidence: 0,
-            language: language,
-            model: 'gladia'
-        }
-    };
-    
-    finishTranscription(result);
 }
 
 function finishTranscription(data) {
     state.result = data;
     state.speakerNames = {};
     
-    // Метаданные
     const meta = document.getElementById('resultMeta');
     meta.innerHTML = `
         <div class="meta-badge">${data.provider.toUpperCase()}</div>
@@ -1379,10 +970,8 @@ function finishTranscription(data) {
         <div class="meta-badge">🌐 ${data.metadata.language}</div>
     `;
     
-    // Текст
     document.getElementById('resultTextarea').value = data.transcript;
     
-    // Плеер
     const playerContainer = document.getElementById('resultPlayerContainer');
     const videoPlayer = document.getElementById('resultVideoPlayer');
     const audioPlayer = document.getElementById('resultAudioPlayer');
@@ -1400,23 +989,15 @@ function finishTranscription(data) {
         }
     }
     
-    // Спикеры
     renderSpeakers(data.utterances);
-    
-    // Таймкоды
     renderTimestamps(data.utterances);
-    
-    // Ключевые слова
     renderKeywords(data.transcript);
     
-    // Показать результат
     document.getElementById('progressSection').classList.remove('visible');
     document.getElementById('resultSection').classList.add('visible');
     document.getElementById('progressBar').style.width = '100%';
     
-    // Сохранить в историю
     saveToHistory(data);
-    
     showToast('Транскрибация завершена!', 'success');
 }
 
@@ -1443,7 +1024,6 @@ function renderSpeakers(utterances) {
         return;
     }
     
-    // Статистика
     const speakerStats = {};
     utterances.forEach(u => {
         const spk = u.speaker;
@@ -1464,7 +1044,6 @@ function renderSpeakers(utterances) {
         `;
     });
     
-    // Реплики
     container.innerHTML = '';
     utterances.forEach(u => {
         const spkId = u.speaker;
@@ -1615,7 +1194,6 @@ function downloadSrt() {
     URL.revokeObjectURL(url);
 }
 
-// История
 function saveToHistory(data) {
     let history = JSON.parse(localStorage.getItem('voxcraft_history') || '[]');
     history.unshift({
@@ -1674,7 +1252,6 @@ function toggleHistory() {
     if (toggle) toggle.classList.toggle('open');
 }
 
-// Вспомогательные функции
 function formatDuration(sec) {
     if (!sec) return '0:00';
     const m = Math.floor(sec / 60);
@@ -1723,7 +1300,6 @@ function showError(msg) {
     setTimeout(() => errorBlock.classList.remove('visible'), 5000);
 }
 
-// Запуск
 init();
 </script>
 </body>
