@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VoxCraft — Транскрибер</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 * {
     margin: 0;
@@ -76,6 +76,11 @@ body {
     background: linear-gradient(135deg, #a855f7, #ec4899);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+}
+
+.header-sub {
+    color: rgba(255,255,255,0.55);
+    font-size: 0.9rem;
 }
 
 .section-title {
@@ -232,6 +237,29 @@ input:focus, select:focus {
     font-size: 1rem;
 }
 
+.file-mode-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.file-mode-btn {
+    flex: 1;
+    padding: 10px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: rgba(255,255,255,0.55);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.file-mode-btn.active {
+    background: rgba(168,85,247,0.15);
+    border-color: #a855f7;
+    color: #a855f7;
+}
+
 .dropzone {
     border: 2px dashed rgba(255,255,255,0.1);
     border-radius: 16px;
@@ -365,6 +393,7 @@ input:focus, select:focus {
     border-radius: 6px;
     color: rgba(255,255,255,0.55);
     cursor: pointer;
+    transition: all 0.2s;
 }
 
 .tab-btn.active {
@@ -382,7 +411,7 @@ input:focus, select:focus {
 
 .result-text {
     width: 100%;
-    min-height: 300px;
+    min-height: 250px;
     background: rgba(0,0,0,0.25);
     border: 1px solid rgba(255,255,255,0.1);
     border-radius: 10px;
@@ -393,7 +422,7 @@ input:focus, select:focus {
 }
 
 .utterances-list {
-    max-height: 500px;
+    max-height: 400px;
     overflow-y: auto;
 }
 
@@ -457,26 +486,6 @@ input:focus, select:focus {
 .stat-label {
     font-size: 0.7rem;
     color: rgba(255,255,255,0.55);
-}
-
-.keywords-cloud {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.keyword-tag {
-    padding: 6px 12px;
-    background: rgba(168,85,247,0.1);
-    border: 1px solid rgba(168,85,247,0.3);
-    border-radius: 20px;
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.keyword-tag:hover {
-    background: rgba(168,85,247,0.2);
 }
 
 .result-actions {
@@ -588,11 +597,14 @@ input:focus, select:focus {
 
 .media-player-container {
     margin-bottom: 20px;
+    max-height: 250px;
+    overflow: hidden;
 }
 
 .media-player-container video,
 .media-player-container audio {
     width: 100%;
+    max-height: 250px;
     border-radius: 8px;
 }
 
@@ -617,12 +629,35 @@ input:focus, select:focus {
     gap: 12px;
 }
 
+.widget-code {
+    background: rgba(0,0,0,0.4);
+    border-radius: 10px;
+    padding: 16px;
+    font-family: monospace;
+    font-size: 0.75rem;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 16px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
 @media (max-width: 640px) {
     .providers {
         grid-template-columns: 1fr;
     }
     .settings-grid {
         grid-template-columns: 1fr;
+    }
+    .result-actions {
+        flex-direction: column;
+    }
+    .result-actions .btn {
+        width: 100%;
+    }
+    .tabs {
+        flex-direction: column;
     }
 }
 </style>
@@ -640,7 +675,7 @@ input:focus, select:focus {
             </svg>
             <div class="header-logo-text">VoxCraft</div>
         </div>
-        <div class="header-sub">Транскрибация аудио и видео через прокси-сервер</div>
+        <div class="header-sub">Транскрибация аудио и видео с таймкодами</div>
     </div>
 
     <div class="card">
@@ -695,20 +730,67 @@ input:focus, select:focus {
 
     <div class="card">
         <div class="section-title">Аудио / Видео файл</div>
-        <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()" 
-             ondrop="handleDrop(event)" ondragover="event.preventDefault()">
-            <div style="font-size:2rem;">📁</div>
-            <div>Перетащите файл или нажмите для выбора</div>
-            <div style="font-size:0.7rem; margin-top:8px;">MP3, WAV, MP4, MOV, WEBM, M4A, OGG</div>
+        <div class="file-mode-tabs">
+            <button class="file-mode-btn active" id="modeUploadBtn" onclick="setFileMode('upload')">📁 Загрузить файл</button>
+            <button class="file-mode-btn" id="modeUrlBtn" onclick="setFileMode('url')">🔗 По ссылке</button>
+            <button class="file-mode-btn" id="modePathBtn" onclick="setFileMode('path')">⚡ Путь на диске</button>
         </div>
-        <input type="file" id="fileInput" accept="audio/*,video/*" style="display:none" onchange="handleFileSelect(event)">
-        <div class="file-preview" id="filePreview">
-            <div class="file-icon" id="fileIcon">🎵</div>
-            <div class="file-info">
-                <div class="file-name" id="fileName"></div>
-                <div class="file-size" id="fileSize"></div>
+
+        <!-- Режим: загрузка файла -->
+        <div id="modeUploadPanel">
+            <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()" 
+                 ondrop="handleDrop(event)" ondragover="event.preventDefault()">
+                <div style="font-size:2rem;">📁</div>
+                <div>Перетащите файл или нажмите для выбора</div>
+                <div style="font-size:0.7rem; margin-top:8px;">MP3, WAV, MP4, MOV, WEBM, M4A</div>
             </div>
-            <div><button class="btn btn-ghost" style="padding:5px 10px" onclick="clearFile()">✕</button></div>
+            <input type="file" id="fileInput" accept="audio/*,video/*" style="display:none" onchange="handleFileSelect(event)">
+            <div class="file-preview" id="filePreview">
+                <div class="file-icon" id="fileIcon">🎵</div>
+                <div class="file-info">
+                    <div class="file-name" id="fileName"></div>
+                    <div class="file-size" id="fileSize"></div>
+                </div>
+                <div><button class="btn btn-ghost" style="padding:5px 10px" onclick="clearFile()">✕</button></div>
+            </div>
+        </div>
+
+        <!-- Режим: ссылка -->
+        <div id="modeUrlPanel" style="display:none">
+            <div class="form-group">
+                <label>Ссылка на аудио/видео</label>
+                <div class="input-row">
+                    <input type="text" id="mediaUrlInput" placeholder="https://example.com/video.mp4" oninput="onUrlInput()">
+                    <button class="btn btn-save" onclick="validateUrl()">Загрузить</button>
+                </div>
+            </div>
+            <div class="file-preview" id="filePreviewUrl" style="display:none">
+                <div class="file-icon" id="fileIconUrl">🔗</div>
+                <div class="file-info">
+                    <div class="file-name" id="fileNameUrl"></div>
+                    <div class="file-size" id="fileSizeUrl">Ссылка на медиа</div>
+                </div>
+                <div><button class="btn btn-ghost" style="padding:5px 10px" onclick="clearUrl()">✕</button></div>
+            </div>
+            <div class="path-error" id="urlError" style="display:none"></div>
+        </div>
+
+        <!-- Режим: путь на диске -->
+        <div id="modePathPanel" style="display:none">
+            <div class="path-hint" style="padding:12px; background:rgba(168,85,247,0.08); border-radius:10px; font-size:0.8rem;">💡 Введите полный путь к файлу на вашем компьютере</div>
+            <div class="path-warning" id="pathLocalWarning" style="display:none; margin-top:10px; padding:12px; background:rgba(251,191,36,0.08); border-radius:10px; color:#fde68a;">⚠️ Режим работает только при локальном запуске</div>
+            <div class="input-row" style="margin-top:10px">
+                <input type="text" id="filePathInput" placeholder="C:\Videos\video.mp4">
+                <button class="btn btn-save" onclick="checkFilePath()">Проверить</button>
+            </div>
+            <div class="file-preview" id="filePreviewPath" style="display:none; margin-top:10px">
+                <div class="file-icon" id="fileIconPath">🎵</div>
+                <div class="file-info">
+                    <div class="file-name" id="fileNamePath"></div>
+                    <div class="file-size" id="fileSizePath"></div>
+                </div>
+            </div>
+            <div class="path-error" id="pathError"></div>
         </div>
     </div>
 
@@ -729,15 +811,15 @@ input:focus, select:focus {
         <div class="result-meta" id="resultMeta"></div>
         
         <div class="media-player-container" id="resultPlayerContainer" style="display:none">
-            <video id="resultVideoPlayer" controls style="width:100%"></video>
-            <audio id="resultAudioPlayer" controls style="width:100%"></audio>
+            <video id="resultVideoPlayer" controls style="width:100%; max-height:250px;"></video>
+            <audio id="resultAudioPlayer" controls style="width:100%;"></audio>
         </div>
 
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('text')">📄 Текст</button>
             <button class="tab-btn" onclick="switchTab('speakers')">👥 Спикеры</button>
             <button class="tab-btn" onclick="switchTab('timestamps')">⏱ Таймкоды</button>
-            <button class="tab-btn" onclick="switchTab('keywords')">🏷 Ключевые слова</button>
+            <button class="tab-btn" onclick="switchTab('widget')">🧩 Виджет</button>
         </div>
 
         <div class="tab-content active" id="tabContentText">
@@ -753,8 +835,16 @@ input:focus, select:focus {
             <div class="utterances-list" id="timestampsList"></div>
         </div>
 
-        <div class="tab-content" id="tabContentKeywords">
-            <div class="keywords-cloud" id="keywordsView"></div>
+        <div class="tab-content" id="tabContentWidget">
+            <div style="margin-bottom: 16px;">
+                <button class="btn btn-primary" onclick="generateAndCopyWidget()" style="width:100%">📋 Скопировать код виджета</button>
+            </div>
+            <div class="widget-code" id="widgetCodePreview">
+                Нажмите кнопку выше, чтобы сгенерировать код виджета
+            </div>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:12px;">
+                💡 Виджет можно вставить на любой сайт. Таймкоды кликабельны - при нажатии видео перемотается.
+            </div>
         </div>
 
         <div class="result-actions">
@@ -789,7 +879,7 @@ input:focus, select:focus {
 
 <script>
 // ============================================
-// КЛИЕНТСКАЯ ЧАСТЬ - ОТПРАВЛЯЕТ ЗАПРОСЫ НА ПРОКСИ-СЕРВЕР
+// ПОЛНЫЙ КЛИЕНТСКИЙ КОД
 // ============================================
 
 const PROVIDERS = {
@@ -807,13 +897,18 @@ const LANGUAGES = [
 let state = {
     provider: 'deepgram',
     file: null,
-    result: null,
-    speakerNames: {},
     mediaUrl: null,
-    mediaType: 'audio'
+    mediaType: 'audio',
+    result: null,
+    speakerNames: {}
 };
 
-// Определяем URL сервера (тот же хост, на котором запущена страница)
+let fileMode = 'upload';
+let pathFileInfo = null;
+let urlFileInfo = null;
+let currentXhr = null;
+
+const IS_LOCAL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 const SERVER_URL = window.location.origin;
 
 function init() {
@@ -862,6 +957,23 @@ function populateLanguages() {
     select.value = 'ru';
 }
 
+function setFileMode(mode) {
+    fileMode = mode;
+    document.querySelectorAll('.file-mode-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(`mode${mode === 'upload' ? 'Upload' : mode === 'url' ? 'Url' : 'Path'}Btn`).classList.add('active');
+    document.getElementById('modeUploadPanel').style.display = mode === 'upload' ? 'block' : 'none';
+    document.getElementById('modeUrlPanel').style.display = mode === 'url' ? 'block' : 'none';
+    document.getElementById('modePathPanel').style.display = mode === 'path' ? 'block' : 'none';
+    
+    if (mode === 'path' && !IS_LOCAL) {
+        document.getElementById('pathLocalWarning').style.display = 'block';
+    } else {
+        document.getElementById('pathLocalWarning').style.display = 'none';
+    }
+    
+    updateTranscribeBtn();
+}
+
 async function handleFileSelect(event) {
     if (event.target.files.length) {
         await handleFile(event.target.files[0]);
@@ -901,11 +1013,87 @@ function clearFile() {
     updateTranscribeBtn();
 }
 
+function onUrlInput() {
+    document.getElementById('urlError').style.display = 'none';
+}
+
+function validateUrl() {
+    const url = document.getElementById('mediaUrlInput').value.trim();
+    if (!url) {
+        showToast('Введите ссылку', 'error');
+        return;
+    }
+    
+    try {
+        new URL(url);
+        urlFileInfo = { url: url, name: url.split('/').pop() || 'media' };
+        document.getElementById('fileNameUrl').textContent = urlFileInfo.name;
+        document.getElementById('fileIconUrl').textContent = '🔗';
+        document.getElementById('filePreviewUrl').style.display = 'flex';
+        document.getElementById('urlError').style.display = 'none';
+        showToast('Ссылка загружена', 'success');
+        updateTranscribeBtn();
+    } catch(e) {
+        document.getElementById('urlError').textContent = 'Неверная ссылка';
+        document.getElementById('urlError').style.display = 'block';
+        urlFileInfo = null;
+        updateTranscribeBtn();
+    }
+}
+
+function clearUrl() {
+    urlFileInfo = null;
+    document.getElementById('mediaUrlInput').value = '';
+    document.getElementById('filePreviewUrl').style.display = 'none';
+    updateTranscribeBtn();
+}
+
+function checkFilePath() {
+    const path = document.getElementById('filePathInput').value.trim();
+    if (!path) return;
+    
+    fetch(`${SERVER_URL}/api/check-file`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: path })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.ok) {
+            pathFileInfo = data;
+            document.getElementById('fileNamePath').textContent = data.name;
+            document.getElementById('fileSizePath').textContent = (data.size / 1024 / 1024).toFixed(2) + ' MB';
+            document.getElementById('fileIconPath').textContent = /\.(mp4|mov|avi|mkv)$/i.test(data.name) ? '🎬' : '🎵';
+            document.getElementById('filePreviewPath').style.display = 'flex';
+            document.getElementById('pathError').style.display = 'none';
+            showToast('Файл найден', 'success');
+            updateTranscribeBtn();
+        } else {
+            pathFileInfo = null;
+            document.getElementById('pathError').textContent = data.error;
+            document.getElementById('pathError').style.display = 'block';
+            document.getElementById('filePreviewPath').style.display = 'none';
+            updateTranscribeBtn();
+        }
+    })
+    .catch(err => {
+        pathFileInfo = null;
+        document.getElementById('pathError').textContent = 'Ошибка соединения';
+        document.getElementById('pathError').style.display = 'block';
+        updateTranscribeBtn();
+    });
+}
+
 function updateTranscribeBtn() {
     const hasKey = getApiKey().length > 5;
-    const hasFile = state.file !== null;
+    let hasSource = false;
+    
+    if (fileMode === 'upload') hasSource = state.file !== null;
+    else if (fileMode === 'url') hasSource = urlFileInfo !== null;
+    else if (fileMode === 'path') hasSource = pathFileInfo !== null;
+    
     const btn = document.getElementById('transcribeBtn');
-    btn.disabled = !(hasKey && hasFile);
+    btn.disabled = !(hasKey && hasSource);
 }
 
 async function startTranscription() {
@@ -922,7 +1110,20 @@ async function startTranscription() {
     
     try {
         const formData = new FormData();
-        formData.append('file', state.file);
+        
+        if (fileMode === 'upload' && state.file) {
+            formData.append('file', state.file);
+            if (state.mediaUrl) {
+                state.mediaUrl = URL.createObjectURL(state.file);
+            }
+        } else if (fileMode === 'url' && urlFileInfo) {
+            formData.append('url', urlFileInfo.url);
+            state.mediaUrl = urlFileInfo.url;
+            state.mediaType = 'video';
+        } else if (fileMode === 'path' && pathFileInfo) {
+            formData.append('path', pathFileInfo.path);
+        }
+        
         formData.append('provider', state.provider);
         formData.append('api_key', apiKey);
         formData.append('language', language);
@@ -978,7 +1179,7 @@ function finishTranscription(data) {
     
     if (state.mediaUrl) {
         playerContainer.style.display = 'block';
-        if (state.mediaType === 'video') {
+        if (state.mediaType === 'video' || (state.mediaUrl && (state.mediaUrl.includes('.mp4') || state.mediaUrl.includes('.mov')))) {
             videoPlayer.src = state.mediaUrl;
             videoPlayer.style.display = 'block';
             audioPlayer.style.display = 'none';
@@ -991,7 +1192,6 @@ function finishTranscription(data) {
     
     renderSpeakers(data.utterances);
     renderTimestamps(data.utterances);
-    renderKeywords(data.transcript);
     
     document.getElementById('progressSection').classList.remove('visible');
     document.getElementById('resultSection').classList.add('visible');
@@ -1085,66 +1285,62 @@ function renderTimestamps(utterances) {
         div.className = 'utterance-item';
         div.onclick = () => seekTo(u.start);
         div.innerHTML = `
-            <div style="font-family:monospace; color:var(--accent); min-width:70px;">${formatTime(u.start)}</div>
-            <div style="flex:1; color:var(--text-muted)">${escapeHtml(u.text)}</div>
+            <div style="font-family:monospace; color:#a855f7; min-width:70px;">${formatTime(u.start)}</div>
+            <div style="flex:1; color:rgba(255,255,255,0.55)">${escapeHtml(u.text)}</div>
         `;
         container.appendChild(div);
     });
 }
 
-function renderKeywords(text) {
-    const container = document.getElementById('keywordsView');
-    const stopWords = new Set(['и', 'в', 'не', 'на', 'я', 'с', 'что', 'он', 'а', 'то', 'все', 'но', 'это', 'как', 'так', 'был', 'для', 'по', 'из', 'за', 'же', 'бы', 'еще', 'уже', 'вот', 'когда']);
-    
-    const words = text.toLowerCase().replace(/[.,!?;:()]/g, '').split(/\s+/);
-    const freq = {};
-    
-    words.forEach(w => {
-        if (w.length > 3 && !stopWords.has(w)) {
-            freq[w] = (freq[w] || 0) + 1;
-        }
-    });
-    
-    const sorted = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 20);
-    
-    if (sorted.length === 0) {
-        container.innerHTML = '<span style="color:var(--text-muted)">Ключевые слова не найдены</span>';
+function generateAndCopyWidget() {
+    if (!state.result || !state.result.utterances) {
+        showToast('Сначала выполните транскрибацию', 'error');
         return;
     }
     
-    container.innerHTML = '';
-    sorted.forEach(([word, count]) => {
-        const tag = document.createElement('span');
-        tag.className = 'keyword-tag';
-        tag.textContent = `${word} (${count})`;
-        tag.onclick = () => highlightWord(word);
-        container.appendChild(tag);
+    const mediaUrl = state.mediaUrl || '';
+    const isVideo = state.mediaType === 'video' || (mediaUrl && (mediaUrl.includes('.mp4') || mediaUrl.includes('.mov')));
+    
+    const mediaTag = isVideo 
+        ? `<video controls src="${mediaUrl}" style="width:100%; max-height:250px; border-radius:8px; margin-bottom:15px;"></video>`
+        : `<audio controls src="${mediaUrl}" style="width:100%; margin-bottom:15px;"></audio>`;
+    
+    const utterancesHtml = state.result.utterances.map(u => `
+        <div style="margin-bottom:12px; padding:10px; background:rgba(168,85,247,0.05); border-radius:8px; border-left:3px solid #a855f7; cursor:pointer;" 
+             onclick="const p=this.closest('.vox-widget').querySelector('video,audio'); if(p){p.currentTime=${u.start}; p.play();}">
+            <div style="font-size:0.7rem; color:#a855f7; font-family:monospace; margin-bottom:4px;">[${formatTime(u.start)}]</div>
+            <div style="font-size:0.85rem; color:#e2d9f3; line-height:1.5;">${escapeHtml(u.text)}</div>
+        </div>
+    `).join('');
+    
+    const widgetCode = `<div class="vox-widget" style="max-width:800px; margin:20px auto; background:#1e1b2e; border:1px solid rgba(168,85,247,0.3); border-radius:12px; padding:20px; font-family:sans-serif;">
+    ${mediaTag}
+    <div style="max-height:400px; overflow-y:auto;">
+        ${utterancesHtml}
+    </div>
+    <div style="margin-top:12px; text-align:center; font-size:0.7rem; color:#a855f7;">🎙 Создано в VoxCraft</div>
+</div>`;
+    
+    navigator.clipboard.writeText(widgetCode).then(() => {
+        showToast('Код виджета скопирован!', 'success');
+        document.getElementById('widgetCodePreview').textContent = widgetCode;
+    }).catch(() => {
+        showToast('Ошибка копирования', 'error');
     });
 }
 
-function highlightWord(word) {
-    switchTab('text');
-    const textarea = document.getElementById('resultTextarea');
-    const text = textarea.value;
-    const index = text.toLowerCase().indexOf(word);
-    if (index !== -1) {
-        textarea.focus();
-        textarea.setSelectionRange(index, index + word.length);
-        showToast(`Найдено: ${word}`, 'info');
-    }
-}
-
 function switchTab(tabName) {
-    const tabs = ['text', 'speakers', 'timestamps', 'keywords'];
-    const btnIds = ['tabText', 'tabSpeakers', 'tabTimestamps', 'tabKeywords'];
-    const contentIds = ['tabContentText', 'tabContentSpeakers', 'tabContentTimestamps', 'tabContentKeywords'];
+    const tabs = ['text', 'speakers', 'timestamps', 'widget'];
+    const contentIds = {
+        text: 'tabContentText',
+        speakers: 'tabContentSpeakers',
+        timestamps: 'tabContentTimestamps',
+        widget: 'tabContentWidget'
+    };
     
-    const index = tabs.indexOf(tabName);
-    if (index === -1) return;
-    
-    tabs.forEach((tab, i) => {
-        const btn = document.querySelectorAll('.tab-btn')[i];
-        const content = document.getElementById(contentIds[i]);
+    tabs.forEach(tab => {
+        const btn = document.querySelector(`.tab-btn[onclick*="${tab}"]`);
+        const content = document.getElementById(contentIds[tab]);
         if (btn && content) {
             if (tab === tabName) {
                 btn.classList.add('active');
