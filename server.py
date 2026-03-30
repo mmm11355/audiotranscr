@@ -4,10 +4,68 @@ import json
 import tempfile
 import urllib.request
 import urllib.parse
+import subprocess
+import re
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from urllib.parse import parse_qs, urlparse
 
 PORT = int(os.environ.get("PORT", 8800))
+
+def download_video_with_ytdlp(url):
+    """Скачивает видео с YouTube, Vimeo, Rutube, Dzen и других платформ"""
+    try:
+        # Создаем временную директорию
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_template = os.path.join(tmpdir, '%(title)s.%(ext)s')
+            
+            # Команда для yt-dlp
+            cmd = [
+                'yt-dlp',
+                '-f', 'bestaudio/best',  # Лучшее качество аудио
+                '--extract-audio',
+                '--audio-format', 'mp3',
+                '--audio-quality', '0',
+                '-o', output_template,
+                url
+            ]
+            
+            print(f"[yt-dlp] Загрузка: {url}")
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+            
+            if result.returncode != 0:
+                error_msg = result.stderr[-500:] if result.stderr else "Неизвестная ошибка"
+                raise Exception(f"Ошибка загрузки: {error_msg}")
+            
+            # Находим скачанный файл
+            files = os.listdir(tmpdir)
+            if not files:
+                raise Exception("Файл не найден после загрузки")
+            
+            audio_file = os.path.join(tmpdir, files[0])
+            with open(audio_file, 'rb') as f:
+                audio_data = f.read()
+            
+            print(f"[yt-dlp] Загружено {len(audio_data)} байт")
+            return audio_data
+            
+    except subprocess.TimeoutExpired:
+        raise Exception("Превышено время загрузки видео")
+    except Exception as e:
+        raise Exception(f"Ошибка yt-dlp: {str(e)}")
+
+def extract_platform_info(url):
+    """Определяет платформу по ссылке"""
+    if 'youtube.com' in url or 'youtu.be' in url:
+        return 'YouTube', 'https://www.youtube.com/watch?v=' + re.search(r'(?:v=|\/)([0-9A-Za-z_-]{11})', url).group(1) if re.search(r'(?:v=|\/)([0-9A-Za-z_-]{11})', url) else url
+    elif 'vimeo.com' in url:
+        return 'Vimeo', url
+    elif 'rutube.ru' in url:
+        return 'Rutube', url
+    elif 'dzen.ru' in url or 'zen.yandex.ru' in url:
+        return 'Dzen', url
+    elif 'con.xl.ru' in url:
+        return 'Protected', url
+    else:
+        return 'Direct', url
 
 class ProxyHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
@@ -16,7 +74,7 @@ class ProxyHandler(BaseHTTPRequestHandler):
     def send_cors_headers(self):
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type, X-Api-Key')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
     
     def do_OPTIONS(self):
         self.send_response(200)
@@ -24,9 +82,7 @@ class ProxyHandler(BaseHTTPRequestHandler):
         self.end_headers()
     
     def do_GET(self):
-        parsed = urlparse(self.path)
-        if parsed.path == '/' or parsed.path == '/index.html':
-            # Отдаем index.html
+        if self.path == '/' or self.path == '/index.html':
             try:
                 with open('index.html', 'rb') as f:
                     html = f.read()
@@ -42,12 +98,45 @@ class ProxyHandler(BaseHTTPRequestHandler):
             self.send_error(404, "Not found")
     
     def do_POST(self):
-        parsed = urlparse(self.path)
-        
-        if parsed.path == '/transcribe':
+        if self.path == '/transcribe':
             self.handle_transcribe()
+        elif self.path == '/download-url':
+            self.handle_download_url()
         else:
             self.send_error(404, "Not found")
+    
+    def handle_download_url(self):
+        """Обработка загрузки видео по ссылке"""
+        try:
+            content_length = int(self.headers.get('Content-Length', 0))
+            if content_length == 0:
+                self.send_error(400, "No data")
+                return
+            
+            data = json.loads(self.rfile.read(content_length))
+            url = data.get('url', '')
+            
+            if not url:
+                self.send_json_error("URL не указан")
+                return
+            
+            print(f"[download] Загрузка: {url}")
+            platform, clean_url = extract_platform_info(url)
+            print(f"[download] Платформа: {platform}")
+            
+            # Пробуем скачать через yt-dlp
+            audio_data = download_video_with_ytdlp(clean_url)
+            
+            self.send_response(200)
+            self.send_header('Content-Type', 'audio/mpeg')
+            self.send_header('Content-Length', str(len(audio_data)))
+            self.send_cors_headers()
+            self.end_headers()
+            self.wfile.write(audio_data)
+            
+        except Exception as e:
+            print(f"[download] Ошибка: {e}")
+            self.send_json_error(str(e))
     
     def handle_transcribe(self):
         try:
@@ -56,7 +145,6 @@ class ProxyHandler(BaseHTTPRequestHandler):
                 self.send_error(400, "No data")
                 return
             
-            # Парсим multipart/form-data
             boundary = None
             content_type = self.headers.get('Content-Type', '')
             if 'boundary=' in content_type:
@@ -66,22 +154,20 @@ class ProxyHandler(BaseHTTPRequestHandler):
                 self.send_error(400, "No boundary")
                 return
             
-            # Читаем данные
             data = self.rfile.read(content_length)
-            
-            # Парсим form-data
             parts = data.split(b'--' + boundary)
             form_data = {}
             file_data = None
             
             for part in parts:
                 if b'Content-Disposition' in part:
-                    # Парсим имя поля
                     headers, body = part.split(b'\r\n\r\n', 1)
                     body = body.rstrip(b'\r\n--')
                     
                     if b'name="file"' in headers:
                         file_data = body
+                    elif b'name="url"' in headers:
+                        form_data['url'] = body.decode()
                     elif b'name="provider"' in headers:
                         form_data['provider'] = body.decode()
                     elif b'name="api_key"' in headers:
@@ -98,24 +184,33 @@ class ProxyHandler(BaseHTTPRequestHandler):
             language = form_data.get('language', 'ru')
             model = form_data.get('model', 'nova-3')
             diarize = form_data.get('diarize', True)
+            url = form_data.get('url', '')
             
             if not api_key:
                 self.send_json_error("API ключ не передан")
                 return
             
-            if not file_data:
-                self.send_json_error("Файл не передан")
+            # Если есть URL, скачиваем видео
+            if url and not file_data:
+                try:
+                    self.send_json_progress("Скачивание видео...", 20)
+                    audio_data = download_video_with_ytdlp(url)
+                except Exception as e:
+                    self.send_json_error(f"Не удалось скачать видео: {str(e)}")
+                    return
+            elif file_data:
+                audio_data = file_data
+            else:
+                self.send_json_error("Нет файла или ссылки")
                 return
             
-            print(f"[transcribe] {provider}, lang={language}, model={model}, size={len(file_data)}")
-            
-            # Отправляем запрос к API провайдера
+            # Отправляем на транскрибацию
             if provider == 'deepgram':
-                result = self.transcribe_deepgram(api_key, file_data, language, model, diarize)
+                result = self.transcribe_deepgram(api_key, audio_data, language, model, diarize)
             elif provider == 'assemblyai':
-                result = self.transcribe_assemblyai(api_key, file_data, language, model, diarize)
+                result = self.transcribe_assemblyai(api_key, audio_data, language, model, diarize)
             elif provider == 'gladia':
-                result = self.transcribe_gladia(api_key, file_data, language, diarize)
+                result = self.transcribe_gladia(api_key, audio_data, language, diarize)
             else:
                 self.send_json_error(f"Неизвестный провайдер: {provider}")
                 return
@@ -123,7 +218,7 @@ class ProxyHandler(BaseHTTPRequestHandler):
             self.send_json(result)
             
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"[transcribe] Ошибка: {e}")
             self.send_json_error(str(e))
     
     def transcribe_deepgram(self, api_key, audio_data, language, model, diarize):
@@ -236,7 +331,7 @@ class ProxyHandler(BaseHTTPRequestHandler):
         
         # Poll for result
         import time
-        for _ in range(60):  # 2 минуты максимум
+        for _ in range(60):
             time.sleep(2)
             poll_req = urllib.request.Request(
                 f'https://api.assemblyai.com/v2/transcript/{transcript_id}',
@@ -293,7 +388,6 @@ class ProxyHandler(BaseHTTPRequestHandler):
     
     def transcribe_gladia(self, api_key, audio_data, language, diarize):
         import base64
-        
         audio_base64 = base64.b64encode(audio_data).decode()
         
         request_data = {
@@ -325,7 +419,6 @@ class ProxyHandler(BaseHTTPRequestHandler):
         except Exception as e:
             raise Exception(f"Gladia error: {e}")
         
-        # Poll for result
         import time
         for _ in range(60):
             time.sleep(2)
@@ -394,12 +487,16 @@ class ProxyHandler(BaseHTTPRequestHandler):
     
     def send_json_error(self, message):
         self.send_json({'success': False, 'error': message})
+    
+    def send_json_progress(self, message, pct):
+        self.send_json({'progress': True, 'message': message, 'pct': pct})
 
 if __name__ == '__main__':
-    print(f"🚀 Proxy server starting on port {PORT}")
-    print(f"📂 Serving index.html and /transcribe endpoint")
+    print(f"🚀 VoxCraft запущен на порту {PORT}")
+    print(f"✅ Поддерживаются: YouTube, Vimeo, Rutube, Dzen")
+    print(f"📦 Для работы требуется установить yt-dlp: pip install yt-dlp")
     server = HTTPServer(('0.0.0.0', PORT), ProxyHandler)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
-        print("\n👋 Stopping server...")
+        print("\n👋 Остановка сервера...")
