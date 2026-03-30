@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-VoxCraft — Мульти-провайдерный аудио-транскрибер (для Render.com)
+VoxCraft — Мульти-провайдерный аудио-транскрибер (Исправленная версия)
 """
 
 import http.server
@@ -62,107 +62,35 @@ def build_multipart(fields, files, boundary=None):
 def find_ffmpeg():
     cmd = shutil.which("ffmpeg")
     if cmd: return cmd
-    common_paths = ["/usr/bin/ffmpeg", "/bin/ffmpeg"]
-    for path in common_paths:
-        if os.path.exists(path):
-            return path
+    for name in ("ffmpeg.exe", "ffmpeg"):
+        local = os.path.join(os.path.dirname(os.path.abspath(__file__)), name)
+        if os.path.exists(local): return local
     return None
-
-def fix_moov_atom(input_path, output_path):
-    """Пытается восстановить видео с отсутствующим moov atom"""
-    ffmpeg_cmd = find_ffmpeg()
-    if not ffmpeg_cmd:
-        raise RuntimeError("ffmpeg не найден")
-    
-    # Метод 1: Перекодирование с игнорированием ошибок
-    cmd = [
-        ffmpeg_cmd, "-y",
-        "-err_detect", "ignore_err",
-        "-fflags", "+genpts+igndts+discardcorrupt",
-        "-i", input_path,
-        "-c:v", "libx264",
-        "-c:a", "aac",
-        "-movflags", "+faststart",
-        "-vf", "fps=30",
-        "-b:v", "1M",
-        "-preset", "fast",
-        "-strict", "unofficial",
-        output_path
-    ]
-    
-    result = subprocess.run(cmd, capture_output=True, timeout=300)
-    
-    if result.returncode != 0:
-        # Метод 2: Только аудио
-        cmd = [
-            ffmpeg_cmd, "-y",
-            "-err_detect", "ignore_err",
-            "-fflags", "+genpts+igndts",
-            "-i", input_path,
-            "-vn",
-            "-acodec", "libmp3lame",
-            "-ac", "1",
-            "-ar", "16000",
-            "-b:a", "64k",
-            output_path.replace('.mp4', '.mp3')
-        ]
-        result = subprocess.run(cmd, capture_output=True, timeout=300)
-        if result.returncode == 0:
-            return output_path.replace('.mp4', '.mp3')
-    
-    if result.returncode != 0:
-        err = result.stderr.decode("utf-8", errors="replace")
-        raise RuntimeError(f"Не удалось восстановить видео: {err[-300:]}")
-    
-    return output_path
 
 def extract_audio_from_path(input_path):
     ffmpeg_cmd = find_ffmpeg()
     if not ffmpeg_cmd:
-        raise RuntimeError("ffmpeg не найден на сервере")
+        raise RuntimeError("ffmpeg не найден")
     
     with tempfile.TemporaryDirectory() as tmpdir:
-        # Сначала пробуем восстановить видео
-        fixed_path = os.path.join(tmpdir, "fixed.mp4")
-        try:
-            fixed_path = fix_moov_atom(input_path, fixed_path)
-        except:
-            fixed_path = input_path
-        
         output_path = os.path.join(tmpdir, "output.mp3")
         
-        # Пробуем разные методы извлечения аудио
-        methods = [
-            # Метод 1: Стандартный с восстановленным видео
-            [ffmpeg_cmd, "-y", "-i", fixed_path, "-vn", "-acodec", "libmp3lame", 
-             "-ac", "1", "-ar", "16000", "-b:a", "64k", output_path],
-            # Метод 2: С игнорированием ошибок
-            [ffmpeg_cmd, "-y", "-err_detect", "ignore_err", "-fflags", "+genpts+igndts",
-             "-i", fixed_path, "-vn", "-acodec", "libmp3lame", "-ac", "1", 
-             "-ar", "16000", "-b:a", "64k", output_path],
-            # Метод 3: Только аудио поток
-            [ffmpeg_cmd, "-y", "-i", fixed_path, "-vn", "-acodec", "copy", output_path],
-            # Метод 4: Принудительное извлечение
-            [ffmpeg_cmd, "-y", "-i", fixed_path, "-f", "mp3", "-vn", "-acodec", "libmp3lame",
-             "-ac", "1", "-ar", "16000", "-b:a", "64k", output_path]
-        ]
+        cmd = [ffmpeg_cmd, "-y", "-i", input_path, "-vn", "-acodec", "libmp3lame", 
+               "-ac", "1", "-ar", "16000", "-b:a", "64k", output_path]
         
-        success = False
-        last_error = ""
+        result = subprocess.run(cmd, capture_output=True, timeout=300)
         
-        for cmd in methods:
-            try:
-                result = subprocess.run(cmd, capture_output=True, timeout=300)
-                if result.returncode == 0 and os.path.exists(output_path) and os.path.getsize(output_path) > 0:
-                    success = True
-                    break
-                else:
-                    last_error = result.stderr.decode("utf-8", errors="replace")[-500:]
-            except Exception as e:
-                last_error = str(e)
+        if result.returncode != 0:
+            # Пробуем альтернативный метод
+            cmd = [ffmpeg_cmd, "-y", "-i", input_path, "-vn", "-acodec", "copy", output_path]
+            result = subprocess.run(cmd, capture_output=True, timeout=300)
+            
+            if result.returncode != 0:
+                err = result.stderr.decode("utf-8", errors="replace")
+                raise RuntimeError(f"ffmpeg ошибка: {err[-500:]}")
         
-        if not success:
-            raise RuntimeError(f"Не удалось извлечь аудио: {last_error}")
+        if not os.path.exists(output_path) or os.path.getsize(output_path) == 0:
+            raise RuntimeError("Не удалось извлечь аудио")
         
         with open(output_path, "rb") as f:
             return f.read()
@@ -173,11 +101,13 @@ def transcribe_deepgram(api_key, audio_bytes, mime_type, language, model, diariz
     url = "https://api.deepgram.com/v1/listen?" + "&".join(params)
     headers = {"Authorization": f"Token {api_key}", "Content-Type": mime_type or "audio/mpeg"}
     status, body = make_request(url, method="POST", headers=headers, data=audio_bytes, timeout=300)
+    
     if status != 200:
         try:
             err_json = json.loads(body)
             err_msg = err_json.get("err_msg") or err_json.get("message") or error_response(status)
-        except: err_msg = error_response(status)
+        except: 
+            err_msg = error_response(status)
         raise RuntimeError(f"Deepgram: {err_msg}")
     
     data = json.loads(body)
@@ -187,67 +117,80 @@ def transcribe_deepgram(api_key, audio_bytes, mime_type, language, model, diariz
     transcript = alt.get("transcript", "")
     confidence = alt.get("confidence", 0)
     
-    words = []
-    for w in alt.get("words", []):
-        words.append({
-            "word": w.get("punctuated_word") or w.get("word", ""),
-            "start": float(w.get("start", 0)), "end": float(w.get("end", 0)),
-            "confidence": float(w.get("confidence", 0)),
-            "speaker": int(w.get("speaker", 0)) if w.get("speaker") is not None else 0,
-        })
-
     utterances = []
     utterances_raw = results.get("utterances") or []
+    
     if utterances_raw:
         for u in utterances_raw:
             utterances.append({
-                "speaker": int(u.get("speaker", 0)), "text": u.get("transcript", ""),
-                "start": float(u.get("start", 0)), "end": float(u.get("end", 0)),
-                "confidence": float(u.get("confidence", 0)),
+                "speaker": int(u.get("speaker", 0)),
+                "text": u.get("transcript", ""),
+                "start": float(u.get("start", 0)),
+                "end": float(u.get("end", 0)),
+                "confidence": float(u.get("confidence", 0))
             })
-    else:
-        paragraphs = alt.get("paragraphs", {}).get("paragraphs", [])
-        for p in paragraphs:
-            text_parts = [s.get("text", "") for s in p.get("sentences", [])]
-            utterances.append({
-                "speaker": int(p.get("speaker", 0)), "text": " ".join(text_parts),
-                "start": float(p.get("start", 0)), "end": float(p.get("end", 0)),
-                "confidence": confidence,
-            })
+    elif transcript:
+        # Если нет utterances, создаем одну
+        utterances.append({
+            "speaker": 0,
+            "text": transcript,
+            "start": 0.0,
+            "end": float(data.get("metadata", {}).get("duration", 0)),
+            "confidence": confidence
+        })
 
     meta = data.get("metadata", {})
     return {
-        "success": True, "provider": "deepgram", "transcript": transcript,
-        "utterances": utterances, "words": words,
-        "metadata": {"duration": float(meta.get("duration", 0)), "confidence": round(confidence, 4), "language": language or "ru", "model": model or "nova-3"}
+        "success": True,
+        "provider": "deepgram",
+        "transcript": transcript,
+        "utterances": utterances,
+        "metadata": {
+            "duration": float(meta.get("duration", 0)),
+            "confidence": round(confidence, 4),
+            "language": language or "ru",
+            "model": model or "nova-3"
+        }
     }
 
 def _speaker_label_to_int(label):
     if label is None: return 0
     if isinstance(label, int): return label
-    if isinstance(label, str) and len(label) == 1 and label.isupper():
-        return ord(label) - ord("A")
     try: return int(label)
     except: return 0
 
 def transcribe_assemblyai(api_key, audio_bytes, language, model, diarize):
     # Upload
-    status, body = make_request("https://api.assemblyai.com/v2/upload", method="POST", headers={"authorization": api_key, "Content-Type": "application/octet-stream"}, data=audio_bytes, timeout=300)
-    if status != 200: raise RuntimeError(f"AssemblyAI upload: {error_response(status)}")
+    status, body = make_request("https://api.assemblyai.com/v2/upload", method="POST", 
+                                headers={"authorization": api_key, "Content-Type": "application/octet-stream"}, 
+                                data=audio_bytes, timeout=300)
+    if status != 200: 
+        raise RuntimeError(f"AssemblyAI upload: {error_response(status)}")
     upload_url = json.loads(body)["upload_url"]
 
     # Create
     use_lang_detection = (language == "auto")
-    transcript_req = {"audio_url": upload_url, "speech_models": [model or "universal-2"], "speaker_labels": bool(diarize)}
-    if use_lang_detection: transcript_req["language_detection"] = True
+    transcript_req = {
+        "audio_url": upload_url,
+        "speaker_labels": bool(diarize),
+        "punctuate": True,
+        "format_text": True
+    }
+    
+    if use_lang_detection:
+        transcript_req["language_detection"] = True
     else:
         transcript_req["language_code"] = language or "ru"
-        transcript_req["language_detection"] = False
 
-    status, body = make_request("https://api.assemblyai.com/v2/transcript", method="POST", headers={"authorization": api_key, "Content-Type": "application/json"}, data=json.dumps(transcript_req).encode("utf-8"), timeout=60)
+    status, body = make_request("https://api.assemblyai.com/v2/transcript", method="POST", 
+                                headers={"authorization": api_key, "Content-Type": "application/json"}, 
+                                data=json.dumps(transcript_req).encode("utf-8"), timeout=60)
     if status != 200:
-        try: err_json = json.loads(body); err_msg = err_json.get("error") or error_response(status)
-        except: err_msg = error_response(status)
+        try: 
+            err_json = json.loads(body)
+            err_msg = err_json.get("error") or error_response(status)
+        except: 
+            err_msg = error_response(status)
         raise RuntimeError(f"AssemblyAI create: {err_msg}")
     
     transcript_id = json.loads(body)["id"]
@@ -255,53 +198,72 @@ def transcribe_assemblyai(api_key, audio_bytes, language, model, diarize):
     # Polling
     start_time = time.time()
     while True:
-        if time.time() - start_time > MAX_POLL_TIME: raise RuntimeError("AssemblyAI: таймаут ожидания")
+        if time.time() - start_time > MAX_POLL_TIME:
+            raise RuntimeError("AssemblyAI: таймаут ожидания")
         time.sleep(POLL_INTERVAL)
-        status, body = make_request(f"https://api.assemblyai.com/v2/transcript/{transcript_id}", method="GET", headers={"authorization": api_key}, timeout=60)
-        if status != 200: raise RuntimeError(f"AssemblyAI poll: {error_response(status)}")
+        
+        status, body = make_request(f"https://api.assemblyai.com/v2/transcript/{transcript_id}", 
+                                   method="GET", headers={"authorization": api_key}, timeout=60)
+        if status != 200:
+            raise RuntimeError(f"AssemblyAI poll: {error_response(status)}")
+        
         result = json.loads(body)
         job_status = result.get("status")
+        
         if job_status == "completed":
-            return normalize_assemblyai(result, model, language)
+            return normalize_assemblyai(result, language)
         elif job_status == "error":
             raise RuntimeError(f"AssemblyAI: {result.get('error', 'Ошибка')}")
 
-def normalize_assemblyai(data, model, language):
+def normalize_assemblyai(data, language):
     transcript = data.get("text", "")
     confidence = float(data.get("confidence") or 0)
-    duration = float((data.get("audio_duration") or 0))
-    words = []
-    for w in (data.get("words") or []):
-        words.append({
-            "word": w.get("text", ""),
-            "start": round(float(w.get("start", 0)) / 1000, 3),
-            "end": round(float(w.get("end", 0)) / 1000, 3),
-            "confidence": float(w.get("confidence", 0)),
-            "speaker": _speaker_label_to_int(w.get("speaker")),
-        })
+    duration = float(data.get("audio_duration") or 0)
+    
     utterances = []
     for u in (data.get("utterances") or []):
         utterances.append({
-            "speaker": _speaker_label_to_int(u.get("speaker")), "text": u.get("text", ""),
-            "start": round(float(u.get("start", 0)) / 1000, 3), "end": round(float(u.get("end", 0)) / 1000, 3),
-            "confidence": float(u.get("confidence", 0)),
+            "speaker": _speaker_label_to_int(u.get("speaker")),
+            "text": u.get("text", ""),
+            "start": round(float(u.get("start", 0)) / 1000, 3),
+            "end": round(float(u.get("end", 0)) / 1000, 3),
+            "confidence": float(u.get("confidence", 0))
         })
+    
     if not utterances and transcript:
-        utterances.append({"speaker": 0, "text": transcript, "start": 0.0, "end": duration, "confidence": confidence})
+        utterances.append({
+            "speaker": 0,
+            "text": transcript,
+            "start": 0.0,
+            "end": duration,
+            "confidence": confidence
+        })
     
     return {
-        "success": True, "provider": "assemblyai", "transcript": transcript,
-        "utterances": utterances, "words": words,
-        "metadata": {"duration": duration, "confidence": round(confidence, 4), "language": data.get("language_code") or language or "auto", "model": model or "universal-2"}
+        "success": True,
+        "provider": "assemblyai",
+        "transcript": transcript,
+        "utterances": utterances,
+        "metadata": {
+            "duration": duration,
+            "confidence": round(confidence, 4),
+            "language": data.get("language_code") or language or "auto",
+            "model": "universal-2"
+        }
     }
 
 def transcribe_gladia(api_key, audio_bytes, language, diarize):
     # Upload
     body_bytes, content_type = build_multipart(fields={}, files=[("audio", "audio.mp3", "audio/mpeg", audio_bytes)])
-    status, body = make_request("https://api.gladia.io/v2/upload", method="POST", headers={"x-gladia-key": api_key, "Content-Type": content_type}, data=body_bytes, timeout=300)
+    status, body = make_request("https://api.gladia.io/v2/upload", method="POST", 
+                                headers={"x-gladia-key": api_key, "Content-Type": content_type}, 
+                                data=body_bytes, timeout=300)
     if status not in (200, 201):
-        try: err_json = json.loads(body); err_msg = err_json.get("message") or err_json.get("error") or error_response(status)
-        except: err_msg = error_response(status)
+        try: 
+            err_json = json.loads(body)
+            err_msg = err_json.get("message") or err_json.get("error") or error_response(status)
+        except: 
+            err_msg = error_response(status)
         raise RuntimeError(f"Gladia upload: {err_msg}")
     
     upload_data = json.loads(body)
@@ -310,17 +272,31 @@ def transcribe_gladia(api_key, audio_bytes, language, diarize):
 
     # Transcribe
     use_lang_detection = (language == "auto")
-    transcription_req = {"audio_url": audio_url, "diarization": bool(diarize), "subtitles": False, "summarization": False}
-    if use_lang_detection: transcription_req["detect_language"] = True
+    transcription_req = {
+        "audio_url": audio_url,
+        "diarization": bool(diarize),
+        "subtitles": False,
+        "summarization": False
+    }
+    
+    if use_lang_detection:
+        transcription_req["detect_language"] = True
     else:
         transcription_req["language"] = language or "ru"
         transcription_req["detect_language"] = False
-    if diarize: transcription_req["diarization_config"] = {"min_speakers": 1, "max_speakers": 10}
+    
+    if diarize:
+        transcription_req["diarization_config"] = {"min_speakers": 1, "max_speakers": 10}
 
-    status, body = make_request("https://api.gladia.io/v2/pre-recorded", method="POST", headers={"x-gladia-key": api_key, "Content-Type": "application/json"}, data=json.dumps(transcription_req).encode("utf-8"), timeout=60)
+    status, body = make_request("https://api.gladia.io/v2/pre-recorded", method="POST", 
+                                headers={"x-gladia-key": api_key, "Content-Type": "application/json"}, 
+                                data=json.dumps(transcription_req).encode("utf-8"), timeout=60)
     if status not in (200, 201):
-        try: err_json = json.loads(body); err_msg = err_json.get("message") or err_json.get("error") or error_response(status)
-        except: err_msg = error_response(status)
+        try: 
+            err_json = json.loads(body)
+            err_msg = err_json.get("message") or err_json.get("error") or error_response(status)
+        except: 
+            err_msg = error_response(status)
         raise RuntimeError(f"Gladia transcribe: {err_msg}")
     
     job_id = json.loads(body).get("id", "")
@@ -328,12 +304,18 @@ def transcribe_gladia(api_key, audio_bytes, language, diarize):
     # Polling
     start_time = time.time()
     while True:
-        if time.time() - start_time > MAX_POLL_TIME: raise RuntimeError("Gladia: таймаут ожидания")
+        if time.time() - start_time > MAX_POLL_TIME:
+            raise RuntimeError("Gladia: таймаут ожидания")
         time.sleep(POLL_INTERVAL)
-        status, body = make_request(f"https://api.gladia.io/v2/pre-recorded/{job_id}", method="GET", headers={"x-gladia-key": api_key}, timeout=60)
-        if status != 200: raise RuntimeError(f"Gladia poll: {error_response(status)}")
+        
+        status, body = make_request(f"https://api.gladia.io/v2/pre-recorded/{job_id}", 
+                                   method="GET", headers={"x-gladia-key": api_key}, timeout=60)
+        if status != 200:
+            raise RuntimeError(f"Gladia poll: {error_response(status)}")
+        
         result = json.loads(body)
         job_status = result.get("status")
+        
         if job_status == "done":
             return normalize_gladia(result, language, detected_duration)
         elif job_status == "error":
@@ -348,34 +330,41 @@ def normalize_gladia(data, language, detected_duration=0.0):
     duration = float(meta.get("audio_duration") or detected_duration or 0)
     
     utterances = []
-    words_all = []
     gladia_utterances = transcription.get("utterances") or []
     
     for u in gladia_utterances:
         speaker_raw = u.get("speaker")
         speaker_int = int(speaker_raw) if speaker_raw is not None else 0
         utterances.append({
-            "speaker": speaker_int, "text": u.get("text", ""),
+            "speaker": speaker_int,
+            "text": u.get("text", ""),
             "start": float(u.get("time_begin") or u.get("start", 0)),
             "end": float(u.get("time_end") or u.get("end", 0)),
-            "confidence": float(u.get("confidence", 0)),
+            "confidence": float(u.get("confidence", 0))
         })
-        for w in (u.get("words") or []):
-            words_all.append({
-                "word": w.get("word", ""), "start": float(w.get("start", 0)),
-                "end": float(w.get("end", 0)), "confidence": float(w.get("confidence", 0)),
-                "speaker": speaker_int,
-            })
     
     if not utterances and transcript:
-        utterances.append({"speaker": 0, "text": transcript, "start": 0.0, "end": duration, "confidence": 0.0})
+        utterances.append({
+            "speaker": 0,
+            "text": transcript,
+            "start": 0.0,
+            "end": duration,
+            "confidence": 0.0
+        })
     
     detected_lang = language if language != "auto" else (gladia_utterances[0].get("language", "auto") if gladia_utterances else "auto")
     
     return {
-        "success": True, "provider": "gladia", "transcript": transcript,
-        "utterances": utterances, "words": words_all,
-        "metadata": {"duration": duration, "confidence": 0.0, "language": detected_lang, "model": "solaria"}
+        "success": True,
+        "provider": "gladia",
+        "transcript": transcript,
+        "utterances": utterances,
+        "metadata": {
+            "duration": duration,
+            "confidence": 0.0,
+            "language": detected_lang,
+            "model": "solaria"
+        }
     }
 
 class VoxCraftHandler(http.server.BaseHTTPRequestHandler):
@@ -399,56 +388,51 @@ class VoxCraftHandler(http.server.BaseHTTPRequestHandler):
     def send_error_json(self, message, status=500):
         self.send_json({"success": False, "error": message}, status)
 
-    def send_bytes(self, data, content_type, status=200):
-        self.send_response(status)
-        self.send_header("Content-Type", content_type)
-        self.send_header("Content-Length", str(len(data)))
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.end_headers()
-        self.wfile.write(data)
-
     def do_OPTIONS(self):
         self.send_response(204)
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Api-Key, X-Language, X-Model, X-Diarize, X-File-Extension")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Api-Key, X-Language, X-Model, X-Diarize, X-File-Extension, X-Is-Video")
         self.end_headers()
 
     def do_GET(self):
-        possible_paths = [
-            os.path.join(os.path.dirname(os.path.abspath(__file__)), "index.html"),
-            os.path.join(os.getcwd(), "index.html"),
-            "/opt/render/project/src/index.html"
-        ]
-        
-        html_path = None
-        for path in possible_paths:
-            if os.path.exists(path):
-                html_path = path
-                break
-        
-        if not html_path:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        html_path = os.path.join(base_dir, "index.html")
+        if not os.path.exists(html_path):
             self.send_error(404, "index.html not found")
             return
-        
         with open(html_path, "rb") as f:
             html = f.read()
-        self.send_bytes(html, "text/html; charset=utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(html)))
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers()
+        self.wfile.write(html)
 
     def _read_body(self):
         content_length = int(self.headers.get("Content-Length", 0))
-        if content_length <= 0: return b""
+        if content_length <= 0:
+            return b""
         return self.rfile.read(content_length)
 
     def do_POST(self):
         path = self.path.split("?")[0]
         
         if path == "/api/check-file":
-            self.send_json({"ok": False, "error": "Режим 'Путь на диске' недоступен в облаке. Используйте загрузку файла."})
-            return
-
-        if path == "/api/transcribe-by-path-sse":
-            self.send_error_json("Режим 'Путь на диске' недоступен в облаке. Используйте загрузку файла.", 400)
+            try:
+                body = self._read_body()
+                req = json.loads(body)
+                fpath = req.get("path", "").strip().strip('"\'')
+                if not fpath or not os.path.exists(fpath):
+                    self.send_json({"ok": False, "error": f"Файл не найден"})
+                    return
+                if not os.path.isfile(fpath):
+                    self.send_json({"ok": False, "error": "Это не файл"})
+                    return
+                self.send_json({"ok": True, "path": fpath, "name": os.path.basename(fpath), "size": os.path.getsize(fpath)})
+            except Exception as e:
+                self.send_json({"ok": False, "error": str(e)})
             return
 
         if path.startswith("/api/transcribe/"):
@@ -471,34 +455,26 @@ class VoxCraftHandler(http.server.BaseHTTPRequestHandler):
 
             print(f"  [transcribe/{provider}] lang={language} model={model} is_video={is_video} size={content_length}")
 
-            tmpdir_obj = None
             try:
                 file_bytes = self._read_body()
                 
                 if not file_bytes or len(file_bytes) == 0:
                     raise RuntimeError("Файл пуст")
                 
-                print(f"  Получено {len(file_bytes)} байт")
-                
                 if is_video:
-                    import tempfile as _tf
-                    tmpdir_obj = _tf.TemporaryDirectory()
-                    tmp_input = os.path.join(tmpdir_obj.name, f"input.{file_ext}")
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=f".{file_ext}") as tmp:
+                        tmp.write(file_bytes)
+                        tmp_path = tmp.name
                     
-                    with open(tmp_input, "wb") as f:
-                        f.write(file_bytes)
-                    
-                    print(f"  Видео сохранено: {tmp_input}, размер: {os.path.getsize(tmp_input)}")
-                    
-                    audio_bytes = extract_audio_from_path(tmp_input)
-                    audio_mime = "audio/mpeg"
-                    print(f"  Аудио извлечено: {len(audio_bytes)} байт")
+                    try:
+                        audio_bytes = extract_audio_from_path(tmp_path)
+                    finally:
+                        os.unlink(tmp_path)
                 else:
                     audio_bytes = file_bytes
-                    audio_mime = "audio/mpeg"
 
                 if provider == "deepgram":
-                    result = transcribe_deepgram(api_key, audio_bytes, audio_mime, language, model, diarize)
+                    result = transcribe_deepgram(api_key, audio_bytes, "audio/mpeg", language, model, diarize)
                 elif provider == "assemblyai":
                     result = transcribe_assemblyai(api_key, audio_bytes, language, model, diarize)
                 elif provider == "gladia":
@@ -511,20 +487,14 @@ class VoxCraftHandler(http.server.BaseHTTPRequestHandler):
             except Exception as e:
                 print(f"  [transcribe/{provider}] ERROR: {e}")
                 self.send_error_json(str(e))
-            finally:
-                if tmpdir_obj:
-                    try:
-                        tmpdir_obj.cleanup()
-                    except:
-                        pass
             return
 
         self.send_error(404, "Not found")
 
 if __name__ == "__main__":
     with socketserver.TCPServer(("0.0.0.0", PORT), VoxCraftHandler) as httpd:
-        print(f"🚀 VoxCraft запущен на порту {PORT}")
-        print(f"✅ Добавлена поддержка поврежденных видео (moov atom fix)")
+        print(f"🚀 VoxCraft запущен на http://127.0.0.1:{PORT}")
+        print(f"✅ Сервер готов к работе")
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:
