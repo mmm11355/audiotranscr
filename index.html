@@ -731,27 +731,46 @@ input[type="color"] { width: 60px; height: 40px; padding: 0; }
         </div>
 
         <div id="modeUrlPanel" style="display:none">
-            <div class="form-group">
-                <label>Ссылка на аудио/видео</label>
-                <div class="input-row">
-                    <input type="text" id="mediaUrlInput" placeholder="https://example.com/video.mp4">
-                    <button class="btn btn-save" onclick="loadFromUrl()">Загрузить по ссылке</button>
-                </div>
-                <div style="font-size:0.7rem; color:rgba(255,255,255,0.4); margin-top:8px;">
-                    💡 Вставьте прямую ссылку на файл (mp4, mp3, mov, wav). Файл должен быть доступен для скачивания.
-                </div>
-            </div>
-            <div class="file-preview" id="filePreviewUrl" style="display:none">
-                <div class="file-icon" id="fileIconUrl">🔗</div>
-                <div class="file-info">
-                    <div class="file-name" id="fileNameUrl"></div>
-                    <div class="file-size" id="fileSizeUrl">Ссылка на медиа</div>
-                </div>
-                <div><button class="btn btn-ghost" style="padding:5px 10px" onclick="clearUrl()">✕</button></div>
-            </div>
-            <div class="error-block" id="urlError" style="display:none"></div>
+    <div class="form-group">
+        <label>Ссылка на видео (YouTube, Vimeo, Rutube, Dzen)</label>
+        <div class="input-row">
+            <input type="text" id="mediaUrlInput" placeholder="https://www.youtube.com/watch?v=...">
+            <button class="btn btn-save" onclick="loadFromUrl()">📥 Загрузить</button>
+        </div>
+        <div style="font-size:0.7rem; color:rgba(255,255,255,0.4); margin-top:8px; padding:12px; background:rgba(0,0,0,0.3); border-radius:8px; line-height:1.6;">
+            <strong>📌 Поддерживаемые платформы:</strong><br>
+            • <strong>YouTube</strong> - любая ссылка на видео<br>
+            • <strong>Vimeo</strong> - ссылка на видео<br>
+            • <strong>Rutube</strong> - ссылка на видео (rutube.ru)<br>
+            • <strong>Dzen / Zen</strong> - ссылка на видео (dzen.ru)<br>
+            <br>
+            <strong>🔗 Как получить ссылку:</strong><br>
+            • <strong>YouTube:</strong> Откройте видео → нажмите "Поделиться" → скопируйте ссылку<br>
+            • <strong>Vimeo:</strong> Нажмите кнопку "Поделиться" → скопируйте ссылку<br>
+            • <strong>Rutube:</strong> Скопируйте URL из адресной строки браузера<br>
+            • <strong>Dzen:</strong> Скопируйте URL из адресной строки браузера<br>
+            <br>
+            <strong>📁 Поддерживаемые форматы файлов:</strong><br>
+            MP4, MOV, MP3, WAV, WEBM, M4A, AAC, FLAC, OGG<br>
+            <br>
+            <strong>⚠️ Важно:</strong><br>
+            • Ссылки с защищенных платформ (требуют авторизации) могут не работать<br>
+            • Если ссылка не работает, скачайте видео на компьютер и загрузите файл<br>
+            • Для YouTube работает 99% ссылок, включая плейлисты
         </div>
     </div>
+    <div class="file-preview" id="filePreviewUrl" style="display:none">
+        <div class="file-icon" id="fileIconUrl">🎬</div>
+        <div class="file-info">
+            <div class="file-name" id="fileNameUrl"></div>
+            <div class="file-size" id="fileSizeUrl">Видео загружено</div>
+        </div>
+        <div><button class="btn btn-ghost" style="padding:5px 10px" onclick="clearUrl()">✕</button></div>
+    </div>
+    <div class="error-block" id="urlError" style="display:none"></div>
+</div>
+
+        
 
     <button class="btn btn-primary btn-full" id="transcribeBtn" onclick="startTranscription()" disabled>🎙 Транскрибировать</button>
 
