@@ -36,7 +36,7 @@ body {
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
 }
@@ -142,7 +142,7 @@ input, select, textarea {
 }
 
 input:focus, select:focus { border-color: #a855f7; }
-input[type="color"] { width: 60px; height: 40px; padding: 0; cursor: pointer; }
+input[type="color"] { width: 60px; height: 40px; padding: 0; }
 
 .input-row { display: flex; gap: 10px; }
 .input-row input { flex: 1; }
@@ -186,8 +186,6 @@ input[type="color"] { width: 60px; height: 40px; padding: 0; cursor: pointer; }
     color: #f87171;
     border: 1px solid rgba(248,113,113,0.3);
 }
-
-.btn-danger:hover { background: rgba(248,113,113,0.3); }
 
 .btn-save {
     background: rgba(168,85,247,0.2);
@@ -490,10 +488,7 @@ input[type="color"] { width: 60px; height: 40px; padding: 0; cursor: pointer; }
     font-size: 0.75rem;
 }
 
-.footer a {
-    color: #a855f7;
-    text-decoration: none;
-}
+.footer a { color: #a855f7; text-decoration: none; }
 
 .media-player-container {
     margin-bottom: 20px;
@@ -598,13 +593,6 @@ input[type="color"] { width: 60px; height: 40px; padding: 0; cursor: pointer; }
     background: rgba(0,0,0,0.4);
 }
 
-.editor-actions {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 15px;
-    flex-wrap: wrap;
-}
-
 .utterance-editor-item {
     display: flex;
     gap: 12px;
@@ -643,8 +631,6 @@ input[type="color"] { width: 60px; height: 40px; padding: 0; cursor: pointer; }
     cursor: pointer;
 }
 
-.utterance-editor-delete:hover { background: rgba(248,113,113,0.4); }
-
 @media (max-width: 768px) {
     .widget-designer { grid-template-columns: 1fr; }
     .tabs { flex-direction: column; }
@@ -666,7 +652,7 @@ input[type="color"] { width: 60px; height: 40px; padding: 0; cursor: pointer; }
             </svg>
             <div class="header-logo-text">VoxCraft</div>
         </div>
-        <div class="header-sub">Транскрибация аудио и видео с конструктором виджета</div>
+        <div class="header-sub">Транскрибация аудио и видео</div>
     </div>
 
     <div class="card">
@@ -749,7 +735,10 @@ input[type="color"] { width: 60px; height: 40px; padding: 0; cursor: pointer; }
                 <label>Ссылка на аудио/видео</label>
                 <div class="input-row">
                     <input type="text" id="mediaUrlInput" placeholder="https://example.com/video.mp4">
-                    <button class="btn btn-save" onclick="validateUrl()">Загрузить</button>
+                    <button class="btn btn-save" onclick="loadFromUrl()">Загрузить по ссылке</button>
+                </div>
+                <div style="font-size:0.7rem; color:rgba(255,255,255,0.4); margin-top:8px;">
+                    💡 Вставьте прямую ссылку на файл (mp4, mp3, mov, wav). Файл должен быть доступен для скачивания.
                 </div>
             </div>
             <div class="file-preview" id="filePreviewUrl" style="display:none">
@@ -760,7 +749,7 @@ input[type="color"] { width: 60px; height: 40px; padding: 0; cursor: pointer; }
                 </div>
                 <div><button class="btn btn-ghost" style="padding:5px 10px" onclick="clearUrl()">✕</button></div>
             </div>
-            <div class="path-error" id="urlError" style="display:none"></div>
+            <div class="error-block" id="urlError" style="display:none"></div>
         </div>
     </div>
 
@@ -811,7 +800,7 @@ input[type="color"] { width: 60px; height: 40px; padding: 0; cursor: pointer; }
                     <h3 style="margin-bottom: 15px; font-size: 1rem;">🎨 Настройка внешнего вида</h3>
                     
                     <div class="color-group">
-                        <label>🔗 Ссылка на видео/аудио</label>
+                        <label>🔗 Ссылка на видео/аудио (для виджета)</label>
                         <input type="text" id="widgetMediaUrl" placeholder="https://example.com/video.mp4">
                     </div>
                     
@@ -863,7 +852,7 @@ input[type="color"] { width: 60px; height: 40px; padding: 0; cursor: pointer; }
                 </div>
                 
                 <div class="widget-preview">
-                    <div class="preview-title">✏️ Редактор таймкодов (нажмите ✕ чтобы удалить)</div>
+                    <div class="preview-title">✏️ Редактор таймкодов</div>
                     <div id="utterancesEditor"></div>
                     <div style="margin-top: 15px;">
                         <div class="preview-title">✨ Предпросмотр виджета</div>
@@ -1051,33 +1040,53 @@ function clearFile() {
     updateTranscribeBtn();
 }
 
-function validateUrl() {
+async function loadFromUrl() {
     const url = document.getElementById('mediaUrlInput').value.trim();
     if (!url) { showToast('Введите ссылку', 'error'); return; }
     
     try {
         new URL(url);
-        urlFileInfo = { url: url, name: url.split('/').pop() || 'media' };
-        document.getElementById('fileNameUrl').textContent = urlFileInfo.name;
+        
+        document.getElementById('urlError').style.display = 'none';
+        document.getElementById('progressSection').classList.add('visible');
+        document.getElementById('progressText').textContent = 'Загрузка файла по ссылке...';
+        document.getElementById('progressBar').style.width = '20%';
+        
+        // Пробуем скачать файл через сервер
+        const response = await fetch('/download-url', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: url })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Не удалось загрузить файл по ссылке');
+        }
+        
+        const blob = await response.blob();
+        const fileName = url.split('/').pop() || 'media';
+        const file = new File([blob], fileName, { type: blob.type });
+        
+        await handleFile(file);
+        
+        urlFileInfo = { url: url, name: fileName };
+        document.getElementById('fileNameUrl').textContent = fileName;
         document.getElementById('fileIconUrl').textContent = '🔗';
         document.getElementById('filePreviewUrl').style.display = 'flex';
-        document.getElementById('urlError').style.display = 'none';
-        state.mediaUrl = url;
-        state.mediaType = url.match(/\.(mp4|mov|webm|mkv)$/i) ? 'video' : 'audio';
-        document.getElementById('widgetMediaUrl').value = url;
-        showToast('Ссылка загружена', 'success');
-        updateTranscribeBtn();
+        
+        showToast('Файл загружен по ссылке', 'success');
+        
     } catch(e) {
-        document.getElementById('urlError').textContent = 'Неверная ссылка';
+        document.getElementById('urlError').textContent = 'Ошибка загрузки: ' + e.message;
         document.getElementById('urlError').style.display = 'block';
-        urlFileInfo = null;
-        updateTranscribeBtn();
+        showToast('Ошибка загрузки файла', 'error');
+    } finally {
+        document.getElementById('progressSection').classList.remove('visible');
     }
 }
 
 function clearUrl() {
     urlFileInfo = null;
-    state.mediaUrl = null;
     document.getElementById('mediaUrlInput').value = '';
     document.getElementById('filePreviewUrl').style.display = 'none';
     updateTranscribeBtn();
@@ -1264,7 +1273,7 @@ function renderUtterancesEditor() {
         div.className = 'utterance-editor-item';
         div.innerHTML = `
             <div class="utterance-editor-time">[${formatTime(u.start)}]</div>
-            <textarea class="utterance-editor-text" data-idx="${idx}" onchange="updateUtteranceText(${idx}, this.value)">${escapeHtml(u.text)}</textarea>
+            <textarea class="utterance-editor-text" onchange="updateUtteranceText(${idx}, this.value)">${escapeHtml(u.text)}</textarea>
             <button class="utterance-editor-delete" onclick="deleteUtterance(${idx})">✕ Удалить</button>
         `;
         container.appendChild(div);
