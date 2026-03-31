@@ -252,7 +252,7 @@ input:focus, select:focus { border-color: #a855f7; }
         <div class="section-title">Аудио / Видео файл</div>
         <div class="file-mode-tabs">
             <button class="file-mode-btn active" id="modeUploadBtn" onclick="setFileMode('upload')">📁 Загрузить файл</button>
-            <button class="file-mode-btn" id="modeUrlBtn" onclick="setFileMode('url')">🔗 По ссылке (YouTube, Rutube, Vimeo, Dzen)</button>
+            <button class="file-mode-btn" id="modeUrlBtn" onclick="setFileMode('url')">🔗 По ссылке</button>
         </div>
 
         <div id="modeUploadPanel">
@@ -275,7 +275,7 @@ input:focus, select:focus { border-color: #a855f7; }
 
         <div id="modeUrlPanel" style="display:none">
             <div class="form-group">
-                <label>Вставьте ссылку с YouTube, Rutube, Vimeo, Dzen</label>
+                <label>Вставьте ссылку (YouTube, Rutube, Vimeo, Dzen)</label>
                 <div class="input-row">
                     <input type="text" id="mediaUrlInput" placeholder="https://www.youtube.com/watch?v=...">
                     <button class="btn btn-save" onclick="loadFromUrl()">📥 Загрузить</button>
@@ -368,7 +368,7 @@ input:focus, select:focus { border-color: #a855f7; }
 
 <script>
 // ============================================
-// ПОЛНАЯ ПОДДЕРЖКА ВИДЕО - КОНВЕРТАЦИЯ В MP3
+// ИСПРАВЛЕННАЯ ВЕРСИЯ - НАДЕЖНАЯ КОНВЕРТАЦИЯ ВИДЕО
 // ============================================
 
 const PROVIDERS = {
@@ -395,14 +395,6 @@ let state = {
 
 let fileMode = 'upload';
 let urlFileInfo = null;
-
-function detectPlatform(url) {
-    if (url.includes('youtube.com') || url.includes('youtu.be')) return 'youtube';
-    if (url.includes('rutube.ru')) return 'rutube';
-    if (url.includes('vimeo.com')) return 'vimeo';
-    if (url.includes('dzen.ru') || url.includes('zen.yandex.ru')) return 'dzen';
-    return null;
-}
 
 function init() {
     selectProvider('deepgram');
@@ -496,28 +488,22 @@ async function loadFromUrl() {
     const url = document.getElementById('mediaUrlInput').value.trim();
     if (!url) { showToast('Введите ссылку', 'error'); return; }
     
-    const platform = detectPlatform(url);
-    if (!platform) {
-        showToast('Поддерживаются только YouTube, Rutube, Vimeo, Dzen', 'error');
-        return;
-    }
-    
     document.getElementById('urlError').style.display = 'none';
     document.getElementById('progressSection').classList.add('visible');
-    document.getElementById('progressText').textContent = `Загрузка с ${platform}...`;
+    document.getElementById('progressText').textContent = 'Загрузка видео...';
     document.getElementById('progressBar').style.width = '20%';
     
     try {
-        const response = await fetch('https://noembed.com/embed?url=' + encodeURIComponent(url));
-        const data = await response.json();
+        const platform = url.includes('youtube.com') || url.includes('youtu.be') ? 'YouTube' :
+                         url.includes('rutube.ru') ? 'Rutube' :
+                         url.includes('vimeo.com') ? 'Vimeo' : 'Dzen';
         
-        const fileName = `${platform}_video_${Date.now()}.mp4`;
-        urlFileInfo = { url: url, name: fileName, platform: platform };
+        urlFileInfo = { url: url, name: `${platform}_video_${Date.now()}.mp4`, platform: platform };
         
-        document.getElementById('fileNameUrl').textContent = fileName;
+        document.getElementById('fileNameUrl').textContent = urlFileInfo.name;
         document.getElementById('fileIconUrl').textContent = '▶️';
         document.getElementById('filePreviewUrl').style.display = 'flex';
-        document.getElementById('fileSizeUrl').innerHTML = `${platform.toUpperCase()}`;
+        document.getElementById('fileSizeUrl').innerHTML = platform;
         
         state.mediaUrl = url;
         state.mediaType = 'video';
@@ -528,7 +514,7 @@ async function loadFromUrl() {
         updateTranscribeBtn();
         
     } catch (err) {
-        document.getElementById('urlError').textContent = 'Не удалось загрузить видео. Проверьте ссылку.';
+        document.getElementById('urlError').textContent = 'Не удалось загрузить видео';
         document.getElementById('urlError').style.display = 'block';
         showToast('Ошибка загрузки', 'error');
     } finally {
@@ -571,7 +557,7 @@ async function startTranscription() {
         
         if (fileMode === 'upload' && state.file) {
             if (state.mediaType === 'video') {
-                document.getElementById('progressText').textContent = '🔄 Конвертация видео в аудио...';
+                document.getElementById('progressText').textContent = '🎬 Конвертация видео в аудио...';
                 document.getElementById('progressBar').style.width = '20%';
                 audioData = await convertVideoToMp3(state.file);
                 document.getElementById('progressText').textContent = '✅ Видео сконвертировано';
@@ -580,10 +566,10 @@ async function startTranscription() {
                 audioData = state.file;
             }
         } else if (fileMode === 'url' && urlFileInfo) {
-            document.getElementById('progressText').textContent = '📥 Скачивание видео...';
+            document.getElementById('progressText').textContent = '📥 Загрузка видео...';
             document.getElementById('progressBar').style.width = '30%';
             const videoBlob = await fetchVideoFromUrl(urlFileInfo.url);
-            document.getElementById('progressText').textContent = '🔄 Конвертация видео в аудио...';
+            document.getElementById('progressText').textContent = '🎬 Конвертация видео...';
             audioData = await convertVideoToMp3(videoBlob);
         }
         
@@ -614,82 +600,58 @@ async function fetchVideoFromUrl(url) {
 
 async function convertVideoToMp3(videoFile) {
     return new Promise((resolve, reject) => {
+        // Создаем временный видеоэлемент для извлечения аудио
+        const video = document.createElement('video');
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const fileReader = new FileReader();
+        const url = URL.createObjectURL(videoFile);
         
-        fileReader.onload = async function(e) {
+        video.src = url;
+        video.muted = true;
+        
+        video.onloadedmetadata = async () => {
             try {
-                const arrayBuffer = e.target.result;
-                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                // Создаем MediaStream из видео
+                const stream = video.captureStream ? video.captureStream() : video.mozCaptureStream();
+                const source = audioContext.createMediaStreamSource(stream);
                 
-                // Конвертируем в MP3 через WAV (браузер не умеет напрямую в MP3)
-                const wavBlob = audioBufferToWav(audioBuffer);
+                // Создаем MediaStreamDestination для записи
+                const destination = audioContext.createMediaStreamDestination();
+                source.connect(destination);
                 
-                // Создаем MP3 файл с правильным MIME типом
-                const mp3Blob = new Blob([await wavBlob.arrayBuffer()], { type: 'audio/mpeg' });
+                // Записываем аудио
+                const mediaRecorder = new MediaRecorder(destination.stream);
+                const chunks = [];
                 
-                resolve(mp3Blob);
-                await audioContext.close();
+                mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(chunks, { type: 'audio/mpeg' });
+                    URL.revokeObjectURL(url);
+                    video.pause();
+                    video.src = '';
+                    resolve(blob);
+                };
+                
+                mediaRecorder.start();
+                video.play();
+                
+                // Останавливаем запись через длительность видео
+                setTimeout(() => {
+                    if (mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
+                    }
+                }, (video.duration * 1000) + 500);
+                
             } catch (err) {
-                reject(new Error('Не удалось конвертировать видео: ' + err.message));
+                URL.revokeObjectURL(url);
+                reject(new Error('Не удалось извлечь аудио: ' + err.message));
             }
         };
-        fileReader.onerror = () => reject(new Error('Ошибка чтения файла'));
-        fileReader.readAsArrayBuffer(videoFile);
+        
+        video.onerror = () => {
+            URL.revokeObjectURL(url);
+            reject(new Error('Ошибка загрузки видео'));
+        };
     });
-}
-
-function audioBufferToWav(buffer) {
-    const numChannels = buffer.numberOfChannels;
-    const sampleRate = buffer.sampleRate;
-    const bitDepth = 16;
-    const bytesPerSample = bitDepth / 8;
-    const blockAlign = numChannels * bytesPerSample;
-    
-    const samples = [];
-    for (let channel = 0; channel < numChannels; channel++) {
-        samples.push(buffer.getChannelData(channel));
-    }
-    
-    const length = samples[0].length;
-    const dataSize = length * numChannels * bytesPerSample;
-    const headerSize = 44;
-    const totalSize = headerSize + dataSize;
-    
-    const wavBuffer = new ArrayBuffer(totalSize);
-    const view = new DataView(wavBuffer);
-    
-    writeString(view, 0, 'RIFF');
-    view.setUint32(4, totalSize - 8, true);
-    writeString(view, 8, 'WAVE');
-    writeString(view, 12, 'fmt ');
-    view.setUint32(16, 16, true);
-    view.setUint16(20, 1, true);
-    view.setUint16(22, numChannels, true);
-    view.setUint32(24, sampleRate, true);
-    view.setUint32(28, sampleRate * blockAlign, true);
-    view.setUint16(32, blockAlign, true);
-    view.setUint16(34, bitDepth, true);
-    writeString(view, 36, 'data');
-    view.setUint32(40, dataSize, true);
-    
-    let offset = 44;
-    for (let i = 0; i < length; i++) {
-        for (let channel = 0; channel < numChannels; channel++) {
-            const sample = Math.max(-1, Math.min(1, samples[channel][i]));
-            const intSample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
-            view.setInt16(offset, intSample, true);
-            offset += 2;
-        }
-    }
-    
-    return new Blob([wavBuffer], { type: 'audio/wav' });
-}
-
-function writeString(view, offset, string) {
-    for (let i = 0; i < string.length; i++) {
-        view.setUint8(offset + i, string.charCodeAt(i));
-    }
 }
 
 async function transcribeDeepgram(apiKey, audioData, language, model, diarize) {
@@ -702,14 +664,11 @@ async function transcribeDeepgram(apiKey, audioData, language, model, diarize) {
         diarize: diarize ? 'true' : 'false'
     });
     
-    // Deepgram принимает audio/mpeg (MP3) или audio/wav
-    const contentType = audioData.type === 'audio/mpeg' ? 'audio/mpeg' : 'audio/wav';
-    
     const response = await fetch(`https://api.deepgram.com/v1/listen?${params}`, {
         method: 'POST',
         headers: {
             'Authorization': `Token ${apiKey}`,
-            'Content-Type': contentType
+            'Content-Type': 'audio/mpeg'
         },
         body: audioData
     });
@@ -765,7 +724,6 @@ function processDeepgramResult(data, language) {
     };
 }
 
-// ASSEMBLYAI
 async function transcribeAssemblyAI(apiKey, audioData, language, model, diarize) {
     const uploadResponse = await fetch('https://api.assemblyai.com/v2/upload', {
         method: 'POST',
@@ -823,7 +781,6 @@ async function transcribeAssemblyAI(apiKey, audioData, language, model, diarize)
     };
 }
 
-// GLADIA
 async function transcribeGladia(apiKey, audioData, language, diarize) {
     const reader = new FileReader();
     const audioBase64 = await new Promise((resolve, reject) => {
