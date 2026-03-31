@@ -1124,28 +1124,54 @@ function updateWidgetPreview() {
         ? `<video controls src="${mediaUrl}" style="width:100%; max-height:${playerHeight}px; border-radius:12px; margin-bottom:15px;"></video>`
         : `<audio controls src="${mediaUrl}" style="width:100%; margin-bottom:15px;"></audio>`;
     
-    // ВАЖНО: исправленный onclick для виджета - правильно находит плеер
+    // Генерируем уникальный ID для контейнера виджета, чтобы точно находить плеер
+    const widgetId = 'widget_' + Date.now();
+    
     const utterancesHtml = state.editedUtterances.map(u => `
         <div style="margin-bottom:12px; padding:12px; background:${utteranceBg}; border-radius:9px; border-left:3px solid ${accent}; cursor:pointer;" 
-             onclick="(function(){var container=this.closest('.widget-preview-container');var player=container.querySelector('video,audio');if(player && player.src){player.currentTime=${u.start};player.play();}})()">
+             onclick="var container=document.getElementById('${widgetId}'); var player=container.querySelector('video,audio'); if(player && player.src){player.currentTime=${u.start};player.play();}">
             <div style="font-size:0.7rem; color:${accent}; font-family:monospace; margin-bottom:6px;">⏱ [${formatTime(u.start)}]</div>
             <div style="font-size:0.85rem; color:${textColor}; line-height:1.6;">${escapeHtml(u.text)}</div>
         </div>
     `).join('');
     
     const widgetHTML = `
-        <div class="widget-preview-container" style="background:${bgColor}; backdrop-filter:blur(${blur}px); border-radius:16px; padding:20px; border:1px solid ${accent}40;">
+        <div id="${widgetId}" style="background:${bgColor}; backdrop-filter:blur(${blur}px); border-radius:16px; padding:20px; border:1px solid ${accent}40;">
             ${mediaTag}
             <div style="max-height:400px; overflow-y:auto; margin-top:10px;">
                 ${utterancesHtml}
             </div>
             <div style="margin-top:16px; text-align:center; font-size:0.65rem; color:${accent}80; border-top:1px solid ${accent}20; padding-top:12px;">
-                🎙 Супер-тайм Телеграм @Olga_lav
+                🎙 Транскрибация выполнена в VoxCraft
             </div>
         </div>
     `;
     
     document.getElementById('widgetPreviewContainer').innerHTML = widgetHTML;
+    
+    // Код для вставки на сайт - тоже с уникальным ID
+    const finalWidgetId = 'voxcraft_widget_' + Date.now();
+    
+    const finalWidgetCode = `<div id="${finalWidgetId}" style="max-width:800px; margin:20px auto;">
+    <div style="background:${bgColor}; backdrop-filter:blur(${blur}px); border-radius:16px; padding:20px; border:1px solid ${accent}40;">
+        ${mediaTag}
+        <div style="max-height:400px; overflow-y:auto; margin-top:10px;">
+            ${state.editedUtterances.map(u => `
+                <div style="margin-bottom:12px; padding:12px; background:${utteranceBg}; border-radius:9px; border-left:3px solid ${accent}; cursor:pointer;" 
+                     onclick="var container=document.getElementById('${finalWidgetId}'); var player=container.querySelector('video,audio'); if(player && player.src){player.currentTime=${u.start};player.play();}">
+                    <div style="font-size:0.7rem; color:${accent}; font-family:monospace; margin-bottom:6px;">⏱ [${formatTime(u.start)}]</div>
+                    <div style="font-size:0.85rem; color:${textColor}; line-height:1.6;">${escapeHtml(u.text)}</div>
+                </div>
+            `).join('')}
+        </div>
+        <div style="margin-top:16px; text-align:center; font-size:0.65rem; color:${accent}80; border-top:1px solid ${accent}20; padding-top:12px;">
+            🎙 СуперТайм Телеграм @Olga_lav
+        </div>
+    </div>
+</div>`;
+    
+    document.getElementById('widgetCodeOutput').value = finalWidgetCode;
+}
     
     // Код для вставки на сайт - тоже с правильными таймкодами
     const widgetCode = `<div style="max-width:800px; margin:20px auto;">
@@ -1161,7 +1187,7 @@ function updateWidgetPreview() {
             `).join('')}
         </div>
         <div style="margin-top:16px; text-align:center; font-size:0.65rem; color:${accent}80; border-top:1px solid ${accent}20; padding-top:12px;">
-            🎙 Транскрибация выполнена в VoxCraft
+            🎙 СуперТайм Телеграм @Olga_lav
         </div>
     </div>
 </div>`;
