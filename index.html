@@ -220,6 +220,15 @@ input:focus, select:focus { border-color: #a855f7; }
     height: 150px;
     background: rgba(0,0,0,0.4);
 }
+.instruction-box {
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 12px;
+    font-size: 0.7rem;
+    border-left: 3px solid #a855f7;
+}
+.instruction-box strong { color: #a855f7; }
 @media (max-width: 768px) {
     .widget-designer { grid-template-columns: 1fr; }
     .providers { grid-template-columns: 1fr; }
@@ -241,7 +250,7 @@ input:focus, select:focus { border-color: #a855f7; }
             </svg>
             <div class="header-logo-text">VoxCraft</div>
         </div>
-        <div class="header-sub">Транскрибация аудио и видео с конструктором виджета</div>
+        <div class="header-sub">Транскрибация с конструктором виджета</div>
     </div>
 
     <div class="card">
@@ -360,8 +369,24 @@ input:focus, select:focus { border-color: #a855f7; }
                     <h3 style="margin-bottom: 15px; font-size: 1rem;">🎨 Настройка виджета</h3>
                     
                     <div class="color-group">
-                        <label>🔗 Ссылка на видео/аудио</label>
-                        <input type="text" id="widgetMediaUrl" placeholder="https://example.com/video.mp4">
+                        <label>🎬 Тип файла</label>
+                        <select id="widgetMediaType">
+                            <option value="video">📹 Видео (MP4, MOV, WEBM)</option>
+                            <option value="audio">🎵 Аудио (MP3, WAV, M4A)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="color-group">
+                        <label>🔗 Ссылка на медиафайл</label>
+                        <input type="text" id="widgetMediaUrl" placeholder="https://ваш-сайт.ru/video.mp4">
+                        <div class="instruction-box">
+                            <strong>📌 Инструкция:</strong><br>
+                            • Если вы загрузили видео, ссылка подставится автоматически<br>
+                            • Для вставки на сайт: замените ссылку на постоянную (где хранится ваше видео)<br>
+                            • <strong>Видео:</strong> ссылка должна заканчиваться на .mp4, .mov, .webm<br>
+                            • <strong>Аудио:</strong> ссылка должна заканчиваться на .mp3, .wav, .m4a<br>
+                            • Таймкоды будут кликабельны - при нажатии видео перемотается
+                        </div>
                     </div>
                     
                     <div class="color-group">
@@ -460,7 +485,7 @@ input:focus, select:focus { border-color: #a855f7; }
 
 <script>
 // ============================================
-// ПОЛНАЯ ВЕРСИЯ - ТОЛЬКО ЗАГРУЗКА ФАЙЛОВ
+// ПОЛНАЯ ВЕРСИЯ С ВИДЖЕТОМ И ПОДДЕРЖКОЙ ВИДЕО/АУДИО
 // ============================================
 
 const PROVIDERS = {
@@ -531,6 +556,7 @@ function init() {
         updateWidgetPreview();
     });
     document.getElementById('widgetMediaUrl').addEventListener('input', function() { updateWidgetPreview(); });
+    document.getElementById('widgetMediaType').addEventListener('change', function() { updateWidgetPreview(); });
 }
 
 function selectProvider(name) {
@@ -592,6 +618,7 @@ async function handleFile(file) {
     document.getElementById('dropzone').style.display = 'none';
     
     document.getElementById('widgetMediaUrl').value = state.mediaUrl;
+    document.getElementById('widgetMediaType').value = state.mediaType === 'video' ? 'video' : 'audio';
     updateTranscribeBtn();
 }
 
@@ -1050,8 +1077,9 @@ function updateWidgetPreview() {
     const playerHeight = document.getElementById('widgetPlayerHeight').value;
     const blur = document.getElementById('widgetBlur').value;
     const mediaUrl = document.getElementById('widgetMediaUrl').value || state.mediaUrl || '';
+    const mediaType = document.getElementById('widgetMediaType').value;
     
-    const isVideo = mediaUrl && (mediaUrl.includes('.mp4') || mediaUrl.includes('.mov') || mediaUrl.includes('.webm'));
+    const isVideo = mediaType === 'video';
     
     const mediaTag = isVideo 
         ? `<video controls src="${mediaUrl}" style="width:100%; max-height:${playerHeight}px; border-radius:12px; margin-bottom:15px;"></video>`
@@ -1059,14 +1087,14 @@ function updateWidgetPreview() {
     
     const utterancesHtml = state.editedUtterances.map(u => `
         <div style="margin-bottom:12px; padding:12px; background:${utteranceBg}; border-radius:10px; border-left:3px solid ${accent}; cursor:pointer;" 
-             onclick="const p=document.querySelector('#widgetPreviewContainer video, #widgetPreviewContainer audio'); if(p && p.src){p.currentTime=${u.start}; p.play();}">
+             onclick="const p=this.closest('.widget-preview-container').querySelector('video,audio'); if(p && p.src){p.currentTime=${u.start}; p.play();}">
             <div style="font-size:0.7rem; color:${accent}; font-family:monospace; margin-bottom:6px;">⏱ [${formatTime(u.start)}]</div>
             <div style="font-size:0.85rem; color:${textColor}; line-height:1.6;">${escapeHtml(u.text)}</div>
         </div>
     `).join('');
     
     const widgetHTML = `
-        <div style="background:${bgColor}; backdrop-filter:blur(${blur}px); border-radius:16px; padding:20px; border:1px solid ${accent}40;">
+        <div class="widget-preview-container" style="background:${bgColor}; backdrop-filter:blur(${blur}px); border-radius:16px; padding:20px; border:1px solid ${accent}40;">
             ${mediaTag}
             <div style="max-height:400px; overflow-y:auto; margin-top:10px;">
                 ${utterancesHtml}
@@ -1104,6 +1132,7 @@ function copyWidgetCode() {
 function saveWidgetSettings() {
     const settings = {
         mediaUrl: document.getElementById('widgetMediaUrl').value,
+        mediaType: document.getElementById('widgetMediaType').value,
         accentColor: document.getElementById('widgetAccentColor').value,
         bgColor: document.getElementById('widgetBgColor').value,
         textColor: document.getElementById('widgetTextColor').value,
@@ -1120,6 +1149,7 @@ function loadWidgetSettings() {
     if (saved) {
         const settings = JSON.parse(saved);
         document.getElementById('widgetMediaUrl').value = settings.mediaUrl || '';
+        document.getElementById('widgetMediaType').value = settings.mediaType || 'video';
         document.getElementById('widgetAccentColor').value = settings.accentColor || '#a855f7';
         document.getElementById('widgetAccentText').value = settings.accentColor || '#a855f7';
         document.getElementById('widgetBgColor').value = settings.bgColor || '#1e1b2e';
