@@ -175,8 +175,6 @@ input:focus, select:focus { border-color: #a855f7; }
 .media-player-container video, .media-player-container audio { width: 100%; max-height: 250px; border-radius: 8px; }
 .api-link { display: inline-block; margin-top: 8px; color: #a78bfa; text-decoration: none; font-size: 0.75rem; }
 .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-/* Стили для виджета */
 .widget-designer {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -269,9 +267,9 @@ input:focus, select:focus { border-color: #a855f7; }
                 <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
                 <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
             </svg>
-            <div class="header-logo-text">Супер-тайм</div>
+            <div class="header-logo-text">VoxCraft</div>
         </div>
-        <div class="header-sub">Транскрибация аудио/видео с таймкодами и красивым виджетом для вставки на сайт</div>
+        <div class="header-sub">Транскрибация с конструктором виджета</div>
     </div>
 
     <div class="card">
@@ -508,7 +506,7 @@ input:focus, select:focus { border-color: #a855f7; }
 
 <script>
 // ============================================
-// ПОЛНАЯ ВЕРСИЯ - ИСПРАВЛЕННЫЕ ТАЙМКОДЫ В ВИДЖЕТЕ
+// ПОЛНАЯ ВЕРСИЯ - РАБОТАЮЩИЕ ТАЙМКОДЫ В ВИДЖЕТЕ
 // ============================================
 
 const PROVIDERS = {
@@ -540,7 +538,6 @@ function init() {
     loadWidgetSettings();
     updateTranscribeBtn();
     
-    // Инициализация цветов
     document.getElementById('widgetAccentColor').addEventListener('input', function(e) {
         document.getElementById('widgetAccentText').value = e.target.value;
         updateWidgetPreview();
@@ -634,9 +631,8 @@ async function handleFile(file) {
     state.mediaUrl = URL.createObjectURL(file);
     state.mediaType = file.type.startsWith('video') ? 'video' : 'audio';
     
-    // Проверка размера файла
     const warning = document.getElementById('fileWarning');
-    if (file.size > 200 * 1024 * 1024) { // >200MB
+    if (file.size > 200 * 1024 * 1024) {
         warning.classList.add('visible');
     } else {
         warning.classList.remove('visible');
@@ -1124,7 +1120,6 @@ function updateWidgetPreview() {
         ? `<video controls src="${mediaUrl}" style="width:100%; max-height:${playerHeight}px; border-radius:12px; margin-bottom:15px;"></video>`
         : `<audio controls src="${mediaUrl}" style="width:100%; margin-bottom:15px;"></audio>`;
     
-    // Генерируем уникальный ID для контейнера виджета, чтобы точно находить плеер
     const widgetId = 'widget_' + Date.now();
     
     const utterancesHtml = state.editedUtterances.map(u => `
@@ -1149,7 +1144,6 @@ function updateWidgetPreview() {
     
     document.getElementById('widgetPreviewContainer').innerHTML = widgetHTML;
     
-    // Код для вставки на сайт - тоже с уникальным ID
     const finalWidgetId = 'voxcraft_widget_' + Date.now();
     
     const finalWidgetCode = `<div id="${finalWidgetId}" style="max-width:800px; margin:20px auto;">
@@ -1165,34 +1159,12 @@ function updateWidgetPreview() {
             `).join('')}
         </div>
         <div style="margin-top:16px; text-align:center; font-size:0.65rem; color:${accent}80; border-top:1px solid ${accent}20; padding-top:12px;">
-            🎙 СуперТайм Телеграм @Olga_lav
+            🎙 Транскрибация выполнена в VoxCraft
         </div>
     </div>
 </div>`;
     
     document.getElementById('widgetCodeOutput').value = finalWidgetCode;
-}
-    
-    // Код для вставки на сайт - тоже с правильными таймкодами
-    const widgetCode = `<div style="max-width:800px; margin:20px auto;">
-    <div style="background:${bgColor}; backdrop-filter:blur(${blur}px); border-radius:16px; padding:20px; border:1px solid ${accent}40;">
-        ${mediaTag}
-        <div style="max-height:400px; overflow-y:auto; margin-top:10px;">
-            ${state.editedUtterances.map(u => `
-                <div style="margin-bottom:12px; padding:12px; background:${utteranceBg}; border-radius:9px; border-left:3px solid ${accent}; cursor:pointer;" 
-                     onclick="var player=this.closest('div').querySelector('video,audio'); if(player && player.src){player.currentTime=${u.start};player.play();}">
-                    <div style="font-size:0.7rem; color:${accent}; font-family:monospace; margin-bottom:6px;">⏱ [${formatTime(u.start)}]</div>
-                    <div style="font-size:0.85rem; color:${textColor}; line-height:1.6;">${escapeHtml(u.text)}</div>
-                </div>
-            `).join('')}
-        </div>
-        <div style="margin-top:16px; text-align:center; font-size:0.65rem; color:${accent}80; border-top:1px solid ${accent}20; padding-top:12px;">
-            🎙 СуперТайм Телеграм @Olga_lav
-        </div>
-    </div>
-</div>`;
-    
-    document.getElementById('widgetCodeOutput').value = widgetCode;
 }
 
 function copyWidgetCode() {
