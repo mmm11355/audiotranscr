@@ -506,7 +506,7 @@ input:focus, select:focus { border-color: #a855f7; }
 
 <script>
 // ============================================
-// ПОЛНАЯ ВЕРСИЯ - РАБОТАЮЩИЕ ТАЙМКОДЫ В ВИДЖЕТЕ
+// ПОЛНАЯ РАБОЧАЯ ВЕРСИЯ
 // ============================================
 
 const PROVIDERS = {
@@ -672,6 +672,11 @@ async function startTranscription() {
     const model = document.getElementById('modelSelect').value;
     const provider = state.provider;
     
+    if (!apiKey || apiKey.length < 10) {
+        showError('Пожалуйста, введите API ключ для ' + PROVIDERS[provider].name);
+        return;
+    }
+    
     document.getElementById('progressSection').classList.add('visible');
     document.getElementById('resultSection').classList.remove('visible');
     document.getElementById('errorBlock').classList.remove('visible');
@@ -762,8 +767,12 @@ async function convertVideoToMp3(videoFile) {
 }
 
 async function transcribeDeepgram(apiKey, audioData, language, model) {
+    if (!apiKey || apiKey.length < 10) {
+        throw new Error('API ключ Deepgram не указан. Получите ключ на console.deepgram.com');
+    }
+    
     const params = new URLSearchParams({
-        model: model,
+        model: model || 'nova-3',
         language: language === 'auto' ? 'ru' : language,
         smart_format: 'true',
         punctuate: 'true',
@@ -782,6 +791,9 @@ async function transcribeDeepgram(apiKey, audioData, language, model) {
     
     if (!response.ok) {
         const error = await response.text();
+        if (response.status === 401) {
+            throw new Error('Неверный API ключ Deepgram. Проверьте ключ в настройках');
+        }
         throw new Error(`Deepgram ошибка ${response.status}: ${error}`);
     }
     
@@ -832,6 +844,10 @@ function processDeepgramResult(data, language) {
 }
 
 async function transcribeAssemblyAI(apiKey, audioData, language, model) {
+    if (!apiKey || apiKey.length < 10) {
+        throw new Error('API ключ AssemblyAI не указан');
+    }
+    
     const uploadResponse = await fetch('https://api.assemblyai.com/v2/upload', {
         method: 'POST',
         headers: { 'Authorization': apiKey },
@@ -889,6 +905,10 @@ async function transcribeAssemblyAI(apiKey, audioData, language, model) {
 }
 
 async function transcribeGladia(apiKey, audioData, language) {
+    if (!apiKey || apiKey.length < 10) {
+        throw new Error('API ключ Gladia не указан');
+    }
+    
     const reader = new FileReader();
     const audioBase64 = await new Promise((resolve, reject) => {
         reader.onload = () => resolve(reader.result.split(',')[1]);
